@@ -49,6 +49,11 @@ namespace VillaDelChef.Managers
                 availableCustomerTypes = new List<CustomerSO>(Resources.LoadAll<CustomerSO>("Customers"));
             }
 
+            if (ObjectPoolManager.Instance != null && customerPrefab != null)
+            {
+                ObjectPoolManager.Instance.Prewarm("Customers", customerPrefab, 8);
+            }
+
             GameEvents.OnCustomerLeft += HandleCustomerLeft;
             spawnRoutine = StartCoroutine(SpawnLoop());
         }
@@ -99,14 +104,21 @@ namespace VillaDelChef.Managers
             CustomerSO selectedType = SelectCustomerType();
             if (selectedType == null) return;
 
+            Vector3 spawnPos = GridManager.Instance != null ? GridManager.Instance.GridToWorld(entranceGridPos) : (Vector3)(Vector2)entranceGridPos;
             GameObject cObj;
-            if (customerPrefab != null)
+
+            if (ObjectPoolManager.Instance != null)
             {
-                cObj = Instantiate(customerPrefab);
+                cObj = ObjectPoolManager.Instance.Spawn("Customers", spawnPos, Quaternion.identity, customerPrefab);
+            }
+            else if (customerPrefab != null)
+            {
+                cObj = Instantiate(customerPrefab, spawnPos, Quaternion.identity);
             }
             else
             {
                 cObj = new GameObject("Customer_" + selectedType.customerTitle);
+                cObj.transform.position = spawnPos;
                 SpriteRenderer sr = cObj.AddComponent<SpriteRenderer>();
                 sr.sortingOrder = 5;
             }

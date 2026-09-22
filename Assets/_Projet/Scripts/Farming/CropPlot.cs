@@ -131,6 +131,8 @@ namespace VillaDelChef.Farming
             GameEvents.TriggerCropHarvested(this, plantedCrop, plantedCrop.harvestAmount);
             GameEvents.TriggerQuestProgressMade(QuestType.HarvestCrops, plantedCrop.cropID, plantedCrop.harvestAmount);
 
+            VillaDelChef.UI.FloatingTextManager.Instance?.ShowSuccess($"+{plantedCrop.harvestAmount} {plantedCrop.cropName}", transform.position + Vector3.up * 0.5f);
+
             plantedCrop = null;
             plantTimestampSeconds = 0;
             currentState = PlotState.Empty;

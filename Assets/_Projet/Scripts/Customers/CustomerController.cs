@@ -9,6 +9,7 @@ using VillaDelChef.Restaurant;
 using VillaDelChef.ScriptableObjects;
 using VillaDelChef.Utilities;
 using VillaDelChef.Managers;
+using VillaDelChef.UI;
 
 namespace VillaDelChef.Customers
 {
@@ -24,7 +25,7 @@ namespace VillaDelChef.Customers
         Leaving
     }
 
-    public class CustomerController : MonoBehaviour
+    public class CustomerController : MonoBehaviour, IPoolable
     {
         [Header("Data")]
         public CustomerSO customerData;
@@ -51,20 +52,51 @@ namespace VillaDelChef.Customers
         private int currentPathIndex = 0;
         private float moveSpeed = 2.5f;
 
+        public void OnSpawnFromPool()
+        {
+            currentState = CustomerState.Entering;
+            assignedTable = null;
+            assignedChair = null;
+            orderedDish = null;
+            currentPath = null;
+            if (characterRenderer != null) characterRenderer.color = Color.white;
+            if (orderBubble != null) orderBubble.SetActive(false);
+            if (patienceBar != null) patienceBar.SetActive(false);
+        }
+
+        public void OnReturnToPool()
+        {
+            StopAllCoroutines();
+            if (assignedChair != null)
+            {
+                assignedChair.SetOccupied(false);
+                assignedChair = null;
+            }
+            if (assignedTable != null)
+            {
+                assignedTable.ClearTable();
+                assignedTable = null;
+            }
+            orderedDish = null;
+            currentPath = null;
+            if (orderBubble != null) orderBubble.SetActive(false);
+        }
+
         public void Setup(CustomerSO data, Vector2Int spawnGrid, Vector2Int exitGrid)
         {
-            this.customerData = data;
-            this.exitGridPos = exitGrid;
-            this.moveSpeed = data != null ? data.movementSpeed : 2.5f;
-            this.maxPatience = data != null ? data.basePatienceSeconds : 60f;
-            this.currentPatience = maxPatience;
+            customerData = data;
+            exitGridPos = exitGrid;
 
-            if (characterRenderer != null && data != null && data.characterSprite != null)
+            if (characterRenderer == null) characterRenderer = GetComponentInChildren<SpriteRenderer>();
+            if (customerData != null && customerData.characterSprite != null && characterRenderer != null)
             {
-                characterRenderer.sprite = data.characterSprite;
+                characterRenderer.sprite = customerData.characterSprite;
             }
 
-            if (orderBubble != null) orderBubble.SetActive(false);
+            moveSpeed = customerData != null ? customerData.movementSpeed : 2.5f;
+            maxPatience = customerData != null ? customerData.basePatienceSeconds : 60f;
+            currentPatience = maxPatience;
+            eatingDuration = 6f;
 
             transform.position = GridManager.Instance != null ? GridManager.Instance.GridToWorld(spawnGrid) : (Vector3)(Vector2)spawnGrid;
             currentState = CustomerState.Entering;
@@ -83,7 +115,7 @@ namespace VillaDelChef.Customers
                 // No tables available -> Leave
                 yield return StartCoroutine(WalkToRoutine(exitGridPos));
                 GameEvents.TriggerCustomerLeft(this);
-                Destroy(gameObject);
+                DespawnCustomer();
                 yield break;
             }
 
@@ -94,7 +126,8 @@ namespace VillaDelChef.Customers
 
             // 2. Walk to Table
             currentState = CustomerState.WalkingToTable;
-            yield return StartCoroutine(WalkToRoutine(assignedTable.gridPosition));
+            Vector2Int chairGrid = assignedChair != null ? assignedChair.gridPosition : assignedTable.gridPosition;
+            yield return StartCoroutine(WalkToRoutine(chairGrid));
 
             // Snap to chair position
             if (assignedChair != null)
@@ -107,14 +140,9 @@ namespace VillaDelChef.Customers
             currentState = CustomerState.DecidingOrder;
             yield return new WaitForSeconds(2.5f);
 
-            // Pick an order
-            if (customerData != null && customerData.preferredFoods.Count > 0)
+            orderedDish = SelectDishFromMenu();
+            if (orderedDish == null)
             {
-                orderedDish = customerData.preferredFoods[Random.Range(0, customerData.preferredFoods.Count)];
-            }
-            else
-            {
-                // Fallback to table or manager recipe
                 orderedDish = RecipeManager.Instance != null ? RecipeManager.Instance.GetRandomUnlockedRecipe() : null;
             }
 
@@ -149,6 +177,9 @@ namespace VillaDelChef.Customers
                     {
                         EconomyManager.Instance.ModifyReputation(-repPenalty);
                     }
+                    FloatingTextManager.Instance?.ShowReputation(-repPenalty, transform.position + Vector3.up * 0.4f);
+                    FloatingTextManager.Instance?.ShowWarning("¡Paciencia agotada!", transform.position + Vector3.up * 0.7f);
+
                     GameEvents.TriggerCustomerServed(this, false);
                     yield return StartCoroutine(LeaveRestaurantRoutine());
                     yield break;
@@ -163,7 +194,7 @@ namespace VillaDelChef.Customers
 
             // 6. Paying
             currentState = CustomerState.Paying;
-            int payAmount = orderedDish != null ? orderedDish.sellPrice : 30;
+            int payAmount = orderedDish != null ? orderedDish.sellPrice : 15;
             int tip = 0;
 
             float satisfactionRatio = currentPatience / maxPatience;
@@ -172,16 +203,17 @@ namespace VillaDelChef.Customers
                 tip = Mathf.RoundToInt(payAmount * 0.25f * (customerData != null ? customerData.tipMultiplier : 1f));
             }
 
+            int totalGold = payAmount + tip;
+            int repReward = (customerData != null) ? customerData.reputationReward : 1;
+
             if (EconomyManager.Instance != null)
             {
-                EconomyManager.Instance.AddCoins(payAmount + tip);
+                EconomyManager.Instance.AddCoins(totalGold);
                 if (orderedDish != null)
                 {
                     EconomyManager.Instance.AddExperience(orderedDish.experienceReward);
                 }
 
-                // Reputation reward and bonus XP
-                int repReward = (customerData != null) ? customerData.reputationReward : 1;
                 EconomyManager.Instance.ModifyReputation(repReward);
 
                 if (customerData != null && customerData.bonusXP > 0)
@@ -190,11 +222,23 @@ namespace VillaDelChef.Customers
                 }
             }
 
+            FloatingTextManager.Instance?.ShowGold(totalGold, transform.position + Vector3.up * 0.4f);
+            FloatingTextManager.Instance?.ShowReputation(repReward, transform.position + Vector3.up * 0.7f);
+
             GameEvents.TriggerCustomerServed(this, true);
             GameEvents.TriggerQuestProgressMade(QuestType.ServeCustomers, "", 1);
 
             // 7. Leaving
             yield return StartCoroutine(LeaveRestaurantRoutine());
+        }
+
+        private RecipeSO SelectDishFromMenu()
+        {
+            if (customerData != null && customerData.preferredFoods != null && customerData.preferredFoods.Count > 0)
+            {
+                return customerData.preferredFoods[Random.Range(0, customerData.preferredFoods.Count)];
+            }
+            return RecipeManager.Instance != null ? RecipeManager.Instance.GetRandomUnlockedRecipe() : null;
         }
 
         public void ReceiveDish(DishInstance dish)
@@ -226,7 +270,20 @@ namespace VillaDelChef.Customers
             }
             yield return StartCoroutine(WalkToRoutine(exitGridPos));
             GameEvents.TriggerCustomerLeft(this);
-            Destroy(gameObject);
+            DespawnCustomer();
+        }
+
+        public void DespawnCustomer()
+        {
+            StopAllCoroutines();
+            if (ObjectPoolManager.Instance != null)
+            {
+                ObjectPoolManager.Instance.Despawn("Customers", gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
 
         private IEnumerator WalkToRoutine(Vector2Int targetGrid)

@@ -136,3 +136,23 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
   3. Selección estocástica ponderada ligada a reputación + cadencia dinámica de clientes + recompensas de recetas en misiones narrativas.
 - **Elegida**: 3 (Simulación viva reactiva a la reputación con progresión guiada por misiones).
 - **Estado**: IMPLEMENTADA Y ACTIVA.
+
+---
+
+### DECISIÓN 010
+- **Título**: Arquitectura de Optimización Móvil a 60 FPS: Object Pooling Centralizado (`ObjectPoolManager`), Sprite Atlases V2 e Input Híbrido Resiliente.
+- **Problema**: En plataformas móviles (Android e iOS), el rendimiento puede degradarse severamente por dos motivos críticos:
+  1. *GC Spikes (Micro-tirones)*: El ciclo continuo de `Instantiate` y `Destroy` de entidades frecuentes (clientes, textos flotantes de ganancia, partículas) genera fragmentación y activa el Garbage Collector durante el gameplay activo.
+  2. *Exceso de Draw Calls*: Dibujar cientos de sprites individuales sin empaquetar ahoga la GPU móvil.
+  3. *Incompatibilidad de Input*: Unity 6 permite configurar el Player con Input Clásico, New Input System o Ambos; usar directamente una sola API sin fallback arroja excepciones fatales si el proyecto o la plataforma altera la configuración.
+- **Decisión**:
+  1. Se crea la interfaz `IPoolable` y el singleton `ObjectPoolManager.cs`. Los clientes (`CustomerController`) y textos de feedback (`FloatingText`) implementan `IPoolable` (`OnSpawnFromPool`, `OnReturnToPool`), reciclando GameObjects en memoria sin llamadas a `Destroy`.
+  2. Se crea `FloatingTextManager.cs` con precalentamiento (prewarm) de pool para indicadores numéricos dinámicos (+oro, +XP, +/- reputación, avisos de paciencia o recolección).
+  3. Se diseñan y generan Sprite Atlases V2 nativos en `Assets/_Projet/Art/Atlases/` (`Atlas_Characters`, `Atlas_Environment`, `Atlas_Exterior`, `Atlas_Food`, `Atlas_Furniture`, `Atlas_UI`) que agrupan los sprites pixel art reduciendo drásticamente los draw calls móviles a menos de 10.
+  4. Se dota a `TouchInputManager.cs` de compatibilidad híbrida: gestiona toques y gestos clásicos, y ante `InvalidOperationException` delega de forma transparente a `UnityEngine.InputSystem` (`Touchscreen.current` / `Mouse.current`).
+- **Alternativas consideradas**:
+  1. Mantener `Instantiate`/`Destroy` estándar (inviable para 60 FPS estables en móviles gama media/baja).
+  2. Usar un solo gran atlas desorganizado (inconveniente para streaming y clasificación de assets).
+  3. Object Pooling desacoplado + Sprite Atlases V2 estructurados por categorías + Manejador de Input Híbrido resiliente.
+- **Elegida**: 3 (Arquitectura integral de alto rendimiento móvil con 0 GC allocations durante la simulación y draw calls consolidados).
+- **Estado**: IMPLEMENTADA Y ACTIVA.

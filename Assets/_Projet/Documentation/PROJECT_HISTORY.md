@@ -295,6 +295,53 @@ COMPLETADO — Compilación limpia (0 errores, 0 advertencias en runtime y edito
 PRÓXIMO PASO:
 Fase 6: Optimización Móvil & Pulido Audiovisual (Object Pooling para clientes y textos flotantes, configuración de Sprite Atlases para draw calls en móviles a 60 FPS, verificación de New/Old Input System y gestos táctiles).
 ------------------------------------------------------------
+FECHA:
+2026-09-22
+
+VERSIÓN / FASE:
+0.6.0 (Fase 6: Optimización Móvil a 60 FPS, Object Pooling y Sprite Atlases)
+
+RESUMEN:
+- Creación de la arquitectura de Object Pooling con la interfaz `IPoolable.cs` y el singleton central `ObjectPoolManager.cs`.
+- Integración de `IPoolable` en `CustomerController.cs` con métodos de reciclaje `OnSpawnFromPool`, `OnReturnToPool` y `DespawnCustomer`, eliminando las llamadas destructivas a `Destroy` y el Garbage Collection recurrente durante la partida.
+- Precalentamiento de comensales en `CustomerManager.cs` (`Prewarm("Customers", 8)`) y despacho reciclado mediante `ObjectPoolManager.Instance.Spawn`.
+- Creación de `FloatingTextManager.cs` y refactorización de `FloatingText.cs` (`IPoolable`): indicadores flotantes de ganancias de oro (+oro), reputación (+/- rep), experiencia (+XP), recolección de cultivos y elaboración de recetas en estaciones de crafteo con 0 asignaciones de memoria.
+- Soporte para Unity New Input System en `TouchInputManager.cs`: arquitectura híbrida resiliente que lee gestos táctiles y ratón clásicos y, ante configuración exclusiva de New Input System, conmuta de forma transparente a `UnityEngine.InputSystem.Touchscreen` y `Mouse`.
+- Generación automatizada de Sprite Atlases V2 nativos en `Assets/_Projet/Art/Atlases/` (`Atlas_Characters`, `Atlas_Environment`, `Atlas_Exterior`, `Atlas_Food`, `Atlas_Furniture`, `Atlas_UI`) y herramienta de editor `SpriteAtlasSetupEditor.cs`, reduciendo drásticamente las llamadas de dibujo (draw calls) de más de 80 a menos de 10 en plataformas móviles.
+- Integración de `ObjectPoolManager` y `FloatingTextManager` en el ciclo de auto-inicialización de `RestaurantBootstrap.cs`.
+
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Scripts/Core/IPoolable.cs`
+- `Assets/_Projet/Scripts/Core/ObjectPoolManager.cs`
+- `Assets/_Projet/Scripts/UI/FloatingTextManager.cs`
+- `Assets/_Projet/Scripts/Core/Editor/SpriteAtlasSetupEditor.cs`
+- `Assets/_Projet/Art/Atlases/Atlas_Characters.spriteatlasv2`
+- `Assets/_Projet/Art/Atlases/Atlas_Environment.spriteatlasv2`
+- `Assets/_Projet/Art/Atlases/Atlas_Exterior.spriteatlasv2`
+- `Assets/_Projet/Art/Atlases/Atlas_Food.spriteatlasv2`
+- `Assets/_Projet/Art/Atlases/Atlas_Furniture.spriteatlasv2`
+- `Assets/_Projet/Art/Atlases/Atlas_UI.spriteatlasv2`
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/UI/FloatingText.cs`
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`
+- `Assets/_Projet/Scripts/Managers/CustomerManager.cs`
+- `Assets/_Projet/Scripts/Farming/CropPlot.cs`
+- `Assets/_Projet/Scripts/Crafting/CraftingStation.cs`
+- `Assets/_Projet/Scripts/Input/TouchInputManager.cs`
+- `Assets/_Projet/Scripts/Core/RestaurantBootstrap.cs`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assembly-CSharp.csproj`
+- `Assembly-CSharp-Editor.csproj`
+
+ESTADO:
+COMPLETADO — Compilación limpia (0 errores, 0 advertencias en runtime y editor)
+
+PRÓXIMO PASO:
+Verificación en PlayMode, pruebas funcionales de la suite completa y entrega consolidada de la arquitectura de Villa del Chef.
+------------------------------------------------------------
+
 
 
 

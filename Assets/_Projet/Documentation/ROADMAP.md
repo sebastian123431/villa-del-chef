@@ -68,7 +68,9 @@ Leyenda:
 - [x] Cadena narrativa con los 7 especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) con desbloqueo de recetas y prestigio
 
 ## FASE 6 — Optimización Móvil & Pulido Audiovisual
-- [ ] Guardado atómico con archivo temporal y backup (`villadelchef_save_backup.json`)
-- [ ] Input seguro con Unity New Input System
-- [ ] Object pooling para comensales, partículas y textos flotantes
-- [ ] Creación y asignación de Sprite Atlases para draw calls en 60 FPS móviles
+- [x] Guardado atómico con archivo temporal y backup (`villadelchef_save.json.bak`)
+- [x] Input seguro híbrido compatible con Unity New Input System y Legacy Touch/Mouse
+- [x] Object pooling (`ObjectPoolManager.cs`, `IPoolable.cs`) para comensales y textos flotantes
+- [x] Creación y asignación de Sprite Atlases V2 para draw calls en 60 FPS móviles (`SpriteAtlasSetupEditor.cs` y `.spriteatlasv2`)
+- [x] Feedback visual flotante dinámico con `FloatingTextManager.cs` (+oro, +reputación, +XP, éxito, advertencias) sin GC spikes
+

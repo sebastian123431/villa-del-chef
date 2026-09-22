@@ -45,6 +45,14 @@ namespace VillaDelChef.Core
             {
                 new GameObject("SaveManager").AddComponent<SaveManager>();
             }
+            if (FindAnyObjectByType<ObjectPoolManager>() == null)
+            {
+                new GameObject("ObjectPoolManager").AddComponent<ObjectPoolManager>();
+            }
+            if (FindAnyObjectByType<VillaDelChef.UI.FloatingTextManager>() == null)
+            {
+                new GameObject("FloatingTextManager").AddComponent<VillaDelChef.UI.FloatingTextManager>();
+            }
             if (FindAnyObjectByType<GridManager>() == null)
             {
                 var gmObj = new GameObject("GridManager");

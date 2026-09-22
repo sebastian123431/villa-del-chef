@@ -1,16 +1,18 @@
 using UnityEngine;
 using UnityEngine.UI;
+using VillaDelChef.Core;
 
 namespace VillaDelChef.UI
 {
-    public class FloatingText : MonoBehaviour
+    public class FloatingText : MonoBehaviour, IPoolable
     {
         public Text textComponent;
         public float moveSpeed = 1.2f;
-        public float duration = 1.5f;
+        public float duration = 1.2f;
 
         private float timer = 0f;
-        private Color initialColor;
+        private Color initialColor = Color.white;
+        private bool isFromPool = false;
 
         public void Setup(string text, Color color)
         {
@@ -22,6 +24,25 @@ namespace VillaDelChef.UI
                 initialColor = color;
             }
             timer = 0f;
+        }
+
+        public void OnSpawnFromPool()
+        {
+            isFromPool = true;
+            timer = 0f;
+            if (textComponent != null)
+            {
+                textComponent.color = initialColor;
+            }
+        }
+
+        public void OnReturnToPool()
+        {
+            timer = 0f;
+            if (textComponent != null)
+            {
+                textComponent.text = "";
+            }
         }
 
         private void Update()
@@ -37,8 +58,16 @@ namespace VillaDelChef.UI
 
             if (timer >= duration)
             {
-                Destroy(gameObject);
+                if (isFromPool && ObjectPoolManager.Instance != null)
+                {
+                    ObjectPoolManager.Instance.Despawn("FloatingText", gameObject);
+                }
+                else
+                {
+                    Destroy(gameObject);
+                }
             }
         }
     }
 }
+

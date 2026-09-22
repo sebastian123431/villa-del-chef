@@ -146,6 +146,12 @@ namespace VillaDelChef.Crafting
             GameEvents.TriggerCraftCollected(this, currentRecipe, amount);
             GameEvents.TriggerQuestProgressMade(QuestType.CraftItems, currentRecipe.craftID, amount);
 
+            VillaDelChef.UI.FloatingTextManager.Instance?.ShowSuccess($"+{amount} {currentRecipe.recipeName}", transform.position + Vector3.up * 0.8f);
+            if (currentRecipe.experienceReward > 0)
+            {
+                VillaDelChef.UI.FloatingTextManager.Instance?.ShowXP(currentRecipe.experienceReward, transform.position + Vector3.up * 1.1f);
+            }
+
             Debug.Log($"[CraftingStation] Recolectado {amount}x {currentRecipe.recipeName}. Recompensa: +{currentRecipe.experienceReward} XP");
 
             currentRecipe = null;

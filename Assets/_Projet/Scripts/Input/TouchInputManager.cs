@@ -56,9 +56,87 @@ namespace VillaDelChef.PlayerInput
             }
             catch (System.InvalidOperationException)
             {
-                // Fallback seguro cuando Unity está alternando el backend de Input
+#if ENABLE_INPUT_SYSTEM
+                HandleNewInputSystem();
+#endif
             }
         }
+
+#if ENABLE_INPUT_SYSTEM
+        private void HandleNewInputSystem()
+        {
+            var touch = UnityEngine.InputSystem.Touchscreen.current;
+            var mouse = UnityEngine.InputSystem.Mouse.current;
+
+            if (touch != null && touch.touches.Count > 0 && touch.touches[0].press.isPressed)
+            {
+                var t0 = touch.touches[0];
+                Vector2 pos = t0.position.ReadValue();
+                if (t0.press.wasPressedThisFrame)
+                {
+                    touchStartPos = pos;
+                    touchStartTime = Time.time;
+                    isDragging = false;
+                    isLongPressTriggered = false;
+                }
+                else if (t0.press.isPressed)
+                {
+                    float dist = Vector2.Distance(pos, touchStartPos);
+                    if (dist > dragThreshold)
+                    {
+                        isDragging = true;
+                        Vector3 delta = mainCamera.ScreenToViewportPoint(pos - touchStartPos);
+                        Vector3 move = new Vector3(delta.x * 12f, delta.y * 12f, 0f);
+                        CameraController2D.Instance?.Pan(move);
+                        touchStartPos = pos;
+                    }
+                }
+                else if (t0.press.wasReleasedThisFrame)
+                {
+                    if (!isDragging && (Time.time - touchStartTime <= tapThreshold))
+                    {
+                        HandleTap(pos);
+                    }
+                }
+            }
+            else if (mouse != null)
+            {
+                Vector2 scroll = mouse.scroll.ReadValue();
+                if (Mathf.Abs(scroll.y) > 0.01f)
+                {
+                    CameraController2D.Instance?.Zoom(scroll.y * 0.05f);
+                }
+
+                Vector2 mousePos = mouse.position.ReadValue();
+                if (mouse.leftButton.wasPressedThisFrame)
+                {
+                    touchStartPos = mousePos;
+                    touchStartTime = Time.time;
+                    isDragging = false;
+                    isLongPressTriggered = false;
+                }
+                else if (mouse.leftButton.isPressed)
+                {
+                    float dist = Vector2.Distance(mousePos, touchStartPos);
+                    if (dist > dragThreshold)
+                    {
+                        isDragging = true;
+                        Vector3 delta = mainCamera.ScreenToViewportPoint(mousePos - touchStartPos);
+                        Vector3 move = new Vector3(delta.x * 12f, delta.y * 12f, 0f);
+                        CameraController2D.Instance?.Pan(move);
+                        touchStartPos = mousePos;
+                    }
+                }
+                else if (mouse.leftButton.wasReleasedThisFrame)
+                {
+                    if (!isDragging && (Time.time - touchStartTime <= tapThreshold))
+                    {
+                        HandleTap(mousePos);
+                    }
+                }
+            }
+        }
+#endif
 
         private void HandleTouches()
         {
