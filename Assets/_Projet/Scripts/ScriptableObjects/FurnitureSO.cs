@@ -11,6 +11,7 @@ namespace VillaDelChef.ScriptableObjects
         Cocina,
         MesaEntrega,
         Sembradero,
+        EstacionCrafting,
         Decoracion,
         Pared,
         Piso

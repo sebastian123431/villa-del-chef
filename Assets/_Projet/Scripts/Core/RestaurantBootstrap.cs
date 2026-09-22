@@ -4,6 +4,7 @@ using UnityEngine.UI;
 using VillaDelChef.Building;
 using VillaDelChef.Cooking;
 using VillaDelChef.Core;
+using VillaDelChef.Crafting;
 using VillaDelChef.Customers;
 using VillaDelChef.Economy;
 using VillaDelChef.Farming;
@@ -112,7 +113,14 @@ namespace VillaDelChef.Core
                 mainCam.gameObject.AddComponent<CameraController2D>();
             }
 
+            if (FindAnyObjectByType<CraftingManager>() == null)
+            {
+                var cmObj = new GameObject("CraftingManager");
+                cmObj.AddComponent<CraftingManager>();
+            }
+
             EnsureVendorUI();
+            EnsureCraftingUI();
         }
 
         private void CreateDefaultDataAndObjects()
@@ -122,6 +130,7 @@ namespace VillaDelChef.Core
             Sprite kitchenFloorSprite = GetOrFallbackSprite("Environment/Tiles/floor_kitchen_checker.png", CreatePixelSprite(32, 32, new Color(0.85f, 0.85f, 0.85f), true));
             Sprite wallBorderSprite = GetOrFallbackSprite("Construction/border_restaurant_wall.png", CreatePixelSprite(16, 16, new Color(0.40f, 0.25f, 0.15f), true));
             Sprite shopStallSprite = GetOrFallbackSprite("Exterior/shop_market_stall.png", CreatePixelSprite(48, 48, new Color(0.85f, 0.25f, 0.25f), true));
+            Sprite millSprite = GetOrFallbackSprite("Kitchen/station_mill.png", CreatePixelSprite(32, 32, new Color(0.55f, 0.55f, 0.58f), true));
 
             Sprite tableSprite = GetOrFallbackSprite("Furniture/Tables/table_wood.png", CreatePixelSprite(32, 32, new Color(0.58f, 0.35f, 0.20f), true));
             Sprite chairSprite = GetOrFallbackSprite("Furniture/Chairs/chair_wood.png", CreatePixelSprite(16, 16, new Color(0.70f, 0.45f, 0.25f), true));
@@ -393,6 +402,9 @@ namespace VillaDelChef.Core
 
             // Physical Merchant Shop Stall ("Tienda del Proveedor") in garden exterior
             SpawnMerchantStall(new Vector2Int(9, 18), shopStallSprite);
+
+            // Crafting Station: Molino de Grano next to the garden
+            SpawnCraftingStation(CraftingStationType.Molino, "Molino de Grano", new Vector2Int(13, 18), millSprite);
 
             // Helper Worker inside the kitchen
             if (WorkerManager.Instance != null)
@@ -754,6 +766,106 @@ namespace VillaDelChef.Core
                     vUI.itemsContainer = contentObj.transform;
 
                     vModal.SetActive(false);
+                }
+            }
+        }
+
+        private void SpawnCraftingStation(CraftingStationType type, string name, Vector2Int gridPos, Sprite sprite)
+        {
+            GameObject go = new GameObject($"CraftStation_{name}");
+            SpriteRenderer sr = go.AddComponent<SpriteRenderer>();
+            sr.sprite = sprite;
+            sr.sortingOrder = 3;
+            var col = go.AddComponent<BoxCollider2D>();
+            col.size = new Vector2(2f, 2f);
+
+            var stationSO = ScriptableObject.CreateInstance<FurnitureSO>();
+            stationSO.furnitureID = $"station_{type.ToString().ToLower()}";
+            stationSO.furnitureName = name;
+            stationSO.category = FurnitureCategory.EstacionCrafting;
+            stationSO.sizeX = 2;
+            stationSO.sizeY = 2;
+
+            CraftingStation station = go.AddComponent<CraftingStation>();
+            station.stationType = type;
+            station.stationName = name;
+            station.stationRenderer = sr;
+            station.Setup(stationSO, gridPos);
+
+            // Floating ready indicator
+            GameObject indicatorGO = new GameObject("ReadyIndicator");
+            indicatorGO.transform.SetParent(go.transform, false);
+            indicatorGO.transform.localPosition = new Vector3(0f, 1.4f, 0f);
+            SpriteRenderer indSR = indicatorGO.AddComponent<SpriteRenderer>();
+            indSR.sortingOrder = 20;
+            indicatorGO.SetActive(false);
+            station.readyIndicator = indSR;
+
+            BuildManager.Instance?.activeFurniture.Add(station);
+            CraftingManager.Instance?.RegisterStation(station);
+        }
+
+        private void EnsureCraftingUI()
+        {
+            if (CraftingUI.Instance == null)
+            {
+                Canvas canvas = FindAnyObjectByType<Canvas>();
+                if (canvas != null)
+                {
+                    GameObject cModal = new GameObject("CraftingModal_Bootstrap", typeof(RectTransform), typeof(Image), typeof(CraftingUI));
+                    cModal.transform.SetParent(canvas.transform, false);
+                    RectTransform cRT = cModal.GetComponent<RectTransform>();
+                    cRT.anchorMin = new Vector2(0.5f, 0.5f);
+                    cRT.anchorMax = new Vector2(0.5f, 0.5f);
+                    cRT.sizeDelta = new Vector2(700, 520);
+
+                    Image img = cModal.GetComponent<Image>();
+                    img.color = new Color(0.13f, 0.12f, 0.18f, 0.98f);
+
+                    CraftingUI cUI = cModal.GetComponent<CraftingUI>();
+                    cUI.panelRoot = cModal;
+
+                    // Title
+                    GameObject titleObj = new GameObject("Title", typeof(RectTransform), typeof(Text));
+                    titleObj.transform.SetParent(cModal.transform, false);
+                    Text titleT = titleObj.GetComponent<Text>();
+                    titleT.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+                    titleT.fontSize = 24;
+                    titleT.fontStyle = FontStyle.Bold;
+                    titleT.color = new Color(1f, 0.85f, 0.2f);
+                    titleT.text = "Estación de Elaboración";
+                    RectTransform titleRt = titleObj.GetComponent<RectTransform>();
+                    titleRt.anchorMin = new Vector2(0.5f, 1f);
+                    titleRt.anchorMax = new Vector2(0.5f, 1f);
+                    titleRt.anchoredPosition = new Vector2(0, -35);
+                    titleRt.sizeDelta = new Vector2(400, 40);
+                    cUI.titleText = titleT;
+
+                    // Close Button
+                    GameObject closeBtnObj = new GameObject("CloseBtn", typeof(RectTransform), typeof(Image), typeof(Button));
+                    closeBtnObj.transform.SetParent(cModal.transform, false);
+                    RectTransform closeRt = closeBtnObj.GetComponent<RectTransform>();
+                    closeRt.anchorMin = new Vector2(1f, 1f);
+                    closeRt.anchorMax = new Vector2(1f, 1f);
+                    closeRt.anchoredPosition = new Vector2(-30, -30);
+                    closeRt.sizeDelta = new Vector2(40, 40);
+                    closeBtnObj.GetComponent<Image>().color = new Color(0.85f, 0.25f, 0.25f);
+                    cUI.closeButton = closeBtnObj.GetComponent<Button>();
+
+                    // Items Container
+                    GameObject contentObj = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup));
+                    contentObj.transform.SetParent(cModal.transform, false);
+                    RectTransform contentRt = contentObj.GetComponent<RectTransform>();
+                    contentRt.anchorMin = new Vector2(0.05f, 0.05f);
+                    contentRt.anchorMax = new Vector2(0.95f, 0.82f);
+                    contentRt.offsetMin = Vector2.zero;
+                    contentRt.offsetMax = Vector2.zero;
+
+                    var vlg = contentObj.GetComponent<VerticalLayoutGroup>();
+                    vlg.spacing = 8;
+                    cUI.recipesContainer = contentObj.transform;
+
+                    cModal.SetActive(false);
                 }
             }
         }

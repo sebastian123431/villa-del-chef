@@ -170,4 +170,50 @@ COMPLETADO — Compilación limpia (0 errores, 0 advertencias)
 PRÓXIMO PASO:
 Fase 3: Sistema de Crafting (Procesamiento de Insumos: `CraftingRecipeSO`, `CraftingStation`, `CraftingManager`, `CraftingUI` y recetas intermedias trigo → harina → masa → pizza / frutas → mermeladas).
 ------------------------------------------------------------
+FECHA:
+2026-09-22
+
+VERSIÓN / FASE:
+0.3.0 (Fase 3: Sistema de Crafting y Procesamiento de Insumos)
+
+RESUMEN:
+- Implementación completa del sistema de procesamiento de insumos y elaboración intermedia desacoplado del menú de platos terminados (`RecipeSO`).
+- ScriptableObject `CraftingRecipeSO` con definición de insumos requeridos, producto procesado resultante, estación de crafteo requerida, tiempo en segundos y XP otorgada.
+- Componente interactuable `CraftingStation` con máquina de estados (`Idle`, `Crafting`, `ReadyToCollect`), indicador visual flotante de producto listo con animación sutil de rebote, integración con partículas y feedback sonoro.
+- `CraftingManager` singleton con registro dinámico de recetas desde `Resources.LoadAll<CraftingRecipeSO>`, registro de estaciones en escena y soporte de guardado/carga atómico en `SaveData.craftingStations`.
+- Interfaz táctil reactiva `CraftingUI` con selector de recetas navegable por ScrollRect, panel de proceso activo con barra de progreso, temporizador en tiempo real, botón de acelerar y botón de recolección ("¡Recolectar!").
+- Añadida categoría `IngredientCategory.Procesado` en `IngredientSO` y categoría `FurnitureCategory.EstacionCrafting` en `FurnitureSO`.
+- Eventos de juego en `GameEvents.cs`: `OnCraftStarted`, `OnCraftCompleted`, `OnCraftCollected`.
+- Soporte para misiones de elaboración en `QuestSO.cs` (`QuestType.CraftItems`).
+- Generación procedimental en `ArtAssetGenerator.cs` de sprites pixel art para estaciones (Molino de Grano, Mesa de Amasado, Marmita de Salsas, Paila Dulce) e ingredientes procesados (Harina Blanca, Masa de Pizza/Pan, Salsa de Tomate Casera, Mermelada de Fresa).
+- Base de datos configurada en `AssetDatabasePopulator.cs` con 5 recetas de crafteo balanceadas.
+- Actualización de `RestaurantBootstrap.cs` para inicializar automáticamente `CraftingManager`, spawnear el Molino inicial en `(13, 18)` y registrar el modal `CraftingUI`.
+- Corrección de colisión de nombre de variable en `RestaurantSceneSetupEditor.cs` (`avRT` -> `actvRT`).
+
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Scripts/ScriptableObjects/CraftingRecipeSO.cs`
+- `Assets/_Projet/Scripts/Crafting/CraftingStation.cs`
+- `Assets/_Projet/Scripts/Managers/CraftingManager.cs`
+- `Assets/_Projet/Scripts/UI/CraftingUI.cs`
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/ScriptableObjects/IngredientSO.cs`
+- `Assets/_Projet/Scripts/ScriptableObjects/FurnitureSO.cs`
+- `Assets/_Projet/Scripts/ScriptableObjects/QuestSO.cs`
+- `Assets/_Projet/Scripts/Core/GameEvents.cs`
+- `Assets/_Projet/Scripts/Save/SaveData.cs`
+- `Assets/_Projet/Scripts/Core/Editor/ArtAssetGenerator.cs`
+- `Assets/_Projet/Scripts/Core/Editor/AssetDatabasePopulator.cs`
+- `Assets/_Projet/Scripts/Core/Editor/RestaurantSceneSetupEditor.cs`
+- `Assets/_Projet/Scripts/Core/RestaurantBootstrap.cs`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assembly-CSharp.csproj`
+
+ESTADO:
+COMPLETADO — Compilación limpia (0 errores, 0 advertencias en runtime y editor)
+
+PRÓXIMO PASO:
+Fase 4: Expansiones de la Villa & Zonificación (`ExpansionSO`, desbloqueo progresivo de zonas: Restaurante → Terraza/Comedor Exterior → Huerto Extendido → Zona de Crafting → Plaza del Mercado).
+------------------------------------------------------------
 

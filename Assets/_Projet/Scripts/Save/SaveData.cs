@@ -53,6 +53,18 @@ namespace VillaDelChef.Save
     }
 
     [Serializable]
+    public class CraftingStationSaveEntry
+    {
+        public string stationID;
+        public string stationType;
+        public int gridX;
+        public int gridY;
+        public string currentCraftID;
+        public float remainingTime;
+        public bool isReadyToCollect;
+    }
+
+    [Serializable]
     public class SaveData
     {
         public int saveVersion = 1;
@@ -82,6 +94,9 @@ namespace VillaDelChef.Save
 
         // Vendors (NPC shops stock and restock timestamps)
         public List<VendorSaveData> vendors = new List<VendorSaveData>();
+
+        // Crafting stations
+        public List<CraftingStationSaveEntry> craftingStations = new List<CraftingStationSaveEntry>();
 
         // Tutorial
         public bool tutorialCompleted = false;

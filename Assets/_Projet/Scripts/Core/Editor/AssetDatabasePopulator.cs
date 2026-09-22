@@ -228,9 +228,45 @@ namespace VillaDelChef.EditorTools
             var vendorSofia = CreateOrUpdateVendor("vendor_sofia", "Decoraciones & Estilo Sofía", 300, sofiaItems);
             CreateOrUpdateNPC("npc_sofia", "Sofía", "Decoradora & Paisajista", FindSpriteByName("portrait_sofia") ?? FindSpriteByName("star"), FindSpriteByName("npc_sofia"), "¡La estética lo es todo! Plantas ornamentales, lámparas y faroles para enamorar a los clientes.", vendorSofia, 3);
 
+            // 7. INSUMOS Y RECETAS DE CRAFTING INTERMEDIO (FASE 3)
+            var ingFlour = CreateOrUpdateIngredient("ing_flour", "Harina Blanca", IngredientCategory.Procesado, FindSpriteByName("ing_flour") ?? FindSpriteByName("tools"), 10, 5);
+            var ingDough = CreateOrUpdateIngredient("ing_dough", "Masa Artesanal", IngredientCategory.Procesado, FindSpriteByName("ing_dough") ?? FindSpriteByName("tools"), 14, 7);
+            var ingSauce = CreateOrUpdateIngredient("ing_sauce", "Salsa Casera", IngredientCategory.Procesado, FindSpriteByName("ing_sauce") ?? FindSpriteByName("tools"), 12, 6);
+            var ingJam = CreateOrUpdateIngredient("ing_jam", "Mermelada Dulce", IngredientCategory.Procesado, FindSpriteByName("ing_jam") ?? FindSpriteByName("tools"), 18, 9);
+
+            // Receta 1: Molienda de Harina (Molino)
+            CreateOrUpdateCraftingRecipe("craft_flour", "Molienda de Harina", "Muele granos y tubérculos para obtener harina blanca de repostería.",
+                CraftingStationType.Molino, 8f,
+                new[] { (ingPotato, 2) },
+                ingFlour, 2, 15, FindSpriteByName("ing_flour") ?? FindSpriteByName("tools"));
+
+            // Receta 2: Amasado de Masa (Mesa de Amasado)
+            CreateOrUpdateCraftingRecipe("craft_dough", "Amasado Tradicional", "Mezcla harina con huevo de granja para amasar bases de pizza y panes dorados.",
+                CraftingStationType.MesaAmasado, 10f,
+                new[] { (ingFlour, 1), (ingEgg, 1) },
+                ingDough, 2, 20, FindSpriteByName("ing_dough") ?? FindSpriteByName("tools"));
+
+            // Receta 3: Salsa de Tomate & Especias (Procesador)
+            CreateOrUpdateCraftingRecipe("craft_sauce", "Salsa Especial de la Casa", "Reduce y sazona salsa rústica espesa para pastas y pizzas al horno.",
+                CraftingStationType.Procesador, 12f,
+                new[] { (ingPotato, 2) },
+                ingSauce, 2, 18, FindSpriteByName("ing_sauce") ?? FindSpriteByName("tools"));
+
+            // Receta 4: Mermelada de Frutilla (Marmita Dulce)
+            CreateOrUpdateCraftingRecipe("craft_strawberry_jam", "Mermelada de Frutilla", "Cocción lenta de frutillas cosechadas a fuego lento hasta espesar.",
+                CraftingStationType.MarmitaDulce, 15f,
+                new[] { (ingStrawberry, 2) },
+                ingJam, 1, 25, FindSpriteByName("ing_jam") ?? FindSpriteByName("tools"));
+
+            // Receta 5: Confitura de Manzana (Marmita Dulce)
+            CreateOrUpdateCraftingRecipe("craft_apple_jam", "Dulce de Manzana", "Dulce aromático de manzanas frescas para pasteles y tostadas.",
+                CraftingStationType.MarmitaDulce, 14f,
+                new[] { (ingApple, 2) },
+                ingJam, 1, 22, FindSpriteByName("ing_jam") ?? FindSpriteByName("tools"));
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects y NPCs han sido creados y vinculados con los sprites reales!");
+            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects, NPCs y Recetas de Crafting han sido creados!");
         }
 
         private static void EnsureDirectories()
@@ -245,6 +281,7 @@ namespace VillaDelChef.EditorTools
                 "Assets/_Projet/Resources/Stations",
                 "Assets/_Projet/Resources/Vendors",
                 "Assets/_Projet/Resources/NPC",
+                "Assets/_Projet/Resources/CraftingRecipes",
                 "Assets/_Projet/ScriptableObjects/Ingredients",
                 "Assets/_Projet/ScriptableObjects/Recipes",
                 "Assets/_Projet/ScriptableObjects/Crops",
@@ -437,6 +474,39 @@ namespace VillaDelChef.EditorTools
             so.greetingDialogue = greeting;
             so.vendorData = vendor;
             so.unlockLevel = unlockLevel;
+            EditorUtility.SetDirty(so);
+            return so;
+        }
+
+        private static CraftingRecipeSO CreateOrUpdateCraftingRecipe(string id, string name, string desc, CraftingStationType station, float craftTime, (IngredientSO ing, int count)[] reqs, IngredientSO result, int resultAmt, int xp, Sprite icon)
+        {
+            string path = $"Assets/_Projet/Resources/CraftingRecipes/{id}.asset";
+            CraftingRecipeSO so = AssetDatabase.LoadAssetAtPath<CraftingRecipeSO>(path);
+            if (so == null)
+            {
+                so = ScriptableObject.CreateInstance<CraftingRecipeSO>();
+                AssetDatabase.CreateAsset(so, path);
+            }
+            so.craftID = id;
+            so.recipeName = name;
+            so.description = desc;
+            so.requiredStation = station;
+            so.craftTimeSeconds = craftTime;
+            so.resultIngredient = result;
+            so.resultAmount = resultAmt;
+            so.experienceReward = xp;
+            so.icon = icon;
+            so.requiredIngredients = new List<IngredientRequirement>();
+            if (reqs != null)
+            {
+                foreach (var (ing, count) in reqs)
+                {
+                    if (ing != null)
+                    {
+                        so.requiredIngredients.Add(new IngredientRequirement { ingredient = ing, amount = count });
+                    }
+                }
+            }
             EditorUtility.SetDirty(so);
             return so;
         }

@@ -40,11 +40,13 @@ Leyenda:
 - [x] Integración de `MerchantStall.cs` y bootstrapping automático en escenas y Canvas
 
 ## FASE 3 — Sistema de Crafting (Procesamiento de Insumos)
-- [ ] ScriptableObject `CraftingRecipeSO` (craftID, insumos requeridos, resultado, tiempo, estación requerida)
-- [ ] Componente `CraftingStation` (molino, batidora, procesador, lácteos, etc.)
-- [ ] `CraftingManager` y cola de procesamiento
-- [ ] `CraftingUI` táctil para seleccionar recetas y ver tiempo restante
-- [ ] Integración con inventario (`RAW`, `CRAFTED`, `SPECIAL`)
+- [x] ScriptableObject `CraftingRecipeSO` (craftID, insumos requeridos, resultado, tiempo, estación requerida)
+- [x] Componente `CraftingStation` (molino, batidora, procesador, lácteos, etc.) con IInteractable y estados
+- [x] `CraftingManager` singleton y registro dinámico de recetas y estaciones con persistencia
+- [x] `CraftingUI` táctil para seleccionar recetas, acelerar y recolectar insumos con feedback visual
+- [x] Integración con inventario (`IngredientCategory.Procesado`, harinas, masas, salsas, mermeladas)
+- [x] Assets visuales generados procedimentalmente (estaciones e insumos procesados)
+- [x] 5 recetas de crafting iniciales configuradas en `AssetDatabasePopulator.cs` y bootstrapping en escena
 
 ## FASE 4 — Expansiones de la Villa & Zonificación
 - [ ] ScriptableObject `ExpansionSO` (ID, costo, nivel requerido, reputación requerida, límites del terreno)

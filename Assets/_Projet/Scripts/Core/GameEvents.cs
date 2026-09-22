@@ -40,6 +40,16 @@ namespace VillaDelChef.Core
         public static event Action<object, CropSO, int> OnCropHarvested;
         public static void TriggerCropHarvested(object plot, CropSO crop, int amount) => OnCropHarvested?.Invoke(plot, crop, amount);
 
+        // Crafting
+        public static event Action<object, CraftingRecipeSO> OnCraftStarted;
+        public static void TriggerCraftStarted(object station, CraftingRecipeSO recipe) => OnCraftStarted?.Invoke(station, recipe);
+
+        public static event Action<object, CraftingRecipeSO> OnCraftCompleted;
+        public static void TriggerCraftCompleted(object station, CraftingRecipeSO recipe) => OnCraftCompleted?.Invoke(station, recipe);
+
+        public static event Action<object, CraftingRecipeSO, int> OnCraftCollected;
+        public static void TriggerCraftCollected(object station, CraftingRecipeSO recipe, int amount) => OnCraftCollected?.Invoke(station, recipe, amount);
+
         // Customers
         public static event Action<object> OnCustomerArrived;
         public static void TriggerCustomerArrived(object customer) => OnCustomerArrived?.Invoke(customer);

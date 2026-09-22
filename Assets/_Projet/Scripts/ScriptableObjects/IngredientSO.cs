@@ -6,6 +6,7 @@ namespace VillaDelChef.ScriptableObjects
     {
         Cultivable,
         Comprable,
+        Procesado,
         Especial
     }
 

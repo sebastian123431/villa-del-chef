@@ -382,6 +382,113 @@ namespace VillaDelChef.EditorTools
             vendorUI.itemsContainer = vContent.transform;
             vendorModalGO.SetActive(false);
 
+            // Crafting Modal Dialog (Processing Insumos)
+            GameObject craftingModalGO = new GameObject("CraftingModal");
+            craftingModalGO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform cRT = craftingModalGO.AddComponent<RectTransform>();
+            cRT.anchorMin = new Vector2(0.5f, 0.5f);
+            cRT.anchorMax = new Vector2(0.5f, 0.5f);
+            cRT.sizeDelta = new Vector2(860f, 580f);
+            Image cBg = craftingModalGO.AddComponent<Image>();
+            cBg.color = new Color(0.13f, 0.12f, 0.17f, 0.98f);
+
+            CraftingUI craftingUI = craftingModalGO.AddComponent<CraftingUI>();
+            craftingUI.panelRoot = craftingModalGO;
+            craftingUI.closeButton = CreateButton(craftingModalGO, "CloseBtn", "X", new Vector2(790, 520), new Vector2(50, 50), new Color(0.85f, 0.25f, 0.25f));
+
+            craftingUI.titleText = CreateTextElement(craftingModalGO, "Title", "Estación de Elaboración", 26, new Vector2(300, -35), new Vector2(400, 36), new Color(1f, 0.85f, 0.3f));
+            craftingUI.subtitleText = CreateTextElement(craftingModalGO, "Subtitle", "Selecciona una receta para procesar:", 16, new Vector2(300, -68), new Vector2(400, 26), new Color(0.75f, 0.85f, 0.9f));
+
+            // Recipe Selection View
+            GameObject rViewGO = new GameObject("RecipeSelectionView");
+            rViewGO.transform.SetParent(craftingModalGO.transform, false);
+            RectTransform rvRT = rViewGO.AddComponent<RectTransform>();
+            rvRT.anchorMin = Vector2.zero;
+            rvRT.anchorMax = Vector2.one;
+            rvRT.offsetMin = Vector2.zero;
+            rvRT.offsetMax = Vector2.zero;
+            craftingUI.recipeSelectionView = rViewGO;
+
+            GameObject craftScroll = new GameObject("CraftScroll");
+            craftScroll.transform.SetParent(rViewGO.transform, false);
+            RectTransform crsRT = craftScroll.AddComponent<RectTransform>();
+            crsRT.anchorMin = new Vector2(0.04f, 0.04f);
+            crsRT.anchorMax = new Vector2(0.96f, 0.80f);
+            crsRT.offsetMin = Vector2.zero;
+            crsRT.offsetMax = Vector2.zero;
+            ScrollRect crSr = craftScroll.AddComponent<ScrollRect>();
+            crSr.horizontal = false;
+            crSr.vertical = true;
+
+            GameObject cContent = new GameObject("Content");
+            cContent.transform.SetParent(craftScroll.transform, false);
+            RectTransform cContentRT = cContent.AddComponent<RectTransform>();
+            cContentRT.anchorMin = new Vector2(0f, 1f);
+            cContentRT.anchorMax = new Vector2(1f, 1f);
+            cContentRT.pivot = new Vector2(0.5f, 1f);
+            cContentRT.sizeDelta = new Vector2(0, 400);
+
+            VerticalLayoutGroup cVlg = cContent.AddComponent<VerticalLayoutGroup>();
+            cVlg.spacing = 10;
+            cVlg.childControlWidth = true;
+            cVlg.childControlHeight = false;
+            cVlg.childForceExpandWidth = true;
+            cVlg.childForceExpandHeight = false;
+
+            ContentSizeFitter cCsf = cContent.AddComponent<ContentSizeFitter>();
+            cCsf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            crSr.content = cContentRT;
+            craftingUI.recipesContainer = cContent.transform;
+
+            // Active Crafting View
+            GameObject activeViewGO = new GameObject("ActiveCraftingView");
+            activeViewGO.transform.SetParent(craftingModalGO.transform, false);
+            RectTransform actvRT = activeViewGO.AddComponent<RectTransform>();
+            actvRT.anchorMin = Vector2.zero;
+            actvRT.anchorMax = Vector2.one;
+            actvRT.offsetMin = Vector2.zero;
+            actvRT.offsetMax = Vector2.zero;
+            craftingUI.activeCraftingView = activeViewGO;
+
+            GameObject pIconGO = new GameObject("ProductIcon", typeof(RectTransform), typeof(Image));
+            pIconGO.transform.SetParent(activeViewGO.transform, false);
+            RectTransform piRT = pIconGO.GetComponent<RectTransform>();
+            piRT.anchoredPosition = new Vector2(430, -200);
+            piRT.sizeDelta = new Vector2(96, 96);
+            craftingUI.activeProductIcon = pIconGO.GetComponent<Image>();
+
+            craftingUI.activeProductNameText = CreateTextElement(activeViewGO, "ProductName", "Harina Blanca x2", 24, new Vector2(430, -270), new Vector2(400, 36), Color.white);
+
+            // Progress bar
+            GameObject pbBg = new GameObject("ProgressBarBg", typeof(RectTransform), typeof(Image));
+            pbBg.transform.SetParent(activeViewGO.transform, false);
+            RectTransform pbBgRT = pbBg.GetComponent<RectTransform>();
+            pbBgRT.anchoredPosition = new Vector2(430, -320);
+            pbBgRT.sizeDelta = new Vector2(400, 28);
+            pbBg.GetComponent<Image>().color = new Color(0.2f, 0.22f, 0.28f);
+
+            GameObject pbFill = new GameObject("Fill", typeof(RectTransform), typeof(Image));
+            pbFill.transform.SetParent(pbBg.transform, false);
+            RectTransform pbFillRT = pbFill.GetComponent<RectTransform>();
+            pbFillRT.anchorMin = Vector2.zero;
+            pbFillRT.anchorMax = Vector2.one;
+            pbFillRT.offsetMin = Vector2.zero;
+            pbFillRT.offsetMax = Vector2.zero;
+            Image pbFillImg = pbFill.GetComponent<Image>();
+            pbFillImg.color = new Color(0.25f, 0.75f, 0.45f);
+            pbFillImg.type = Image.Type.Filled;
+            pbFillImg.fillMethod = Image.FillMethod.Horizontal;
+            craftingUI.progressBarFill = pbFillImg;
+
+            craftingUI.progressTimerText = CreateTextElement(activeViewGO, "TimerText", "Tiempo restante: 8s", 18, new Vector2(430, -360), new Vector2(300, 30), new Color(0.7f, 0.85f, 1f));
+
+            craftingUI.speedUpButton = CreateButton(activeViewGO, "SpeedUpBtn", "⚡ Acelerar", new Vector2(350, -430), new Vector2(160, 48), new Color(0.3f, 0.6f, 0.85f));
+            craftingUI.collectButton = CreateButton(activeViewGO, "CollectBtn", "✨ ¡Recolectar!", new Vector2(510, -430), new Vector2(180, 52), new Color(0.25f, 0.75f, 0.35f));
+
+            activeViewGO.SetActive(false);
+            craftingModalGO.SetActive(false);
+
             // Level Up Modal Dialog
             GameObject levelUpModalGO = new GameObject("LevelUpModal");
             levelUpModalGO.transform.SetParent(safeAreaGO.transform, false);

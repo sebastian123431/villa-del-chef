@@ -82,3 +82,21 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
   3. Usar timestamp UTC persistente en `SaveData`.
 - **Elegida**: 3 (Timestamp UTC persistente en `SaveData`).
 - **Estado**: IMPLEMENTADA Y ACTIVA.
+
+---
+
+### DECISIÓN 007
+- **Título**: Máquina de Estados de `CraftingStation`, Persistencia en `CraftingStationSaveEntry` y UI Reactiva.
+- **Problema**: El procesamiento de insumos intermedios (ej. granos de trigo en molino para harina, harina en mesa para masa, tomates en marmita para salsa) requiere estaciones independientes que operen en segundo plano, muestren estados claros al jugador (espera, procesando con barra de progreso, listo para recolectar con indicador flotante), otorguen experiencia al recolectar y preserven el estado y tiempo restante exacto de cada estación al salir del juego.
+- **Decisión**:
+  1. Cada `CraftingStation` implementa `IInteractable` y una máquina de estados: `Idle`, `Crafting`, `ReadyToCollect`.
+  2. Al completarse el tiempo de crafteo, la estación entra en `ReadyToCollect`, activa un indicador visual flotante (icono con rebote sutil) y un trigger de recolección táctil.
+  3. Al recolectar, los productos van a `InventoryManager.AddIngredient()`, se otorgan puntos de experiencia (`ProgressionManager.AddXP()`), se disparan eventos de misiones `GameEvents.TriggerCraftCollected()`, y se limpian las partículas.
+  4. La persistencia se realiza mediante `CraftingStationSaveEntry` en `SaveData.craftingStations`, guardando coordenadas de grilla `(gridX, gridY)`, el ID de la receta en curso, el tiempo restante en segundos y si está lista para recolección.
+- **Alternativas consideradas**:
+  1. Producción instantánea sin temporizador (anula la mecánica de gestión del tiempo).
+  2. Procesamiento global en un manager sin representación en el mundo físico (rompe la inmersión del restaurante y la villa).
+  3. Estaciones físicas en la grilla con estados, feedback visual, recolección interactiva y persistencia atómica.
+- **Elegida**: 3 (Estaciones físicas reactivas con persistencia atómica).
+- **Estado**: IMPLEMENTADA Y ACTIVA.
+

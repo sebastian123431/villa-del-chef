@@ -17,9 +17,10 @@ namespace VillaDelChef.EditorTools
             GenerateShopMarketStallTexture();
             GenerateWallBorderTexture();
             GenerateNPCSprites();
+            GenerateCraftingSprites();
 
             AssetDatabase.Refresh();
-            Debug.Log("[ArtAssetGenerator] ¡Texturas de pisos, tienda física y sprites de NPCs generados con éxito!");
+            Debug.Log("[ArtAssetGenerator] ¡Texturas de pisos, tienda física, NPCs y estaciones de crafting generadas con éxito!");
         }
 
         private static void EnsureDirectories()
@@ -28,11 +29,15 @@ namespace VillaDelChef.EditorTools
             string exterior = "Assets/_Projet/Art/Exterior";
             string constr = "Assets/_Projet/Art/Construction";
             string npcDir = "Assets/_Projet/Art/Characters/NPC";
+            string kitchenDir = "Assets/_Projet/Art/Kitchen";
+            string foodDir = "Assets/_Projet/Art/Food";
 
             if (!Directory.Exists(envTiles)) Directory.CreateDirectory(envTiles);
             if (!Directory.Exists(exterior)) Directory.CreateDirectory(exterior);
             if (!Directory.Exists(constr)) Directory.CreateDirectory(constr);
             if (!Directory.Exists(npcDir)) Directory.CreateDirectory(npcDir);
+            if (!Directory.Exists(kitchenDir)) Directory.CreateDirectory(kitchenDir);
+            if (!Directory.Exists(foodDir)) Directory.CreateDirectory(foodDir);
         }
 
         // 1. Piso de madera cálida para el salón (32x32)
@@ -659,6 +664,369 @@ namespace VillaDelChef.EditorTools
 
             tex.Apply();
             SaveTextureAsPNG(tex, $"Assets/_Projet/Art/Characters/NPC/portrait_{data.id}.png");
+        }
+
+        [MenuItem("Tools/Villa del Chef/Generate Crafting Pixel Art Sprites", false, 5)]
+        public static void GenerateCraftingSprites()
+        {
+            EnsureDirectories();
+
+            // 1. Molino de Grano (32x32)
+            GenerateMillTexture();
+            // 2. Mesa de Amasado (32x32)
+            GenerateDoughTableTexture();
+            // 3. Procesador de Salsa (32x32)
+            GenerateSaucePotTexture();
+            // 4. Marmita de Mermelada (32x32)
+            GenerateJamPotTexture();
+
+            // 5. Insumos procesados (16x16)
+            GenerateFlourSackTexture();
+            GenerateDoughBallTexture();
+            GenerateSauceJarTexture();
+            GenerateJamJarTexture();
+
+            AssetDatabase.Refresh();
+            Debug.Log("[ArtAssetGenerator] ¡Sprites de Crafting y nuevos ingredientes generados con éxito!");
+        }
+
+        private static void GenerateMillTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color stoneBase = new Color(0.50f, 0.52f, 0.55f);
+            Color stoneDark = new Color(0.35f, 0.38f, 0.40f);
+            Color stoneLight = new Color(0.65f, 0.68f, 0.70f);
+            Color woodBeam = new Color(0.55f, 0.35f, 0.18f);
+            Color woodDark = new Color(0.38f, 0.22f, 0.10f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // Transparent margins
+                    if (x < 2 || x > 29 || y < 2)
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                        continue;
+                    }
+
+                    // Stone grinding base (y: 2..16, x: 4..27)
+                    if (y <= 16 && x >= 4 && x <= 27)
+                    {
+                        bool isRim = (y == 16 || x == 4 || x == 27);
+                        bool isShade = (y <= 5 || x <= 6);
+                        tex.SetPixel(x, y, isRim ? stoneLight : (isShade ? stoneDark : stoneBase));
+                    }
+                    // Wooden grain hopper / funnel (y: 17..28, x: 8..23)
+                    else if (y > 16 && y <= 28)
+                    {
+                        int minX = 15 - (y - 16);
+                        int maxX = 16 + (y - 16);
+                        if (x >= Mathf.Clamp(minX, 7, 15) && x <= Mathf.Clamp(maxX, 16, 24))
+                        {
+                            tex.SetPixel(x, y, (x % 3 == 0) ? woodDark : woodBeam);
+                        }
+                        else
+                        {
+                            tex.SetPixel(x, y, Color.clear);
+                        }
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Kitchen/station_mill.png");
+        }
+
+        private static void GenerateDoughTableTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color woodTable = new Color(0.72f, 0.48f, 0.28f);
+            Color woodHighlight = new Color(0.85f, 0.60f, 0.38f);
+            Color woodShadow = new Color(0.42f, 0.26f, 0.14f);
+            Color flourDust = new Color(0.96f, 0.95f, 0.90f, 0.85f);
+            Color rollingPin = new Color(0.88f, 0.70f, 0.45f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // Table Legs (y: 2..12, x: 4..7, 24..27)
+                    if (y >= 2 && y <= 12 && ((x >= 4 && x <= 7) || (x >= 24 && x <= 27)))
+                    {
+                        tex.SetPixel(x, y, (x == 4 || x == 24) ? woodShadow : woodTable);
+                    }
+                    // Table Top surface (y: 13..22, x: 2..29)
+                    else if (y >= 13 && y <= 22 && x >= 2 && x <= 29)
+                    {
+                        if (y == 22) tex.SetPixel(x, y, woodHighlight);
+                        else if (y == 13) tex.SetPixel(x, y, woodShadow);
+                        else
+                        {
+                            // Flour dusted cutting board in the center
+                            if (x >= 9 && x <= 22 && y >= 15 && y <= 20)
+                            {
+                                // Rolling pin at angle
+                                if (x == y) tex.SetPixel(x, y, rollingPin);
+                                else tex.SetPixel(x, y, flourDust);
+                            }
+                            else
+                            {
+                                tex.SetPixel(x, y, woodTable);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Kitchen/station_dough_table.png");
+        }
+
+        private static void GenerateSaucePotTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color metalPot = new Color(0.40f, 0.42f, 0.45f);
+            Color metalHighlight = new Color(0.65f, 0.68f, 0.72f);
+            Color metalDark = new Color(0.24f, 0.25f, 0.28f);
+            Color sauceRed = new Color(0.82f, 0.20f, 0.16f);
+            Color sauceHighlight = new Color(0.95f, 0.35f, 0.22f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // Pot base and body (y: 4..22, x: 5..26)
+                    if (y >= 4 && y <= 22 && x >= 5 && x <= 26)
+                    {
+                        // Stew inside top rim (y: 19..22, x: 7..24)
+                        if (y >= 19 && x >= 7 && x <= 24)
+                        {
+                            bool isBubble = (x == 12 && y == 20) || (x == 18 && y == 21);
+                            tex.SetPixel(x, y, isBubble ? sauceHighlight : sauceRed);
+                        }
+                        else
+                        {
+                            bool isBorder = (x == 5 || x == 26 || y == 4);
+                            tex.SetPixel(x, y, isBorder ? metalDark : (x == 8 ? metalHighlight : metalPot));
+                        }
+                    }
+                    // Side handles
+                    else if (y >= 14 && y <= 17 && ((x >= 2 && x <= 4) || (x >= 27 && x <= 29)))
+                    {
+                        tex.SetPixel(x, y, metalDark);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Kitchen/station_sauce_pot.png");
+        }
+
+        private static void GenerateJamPotTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color copperPot = new Color(0.82f, 0.45f, 0.25f);
+            Color copperDark = new Color(0.55f, 0.28f, 0.14f);
+            Color copperHighlight = new Color(0.95f, 0.65f, 0.40f);
+            Color berryJam = new Color(0.68f, 0.12f, 0.35f);
+            Color jamHighlight = new Color(0.85f, 0.25f, 0.50f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    if (y >= 5 && y <= 23 && x >= 6 && x <= 25)
+                    {
+                        if (y >= 20 && x >= 8 && x <= 23)
+                        {
+                            bool isBubble = (x == 14 && y == 21) || (x == 19 && y == 22);
+                            tex.SetPixel(x, y, isBubble ? jamHighlight : berryJam);
+                        }
+                        else
+                        {
+                            bool isBorder = (x == 6 || x == 25 || y == 5);
+                            tex.SetPixel(x, y, isBorder ? copperDark : (x == 9 ? copperHighlight : copperPot));
+                        }
+                    }
+                    else if (y >= 15 && y <= 18 && ((x >= 3 && x <= 5) || (x >= 26 && x <= 28)))
+                    {
+                        tex.SetPixel(x, y, copperDark);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Kitchen/station_preserve_pot.png");
+        }
+
+        private static void GenerateFlourSackTexture()
+        {
+            int size = 16;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color sack = new Color(0.92f, 0.86f, 0.74f);
+            Color sackShadow = new Color(0.72f, 0.64f, 0.50f);
+            Color rope = new Color(0.55f, 0.35f, 0.18f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    if (y >= 2 && y <= 10 && x >= 3 && x <= 12)
+                    {
+                        tex.SetPixel(x, y, (x <= 4 || y == 2) ? sackShadow : sack);
+                    }
+                    else if (y == 11 && x >= 5 && x <= 10)
+                    {
+                        tex.SetPixel(x, y, rope);
+                    }
+                    else if (y >= 12 && y <= 13 && x >= 4 && x <= 11)
+                    {
+                        tex.SetPixel(x, y, (y == 13 && (x == 4 || x == 11)) ? Color.clear : sack);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Food/ing_flour.png");
+        }
+
+        private static void GenerateDoughBallTexture()
+        {
+            int size = 16;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color dough = new Color(0.95f, 0.88f, 0.72f);
+            Color doughShade = new Color(0.80f, 0.70f, 0.52f);
+            Color doughHighlight = new Color(0.98f, 0.95f, 0.85f);
+
+            float center = 7.5f;
+            float radius = 5.5f;
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(center, center));
+                    if (dist <= radius)
+                    {
+                        if (y >= 9 && x <= 7) tex.SetPixel(x, y, doughHighlight);
+                        else if (y <= 5 || x >= 11) tex.SetPixel(x, y, doughShade);
+                        else tex.SetPixel(x, y, dough);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Food/ing_dough.png");
+        }
+
+        private static void GenerateSauceJarTexture()
+        {
+            int size = 16;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color glass = new Color(0.85f, 0.92f, 0.95f, 0.7f);
+            Color sauce = new Color(0.85f, 0.22f, 0.18f);
+            Color lid = new Color(0.90f, 0.75f, 0.25f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    if (y >= 2 && y <= 10 && x >= 4 && x <= 11)
+                    {
+                        if (x == 4 || x == 11 || y == 2) tex.SetPixel(x, y, glass);
+                        else tex.SetPixel(x, y, sauce);
+                    }
+                    else if (y == 11 && x >= 5 && x <= 10)
+                    {
+                        tex.SetPixel(x, y, glass);
+                    }
+                    else if (y >= 12 && y <= 13 && x >= 4 && x <= 11)
+                    {
+                        tex.SetPixel(x, y, lid);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Food/ing_sauce.png");
+        }
+
+        private static void GenerateJamJarTexture()
+        {
+            int size = 16;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color glass = new Color(0.85f, 0.92f, 0.95f, 0.7f);
+            Color jam = new Color(0.65f, 0.15f, 0.38f);
+            Color clothCover = new Color(0.88f, 0.28f, 0.35f);
+            Color ribbon = new Color(0.95f, 0.85f, 0.35f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    if (y >= 2 && y <= 9 && x >= 4 && x <= 11)
+                    {
+                        if (x == 4 || x == 11 || y == 2) tex.SetPixel(x, y, glass);
+                        else tex.SetPixel(x, y, jam);
+                    }
+                    else if (y == 10 && x >= 5 && x <= 10)
+                    {
+                        tex.SetPixel(x, y, ribbon);
+                    }
+                    else if (y >= 11 && y <= 13 && x >= 3 && x <= 12)
+                    {
+                        tex.SetPixel(x, y, clothCover);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Food/ing_jam.png");
         }
 
         private static void SaveTextureAsPNG(Texture2D tex, string path)
