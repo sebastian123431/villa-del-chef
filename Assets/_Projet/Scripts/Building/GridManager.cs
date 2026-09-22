@@ -11,6 +11,7 @@ namespace VillaDelChef.Building
         Farming,
         Market,
         Crafting,
+        Terrace,
         FarmingZone = Farming
     }
 
@@ -19,15 +20,17 @@ namespace VillaDelChef.Building
         public int x;
         public int y;
         public bool isWalkable = true;
+        public bool isUnlocked = true;
         public ZoneType zone = ZoneType.Dining;
         public GridObject occupyingObject = null;
 
-        public GridCell(int x, int y, ZoneType zone = ZoneType.Dining)
+        public GridCell(int x, int y, ZoneType zone = ZoneType.Dining, bool isUnlocked = true)
         {
             this.x = x;
             this.y = y;
             this.zone = zone;
             this.isWalkable = true;
+            this.isUnlocked = isUnlocked;
         }
     }
 
@@ -181,6 +184,50 @@ namespace VillaDelChef.Building
                 }
             }
             return true;
+        }
+
+        public bool IsAreaUnlocked(int startX, int startY, int sizeX, int sizeY)
+        {
+            for (int x = startX; x < startX + sizeX; x++)
+            {
+                for (int y = startY; y < startY + sizeY; y++)
+                {
+                    if (!IsInsideGrid(x, y)) return false;
+                    if (!cells[x, y].isUnlocked) return false;
+                }
+            }
+            return true;
+        }
+
+        public void UnlockZoneArea(RectInt bounds, ZoneType zoneType)
+        {
+            for (int x = bounds.xMin; x < bounds.xMax; x++)
+            {
+                for (int y = bounds.yMin; y < bounds.yMax; y++)
+                {
+                    if (IsInsideGrid(x, y))
+                    {
+                        cells[x, y].isUnlocked = true;
+                        cells[x, y].zone = zoneType;
+                    }
+                }
+            }
+            Debug.Log($"[GridManager] Zona {zoneType} desbloqueada en bounds: {bounds}");
+        }
+
+        public void LockZoneArea(RectInt bounds, ZoneType zoneType)
+        {
+            for (int x = bounds.xMin; x < bounds.xMax; x++)
+            {
+                for (int y = bounds.yMin; y < bounds.yMax; y++)
+                {
+                    if (IsInsideGrid(x, y))
+                    {
+                        cells[x, y].isUnlocked = false;
+                        cells[x, y].zone = zoneType;
+                    }
+                }
+            }
         }
 
 

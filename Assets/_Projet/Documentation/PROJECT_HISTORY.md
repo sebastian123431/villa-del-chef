@@ -216,4 +216,49 @@ COMPLETADO — Compilación limpia (0 errores, 0 advertencias en runtime y edito
 PRÓXIMO PASO:
 Fase 4: Expansiones de la Villa & Zonificación (`ExpansionSO`, desbloqueo progresivo de zonas: Restaurante → Terraza/Comedor Exterior → Huerto Extendido → Zona de Crafting → Plaza del Mercado).
 ------------------------------------------------------------
+FECHA:
+2026-09-22
+
+VERSIÓN / FASE:
+0.4.0 (Fase 4: Expansiones de la Villa y Zonificación)
+
+RESUMEN:
+- Creación del sistema de desbloqueo progresivo del mapa de la villa gastronómica mediante ScriptableObjects `ExpansionSO`.
+- Cuatro zonas de expansión fundacionales configuradas: Terraza del Jardín (Nivel 2), Huerto Alto del Valle (Nivel 3), Taller de Molienda & Artesanía (Nivel 4) y Plaza del Mercado Gastronómico (Nivel 5).
+- Integración de `ZoneType.Terrace` en `GridManager.cs` y habilitación de mesas y sillas para colocación en exteriores.
+- Control de ocupación y límites en `GridCell` mediante `isUnlocked`; `BuildManager.cs` valida que la posición deseada esté dentro de un terreno ya adquirido antes de permitir la construcción (`isAreaUnlocked`).
+- Marcadores de terreno interactuables en el mundo `ExpansionSign.cs` (`IInteractable`) con animación de rebote sutil, letrero de madera con estrella dorada y desaparición suave con partículas al concretar la compra.
+- Interfaz táctil modular `ExpansionUI.cs` con feedback visual de requisitos de nivel y monedas, otorgamiento de experiencia e integración con audio y misiones.
+- Singleton `ExpansionManager.cs` con persistencia atómica en `SaveData.unlockedExpansions` y sincronización bidireccional con `GridManager` y `SaveManager`.
+- Generación de sprites pixel art procedimentales en `ArtAssetGenerator.cs` (letrero `sign_for_sale`, valla rústica `fence_rustic`, iconos de terraza, huerto, crafting y mercado a 16 PPU).
+- Creación de assets en `AssetDatabasePopulator.cs`, integración de `ExpansionModal` en `RestaurantSceneSetupEditor.cs` y soporte automático en `RestaurantBootstrap.cs`.
+
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Scripts/ScriptableObjects/ExpansionSO.cs`
+- `Assets/_Projet/Scripts/Managers/ExpansionManager.cs`
+- `Assets/_Projet/Scripts/Building/ExpansionSign.cs`
+- `Assets/_Projet/Scripts/UI/ExpansionUI.cs`
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/Building/GridManager.cs`
+- `Assets/_Projet/Scripts/Building/BuildManager.cs`
+- `Assets/_Projet/Scripts/Save/SaveData.cs`
+- `Assets/_Projet/Scripts/Save/SaveManager.cs`
+- `Assets/_Projet/Scripts/Core/GameEvents.cs`
+- `Assets/_Projet/Scripts/ScriptableObjects/QuestSO.cs`
+- `Assets/_Projet/Scripts/Core/Editor/ArtAssetGenerator.cs`
+- `Assets/_Projet/Scripts/Core/Editor/AssetDatabasePopulator.cs`
+- `Assets/_Projet/Scripts/Core/Editor/RestaurantSceneSetupEditor.cs`
+- `Assets/_Projet/Scripts/Core/RestaurantBootstrap.cs`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assembly-CSharp.csproj`
+
+ESTADO:
+COMPLETADO — Compilación limpia (0 errores, 0 advertencias en runtime y editor)
+
+PRÓXIMO PASO:
+Fase 5: Progresión Profunda, Reputación y Misiones (Sistema de Reputación dinámico, arquetipos de clientes extendidos en `CustomerSO`: Impaciente, Generoso, Gourmet, Familiar, Turista, Crítico, VIP; progresión guiada y cadena de misiones narrativas con los especialistas).
+------------------------------------------------------------
+
 

@@ -119,8 +119,15 @@ namespace VillaDelChef.Core
                 cmObj.AddComponent<CraftingManager>();
             }
 
+            if (FindAnyObjectByType<ExpansionManager>() == null)
+            {
+                var expObj = new GameObject("ExpansionManager");
+                expObj.AddComponent<ExpansionManager>();
+            }
+
             EnsureVendorUI();
             EnsureCraftingUI();
+            EnsureExpansionUI();
         }
 
         private void CreateDefaultDataAndObjects()
@@ -348,6 +355,7 @@ namespace VillaDelChef.Core
             tableSO.sizeY = 2;
             tableSO.cost = 80;
             tableSO.shopIcon = tableSprite;
+            tableSO.allowedZones = new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace };
 
             var chairSO = ScriptableObject.CreateInstance<FurnitureSO>();
             chairSO.furnitureID = "chair_wood";
@@ -357,6 +365,7 @@ namespace VillaDelChef.Core
             chairSO.sizeY = 1;
             chairSO.cost = 30;
             chairSO.shopIcon = chairSprite;
+            chairSO.allowedZones = new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace };
 
             var plotSO = ScriptableObject.CreateInstance<FurnitureSO>();
             plotSO.furnitureID = "crop_plot";
@@ -366,6 +375,7 @@ namespace VillaDelChef.Core
             plotSO.sizeY = 2;
             plotSO.cost = 50;
             plotSO.shopIcon = cropPlotSprite;
+            plotSO.allowedZones = new List<ZoneType> { ZoneType.Exterior, ZoneType.Farming };
 
             if (BuildUI.Instance != null)
             {
@@ -412,7 +422,10 @@ namespace VillaDelChef.Core
                 WorkerManager.Instance.SpawnWorker(workerSO, new Vector2Int(16, 4));
             }
 
-            Debug.Log("[RestaurantBootstrap] ¡Restaurante, pisos y tienda física configurados con éxito!");
+            // Spawn Villa Expansion Signs
+            SpawnInitialExpansionSigns();
+
+            Debug.Log("[RestaurantBootstrap] ¡Restaurante, pisos, tienda física y expansiones configurados con éxito!");
         }
 
         private void SpawnCookingStation(FurnitureSO so, StationType type, Vector2Int gridPos, Sprite sprite)
@@ -866,6 +879,186 @@ namespace VillaDelChef.Core
                     cUI.recipesContainer = contentObj.transform;
 
                     cModal.SetActive(false);
+                }
+            }
+        }
+
+        private void SpawnInitialExpansionSigns()
+        {
+            Sprite signSprite = GetOrFallbackSprite("Environment/sign_for_sale.png", CreatePixelSprite(16, 24, new Color(0.75f, 0.55f, 0.25f), false));
+            var expansions = Resources.LoadAll<ExpansionSO>("Expansions");
+
+            foreach (var exp in expansions)
+            {
+                if (exp == null) continue;
+                if (ExpansionManager.Instance != null && ExpansionManager.Instance.IsExpansionUnlocked(exp.expansionID))
+                {
+                    continue;
+                }
+
+                // Check if sign already exists in scene
+                string signName = $"ExpansionSign_{exp.expansionID}";
+                if (GameObject.Find(signName) == null)
+                {
+                    SpawnExpansionSign(exp, signSprite);
+                }
+            }
+        }
+
+        private void SpawnExpansionSign(ExpansionSO exp, Sprite signSprite)
+        {
+            GameObject signGO = new GameObject($"ExpansionSign_{exp.expansionID}");
+            signGO.transform.position = new Vector3(exp.worldSignPosition.x, exp.worldSignPosition.y, 0f);
+
+            SpriteRenderer sr = signGO.AddComponent<SpriteRenderer>();
+            sr.sprite = signSprite;
+            sr.sortingOrder = 5;
+
+            BoxCollider2D col = signGO.AddComponent<BoxCollider2D>();
+            col.size = new Vector2(1.2f, 1.6f);
+            col.isTrigger = true;
+
+            ExpansionSign sign = signGO.AddComponent<ExpansionSign>();
+            sign.expansionData = exp;
+            sign.signRenderer = sr;
+
+            // Add subtle floating gold star
+            GameObject starGO = new GameObject("FloatingIcon");
+            starGO.transform.SetParent(signGO.transform, false);
+            starGO.transform.localPosition = new Vector3(0f, 1.2f, 0f);
+            SpriteRenderer starSR = starGO.AddComponent<SpriteRenderer>();
+            starSR.sprite = GetOrFallbackSprite("UI/star.png", CreatePixelSprite(16, 16, new Color(1f, 0.85f, 0.2f), false));
+            starSR.sortingOrder = 10;
+            sign.floatingIcon = starSR;
+
+            if (ExpansionManager.Instance != null)
+            {
+                ExpansionManager.Instance.RegisterSign(sign);
+            }
+        }
+
+        private void EnsureExpansionUI()
+        {
+            if (Object.FindAnyObjectByType<ExpansionUI>(FindObjectsInactive.Include) == null)
+            {
+                Canvas canvas = FindAnyObjectByType<Canvas>();
+                if (canvas != null)
+                {
+                    GameObject expModal = new GameObject("ExpansionModal_Bootstrap", typeof(RectTransform), typeof(Image), typeof(ExpansionUI));
+                    expModal.transform.SetParent(canvas.transform, false);
+                    RectTransform expRT = expModal.GetComponent<RectTransform>();
+                    expRT.anchorMin = new Vector2(0.5f, 0.5f);
+                    expRT.anchorMax = new Vector2(0.5f, 0.5f);
+                    expRT.sizeDelta = new Vector2(620, 460);
+
+                    Image img = expModal.GetComponent<Image>();
+                    img.color = new Color(0.12f, 0.14f, 0.20f, 0.98f);
+
+                    ExpansionUI expUI = expModal.GetComponent<ExpansionUI>();
+                    expUI.panelRoot = expModal;
+
+                    Font defaultFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+
+                    // Title
+                    GameObject titleObj = new GameObject("Title", typeof(RectTransform), typeof(Text));
+                    titleObj.transform.SetParent(expModal.transform, false);
+                    Text titleT = titleObj.GetComponent<Text>();
+                    titleT.font = defaultFont;
+                    titleT.fontSize = 24;
+                    titleT.fontStyle = FontStyle.Bold;
+                    titleT.color = new Color(1f, 0.85f, 0.25f);
+                    titleT.alignment = TextAnchor.MiddleCenter;
+                    titleT.text = "Expansión de la Villa";
+                    RectTransform titleRt = titleObj.GetComponent<RectTransform>();
+                    titleRt.anchorMin = new Vector2(0.5f, 1f);
+                    titleRt.anchorMax = new Vector2(0.5f, 1f);
+                    titleRt.anchoredPosition = new Vector2(0, -40);
+                    titleRt.sizeDelta = new Vector2(480, 40);
+                    expUI.titleText = titleT;
+
+                    // Close Button
+                    GameObject closeBtnObj = new GameObject("CloseBtn", typeof(RectTransform), typeof(Image), typeof(Button));
+                    closeBtnObj.transform.SetParent(expModal.transform, false);
+                    RectTransform closeRt = closeBtnObj.GetComponent<RectTransform>();
+                    closeRt.anchorMin = new Vector2(1f, 1f);
+                    closeRt.anchorMax = new Vector2(1f, 1f);
+                    closeRt.anchoredPosition = new Vector2(-28, -28);
+                    closeRt.sizeDelta = new Vector2(40, 40);
+                    closeBtnObj.GetComponent<Image>().color = new Color(0.85f, 0.25f, 0.25f);
+                    expUI.closeButton = closeBtnObj.GetComponent<Button>();
+
+                    // Description
+                    GameObject descObj = new GameObject("Desc", typeof(RectTransform), typeof(Text));
+                    descObj.transform.SetParent(expModal.transform, false);
+                    Text descT = descObj.GetComponent<Text>();
+                    descT.font = defaultFont;
+                    descT.fontSize = 17;
+                    descT.color = new Color(0.9f, 0.92f, 0.95f);
+                    descT.alignment = TextAnchor.MiddleCenter;
+                    descT.text = "Desbloquea este nuevo terreno para expandir tu villa.";
+                    RectTransform descRt = descObj.GetComponent<RectTransform>();
+                    descRt.anchorMin = new Vector2(0.5f, 0.5f);
+                    descRt.anchorMax = new Vector2(0.5f, 0.5f);
+                    descRt.anchoredPosition = new Vector2(0, 30);
+                    descRt.sizeDelta = new Vector2(500, 70);
+                    expUI.descriptionText = descT;
+
+                    // Requirements (Level & Cost)
+                    GameObject levelObj = new GameObject("LevelReq", typeof(RectTransform), typeof(Text));
+                    levelObj.transform.SetParent(expModal.transform, false);
+                    Text levelT = levelObj.GetComponent<Text>();
+                    levelT.font = defaultFont;
+                    levelT.fontSize = 17;
+                    levelT.alignment = TextAnchor.MiddleCenter;
+                    RectTransform levelRt = levelObj.GetComponent<RectTransform>();
+                    levelRt.anchorMin = new Vector2(0.5f, 0.5f);
+                    levelRt.anchorMax = new Vector2(0.5f, 0.5f);
+                    levelRt.anchoredPosition = new Vector2(0, -40);
+                    levelRt.sizeDelta = new Vector2(450, 30);
+                    expUI.levelRequirementText = levelT;
+
+                    GameObject costObj = new GameObject("CostText", typeof(RectTransform), typeof(Text));
+                    costObj.transform.SetParent(expModal.transform, false);
+                    Text costT = costObj.GetComponent<Text>();
+                    costT.font = defaultFont;
+                    costT.fontSize = 18;
+                    costT.fontStyle = FontStyle.Bold;
+                    costT.alignment = TextAnchor.MiddleCenter;
+                    RectTransform costRt = costObj.GetComponent<RectTransform>();
+                    costRt.anchorMin = new Vector2(0.5f, 0.5f);
+                    costRt.anchorMax = new Vector2(0.5f, 0.5f);
+                    costRt.anchoredPosition = new Vector2(0, -80);
+                    costRt.sizeDelta = new Vector2(450, 35);
+                    expUI.costText = costT;
+
+                    // Unlock Button
+                    GameObject unlockBtnObj = new GameObject("UnlockBtn", typeof(RectTransform), typeof(Image), typeof(Button));
+                    unlockBtnObj.transform.SetParent(expModal.transform, false);
+                    RectTransform unlockRt = unlockBtnObj.GetComponent<RectTransform>();
+                    unlockRt.anchorMin = new Vector2(0.5f, 0f);
+                    unlockRt.anchorMax = new Vector2(0.5f, 0f);
+                    unlockRt.anchoredPosition = new Vector2(0, 50);
+                    unlockRt.sizeDelta = new Vector2(240, 52);
+                    unlockBtnObj.GetComponent<Image>().color = new Color(0.25f, 0.75f, 0.35f);
+                    expUI.unlockButton = unlockBtnObj.GetComponent<Button>();
+
+                    GameObject btnTxtObj = new GameObject("BtnText", typeof(RectTransform), typeof(Text));
+                    btnTxtObj.transform.SetParent(unlockBtnObj.transform, false);
+                    Text btnT = btnTxtObj.GetComponent<Text>();
+                    btnT.font = defaultFont;
+                    btnT.fontSize = 18;
+                    btnT.fontStyle = FontStyle.Bold;
+                    btnT.color = Color.white;
+                    btnT.alignment = TextAnchor.MiddleCenter;
+                    btnT.text = "¡Desbloquear Zona!";
+                    RectTransform btnTxtRt = btnTxtObj.GetComponent<RectTransform>();
+                    btnTxtRt.anchorMin = Vector2.zero;
+                    btnTxtRt.anchorMax = Vector2.one;
+                    btnTxtRt.offsetMin = Vector2.zero;
+                    btnTxtRt.offsetMax = Vector2.zero;
+                    expUI.unlockButtonText = btnT;
+
+                    expModal.SetActive(false);
                 }
             }
         }

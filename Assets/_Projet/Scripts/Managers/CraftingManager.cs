@@ -87,17 +87,14 @@ namespace VillaDelChef.Managers
             return allCraftRecipes.Find(r => r != null && r.craftID == craftID);
         }
 
-        public void SaveToCurrentSave()
+        public void PopulateSaveData(SaveData data)
         {
-            if (SaveManager.Instance == null || SaveManager.Instance.CurrentSave == null) return;
-
-            var list = SaveManager.Instance.CurrentSave.craftingStations;
-            if (list == null)
+            if (data == null) return;
+            if (data.craftingStations == null)
             {
-                list = new List<CraftingStationSaveEntry>();
-                SaveManager.Instance.CurrentSave.craftingStations = list;
+                data.craftingStations = new List<CraftingStationSaveEntry>();
             }
-            list.Clear();
+            data.craftingStations.Clear();
 
             for (int i = 0; i < activeStations.Count; i++)
             {
@@ -114,8 +111,14 @@ namespace VillaDelChef.Managers
                     remainingTime = s.GetRemainingSeconds(),
                     isReadyToCollect = (s.currentState == CraftingState.ReadyToCollect)
                 };
-                list.Add(entry);
+                data.craftingStations.Add(entry);
             }
+        }
+
+        public void SaveToCurrentSave()
+        {
+            if (SaveManager.Instance == null || SaveManager.Instance.CurrentSave == null) return;
+            PopulateSaveData(SaveManager.Instance.CurrentSave);
         }
 
         public void LoadFromSave()

@@ -49,10 +49,15 @@ Leyenda:
 - [x] 5 recetas de crafting iniciales configuradas en `AssetDatabasePopulator.cs` y bootstrapping en escena
 
 ## FASE 4 — Expansiones de la Villa & Zonificación
-- [ ] ScriptableObject `ExpansionSO` (ID, costo, nivel requerido, reputación requerida, límites del terreno)
-- [ ] Mesas exteriores y funcionamiento unificado para terrazas/patios
-- [ ] Desbloqueo progresivo de zonas: Restaurante → Terraza → Huerto extendido → Zona de Crafting → Mercado
-- [ ] Persistencia de expansiones desbloqueadas en `SaveData.cs`
+- [x] ScriptableObject `ExpansionSO` (ID, costo, nivel requerido, límites en grilla `gridBounds`, XP de recompensa, zona objetivo)
+- [x] Mesas exteriores y funcionamiento unificado para terrazas/patios (`ZoneType.Terrace` en `Table` y `Chair`)
+- [x] Desbloqueo progresivo de zonas: Restaurante → Terraza → Huerto extendido → Zona de Crafting → Plaza del Mercado
+- [x] Marcadores interactivos en el mundo `ExpansionSign` (`IInteractable`) con feedback de animación flotante y compra
+- [x] Interfaz modal táctil `ExpansionUI` con verificación de nivel y monedas en tiempo real
+- [x] `ExpansionManager` singleton con registro dinámico, desbloqueo en `GridManager` y eventos
+- [x] Persistencia de expansiones desbloqueadas en `SaveData.unlockedExpansions`
+- [x] Generación procedimental de sprites de expansión (letreros `sign_for_sale`, vallas y 4 iconos de zona)
+- [x] 4 expansiones de la villa configuradas en `AssetDatabasePopulator.cs` y auto-setup en bootstrap y editor
 
 ## FASE 5 — Progresión Profunda, Reputación y Misiones
 - [ ] Sistema de Reputación como recurso dinámico (afecta afluencia y clientes VIP)

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
+using VillaDelChef.Building;
 using VillaDelChef.ScriptableObjects;
 
 namespace VillaDelChef.EditorTools
@@ -264,9 +265,22 @@ namespace VillaDelChef.EditorTools
                 new[] { (ingApple, 2) },
                 ingJam, 1, 22, FindSpriteByName("ing_jam") ?? FindSpriteByName("tools"));
 
+            // 8. EXPANSIONES DE LA VILLA Y ZONIFICACIÓN (FASE 4)
+            CreateOrUpdateExpansion("exp_terrace", "Terraza del Jardín", "Abre las puertas al patio exterior. Permite colocar mesas y sombrillas al aire libre para que los clientes disfruten del sol y la brisa.",
+                ZoneType.Terrace, new RectInt(0, 7, 6, 9), 2, 200, 60, new Vector2(-12.5f, -3.5f), FindSpriteByName("exp_terrace") ?? FindSpriteByName("star"));
+
+            CreateOrUpdateExpansion("exp_crops", "Huerto Alto del Valle", "Tierra fértil rica en minerales para duplicar tu producción agrícola. Desbloquea espacio para nuevas parcelas de cultivo.",
+                ZoneType.Farming, new RectInt(0, 16, 12, 8), 3, 450, 100, new Vector2(-10f, 4.5f), FindSpriteByName("exp_crops") ?? FindSpriteByName("star"));
+
+            CreateOrUpdateExpansion("exp_crafting", "Taller de Molienda & Artesanía", "Espacio pavimentado ideal para instalar múltiples molinos, mesas de amasado, prensas y marmitas de salsas.",
+                ZoneType.Crafting, new RectInt(18, 16, 14, 8), 4, 750, 150, new Vector2(8f, 4.5f), FindSpriteByName("exp_crafting") ?? FindSpriteByName("tools"));
+
+            CreateOrUpdateExpansion("exp_market", "Plaza del Mercado Gastronómico", "Un amplio bulevar adoquinado donde los 7 comerciantes de la villa pueden establecer sus puestos comerciales permanentes.",
+                ZoneType.Market, new RectInt(26, 0, 6, 16), 5, 1200, 250, new Vector2(10.5f, -6f), FindSpriteByName("exp_market") ?? FindSpriteByName("coins"));
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects, NPCs y Recetas de Crafting han sido creados!");
+            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects, NPCs, Recetas de Crafting y Expansiones han sido creados!");
         }
 
         private static void EnsureDirectories()
@@ -282,6 +296,7 @@ namespace VillaDelChef.EditorTools
                 "Assets/_Projet/Resources/Vendors",
                 "Assets/_Projet/Resources/NPC",
                 "Assets/_Projet/Resources/CraftingRecipes",
+                "Assets/_Projet/Resources/Expansions",
                 "Assets/_Projet/ScriptableObjects/Ingredients",
                 "Assets/_Projet/ScriptableObjects/Recipes",
                 "Assets/_Projet/ScriptableObjects/Crops",
@@ -507,6 +522,29 @@ namespace VillaDelChef.EditorTools
                     }
                 }
             }
+            EditorUtility.SetDirty(so);
+            return so;
+        }
+
+        private static ExpansionSO CreateOrUpdateExpansion(string id, string name, string desc, ZoneType zone, RectInt bounds, int level, int cost, int xp, Vector2 signPos, Sprite icon)
+        {
+            string path = $"Assets/_Projet/Resources/Expansions/{id}.asset";
+            ExpansionSO so = AssetDatabase.LoadAssetAtPath<ExpansionSO>(path);
+            if (so == null)
+            {
+                so = ScriptableObject.CreateInstance<ExpansionSO>();
+                AssetDatabase.CreateAsset(so, path);
+            }
+            so.expansionID = id;
+            so.displayName = name;
+            so.description = desc;
+            so.targetZone = zone;
+            so.gridBounds = bounds;
+            so.requiredRestaurantLevel = level;
+            so.costGold = cost;
+            so.rewardXP = xp;
+            so.worldSignPosition = signPos;
+            so.icon = icon;
             EditorUtility.SetDirty(so);
             return so;
         }

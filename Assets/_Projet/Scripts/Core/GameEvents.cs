@@ -79,5 +79,9 @@ namespace VillaDelChef.Core
 
         public static event Action<QuestType, string, int> OnQuestProgressMade;
         public static void TriggerQuestProgressMade(QuestType type, string targetID, int amount) => OnQuestProgressMade?.Invoke(type, targetID, amount);
+
+        // Expansions
+        public static event Action<ExpansionSO> OnExpansionUnlocked;
+        public static void TriggerExpansionUnlocked(ExpansionSO expansion) => OnExpansionUnlocked?.Invoke(expansion);
     }
 }

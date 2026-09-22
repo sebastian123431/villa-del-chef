@@ -10,7 +10,8 @@ namespace VillaDelChef.ScriptableObjects
         EarnCoins,
         BuyFurniture,
         CollectIngredients,
-        CraftItems
+        CraftItems,
+        UnlockExpansion
     }
 
     [CreateAssetMenu(fileName = "NewQuest", menuName = "VillaDelChef/Quest")]

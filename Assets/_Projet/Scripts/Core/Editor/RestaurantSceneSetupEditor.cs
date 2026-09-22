@@ -489,6 +489,28 @@ namespace VillaDelChef.EditorTools
             activeViewGO.SetActive(false);
             craftingModalGO.SetActive(false);
 
+            // Expansion Modal Dialog (Villa Expansions)
+            GameObject expansionModalGO = new GameObject("ExpansionModal");
+            expansionModalGO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform expRT = expansionModalGO.AddComponent<RectTransform>();
+            expRT.anchorMin = new Vector2(0.5f, 0.5f);
+            expRT.anchorMax = new Vector2(0.5f, 0.5f);
+            expRT.sizeDelta = new Vector2(680f, 480f);
+            Image expBg = expansionModalGO.AddComponent<Image>();
+            expBg.color = new Color(0.12f, 0.14f, 0.20f, 0.98f);
+
+            ExpansionUI expansionUI = expansionModalGO.AddComponent<ExpansionUI>();
+            expansionUI.panelRoot = expansionModalGO;
+            expansionUI.closeButton = CreateButton(expansionModalGO, "CloseBtn", "X", new Vector2(620, 420), new Vector2(48, 48), new Color(0.85f, 0.25f, 0.25f));
+            expansionUI.titleText = CreateTextElement(expansionModalGO, "Title", "Expansión de la Villa", 26, new Vector2(340, -45), new Vector2(450, 40), new Color(1f, 0.85f, 0.25f));
+            expansionUI.descriptionText = CreateTextElement(expansionModalGO, "Desc", "Desbloquea este terreno para ampliar tu restaurante y villa gastronómica.", 18, new Vector2(340, -130), new Vector2(520, 70), Color.white);
+            expansionUI.levelRequirementText = CreateTextElement(expansionModalGO, "LevelReq", "Nivel requerido: 2", 18, new Vector2(340, -210), new Vector2(450, 30), new Color(0.4f, 1f, 0.5f));
+            expansionUI.costText = CreateTextElement(expansionModalGO, "Cost", "Costo: $200 Monedas", 20, new Vector2(340, -260), new Vector2(450, 35), new Color(1f, 0.9f, 0.3f));
+            expansionUI.xpRewardText = CreateTextElement(expansionModalGO, "XPReward", "+60 XP", 16, new Vector2(340, -300), new Vector2(450, 25), new Color(0.6f, 0.85f, 1f));
+            expansionUI.unlockButton = CreateButton(expansionModalGO, "UnlockBtn", "✨ ¡Desbloquear Zona!", new Vector2(340, -380), new Vector2(250, 56), new Color(0.25f, 0.75f, 0.35f));
+            expansionUI.unlockButtonText = expansionUI.unlockButton.GetComponentInChildren<Text>();
+            expansionModalGO.SetActive(false);
+
             // Level Up Modal Dialog
             GameObject levelUpModalGO = new GameObject("LevelUpModal");
             levelUpModalGO.transform.SetParent(safeAreaGO.transform, false);
@@ -553,6 +575,8 @@ namespace VillaDelChef.EditorTools
             systemsGO.AddComponent<TutorialManager>();
             systemsGO.AddComponent<TouchInputManager>();
             systemsGO.AddComponent<SaveManager>();
+            systemsGO.AddComponent<VillaDelChef.Managers.CraftingManager>();
+            systemsGO.AddComponent<VillaDelChef.Managers.ExpansionManager>();
             systemsGO.AddComponent<RestaurantBootstrap>();
 
             // 7. Setup Audio System

@@ -100,3 +100,23 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Estaciones físicas reactivas con persistencia atómica).
 - **Estado**: IMPLEMENTADA Y ACTIVA.
 
+---
+
+### DECISIÓN 008
+- **Título**: Sistema de Expansiones de Terreno Modular (`ExpansionSO`), Marcadores Físicos `ExpansionSign` y Zonificación Integrada en `GridManager`.
+- **Problema**: Para recrear el progreso satisfactorio de juegos como ChefVille, el jugador no debe tener acceso libre a todo el terreno desde el inicio. El terreno debe expandirse gradualmente por zonas (Terraza Exterior, Huerto Extendido, Taller de Crafting, Plaza del Mercado) al cumplir requisitos de nivel de restaurante y monedas de oro. Además, `BuildManager` no debe permitir colocar objetos fuera del terreno adquirido ni en zonas incompatibles (ej. mesas en huertos o cocinas en la terraza sin permiso).
+- **Decisión**:
+  1. Cada expansión es un ScriptableObject `ExpansionSO` con `expansionID`, `gridBounds` (`RectInt`), `targetZone` (`ZoneType`), nivel requerido, costo en oro, recompensa de XP y coordenadas de su letrero físico.
+  2. `GridCell` incluye la propiedad `isUnlocked`. Al iniciar el juego, las celdas de las áreas de expansión permanecen bloqueadas (`isUnlocked = false`).
+  3. `BuildManager.UpdateGhostPosition()` valida `isAreaUnlocked` antes de permitir la colocación de cualquier mueble.
+  4. Los límites de expansión se señalan en el mundo con `ExpansionSign` (`IInteractable`). Al interactuar, abre un modal táctil `ExpansionUI` que evalúa los requisitos en tiempo real.
+  5. Al comprar una expansión, `ExpansionManager.UnlockExpansion()` gasta las monedas, otorga XP, desbloquea las celdas en `GridManager.UnlockZoneArea()`, reproduce efectos audiovisuales, destruye suavemente el marcador y persiste el ID en `SaveData.unlockedExpansions`.
+  6. Se añade `ZoneType.Terrace`, permitiendo que mesas y sillas se ubiquen en exteriores y los clientes las ocupen de forma transparente mediante el pathfinding A*.
+- **Alternativas consideradas**:
+  1. Desbloqueo pasivo en el menú de pausa sin representación en el mundo físico.
+  2. Bloqueo de cámara rígido.
+  3. Marcadores interactivos en el mundo (`ExpansionSign`) + validación de celdas en `GridManager` + modal táctil `ExpansionUI`.
+- **Elegida**: 3 (Marcadores interactivos en el mundo con zonificación dinámica y persistencia atómica).
+- **Estado**: IMPLEMENTADA Y ACTIVA.
+
+

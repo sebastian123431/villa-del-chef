@@ -97,6 +97,16 @@ namespace VillaDelChef.Save
         {
             if (currentSaveData == null) return;
 
+            // Sync dynamic subsystems before serialization
+            if (VillaDelChef.Managers.CraftingManager.Instance != null)
+            {
+                VillaDelChef.Managers.CraftingManager.Instance.PopulateSaveData(currentSaveData);
+            }
+            if (VillaDelChef.Managers.ExpansionManager.Instance != null)
+            {
+                VillaDelChef.Managers.ExpansionManager.Instance.PopulateSaveData(currentSaveData);
+            }
+
             currentSaveData.lastSaveTimestampSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
             string tempPath = saveFilePath + ".tmp";
             string backupPath = saveFilePath + ".bak";

@@ -110,7 +110,8 @@ namespace VillaDelChef.Building
 
             bool areaAvailable = GridManager.Instance.IsAreaAvailable(gridPos.x, gridPos.y, sizeX, sizeY, movingObject);
             bool zoneAllowed = GridManager.Instance.IsAreaInAllowedZones(gridPos.x, gridPos.y, sizeX, sizeY, selectedFurniture.allowedZones);
-            isCurrentPosValid = areaAvailable && zoneAllowed;
+            bool isAreaUnlocked = GridManager.Instance.IsAreaUnlocked(gridPos.x, gridPos.y, sizeX, sizeY);
+            isCurrentPosValid = areaAvailable && zoneAllowed && isAreaUnlocked;
 
             // Update ghost tint / color
             SpriteRenderer[] renderers = ghostPreviewInstance.GetComponentsInChildren<SpriteRenderer>();

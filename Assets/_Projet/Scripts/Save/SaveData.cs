@@ -98,6 +98,9 @@ namespace VillaDelChef.Save
         // Crafting stations
         public List<CraftingStationSaveEntry> craftingStations = new List<CraftingStationSaveEntry>();
 
+        // Villa Expansions Unlocked
+        public List<string> unlockedExpansions = new List<string>();
+
         // Tutorial
         public bool tutorialCompleted = false;
         public int tutorialStep = 0;

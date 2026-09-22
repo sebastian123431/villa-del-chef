@@ -18,9 +18,10 @@ namespace VillaDelChef.EditorTools
             GenerateWallBorderTexture();
             GenerateNPCSprites();
             GenerateCraftingSprites();
+            GenerateExpansionSprites();
 
             AssetDatabase.Refresh();
-            Debug.Log("[ArtAssetGenerator] ¡Texturas de pisos, tienda física, NPCs y estaciones de crafting generadas con éxito!");
+            Debug.Log("[ArtAssetGenerator] ¡Texturas de pisos, tienda física, NPCs, crafting y expansiones generadas con éxito!");
         }
 
         private static void EnsureDirectories()
@@ -1027,6 +1028,301 @@ namespace VillaDelChef.EditorTools
             }
             tex.Apply();
             SaveTextureAsPNG(tex, "Assets/_Projet/Art/Food/ing_jam.png");
+        }
+
+        private static void GenerateExpansionSprites()
+        {
+            GenerateExpansionSignTexture();
+            GenerateFenceRusticTexture();
+            GenerateTerraceIconTexture();
+            GenerateCropsIconTexture();
+            GenerateCraftingIconTexture();
+            GenerateMarketIconTexture();
+        }
+
+        private static void GenerateExpansionSignTexture()
+        {
+            int width = 16;
+            int height = 24;
+            Texture2D tex = new Texture2D(width, height, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color woodPost = new Color(0.48f, 0.30f, 0.16f);
+            Color woodPostShadow = new Color(0.35f, 0.20f, 0.10f);
+            Color boardBorder = new Color(0.32f, 0.18f, 0.08f);
+            Color boardBg = new Color(0.85f, 0.68f, 0.44f);
+            Color starGold = new Color(1.0f, 0.82f, 0.20f);
+            Color starBorder = new Color(0.60f, 0.42f, 0.10f);
+
+            for (int y = 0; y < height; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    // Wooden post (y: 0 to 11, x: 7 to 8)
+                    if (y <= 11 && (x == 7 || x == 8))
+                    {
+                        tex.SetPixel(x, y, (x == 7) ? woodPost : woodPostShadow);
+                    }
+                    // Signboard (y: 11 to 22, x: 1 to 14)
+                    else if (y >= 11 && y <= 22 && x >= 1 && x <= 14)
+                    {
+                        if (x == 1 || x == 14 || y == 11 || y == 22)
+                        {
+                            tex.SetPixel(x, y, boardBorder);
+                        }
+                        // Star in center (x: 6 to 9, y: 15 to 18)
+                        else if ((x == 7 || x == 8) && (y >= 14 && y <= 19))
+                        {
+                            tex.SetPixel(x, y, starGold);
+                        }
+                        else if ((y == 16 || y == 17) && (x >= 5 && x <= 10))
+                        {
+                            tex.SetPixel(x, y, starGold);
+                        }
+                        else
+                        {
+                            tex.SetPixel(x, y, boardBg);
+                        }
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Environment/sign_for_sale.png");
+        }
+
+        private static void GenerateFenceRusticTexture()
+        {
+            int size = 16;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color woodPicket = new Color(0.72f, 0.52f, 0.33f);
+            Color woodPicketLight = new Color(0.82f, 0.62f, 0.42f);
+            Color woodPicketDark = new Color(0.45f, 0.28f, 0.15f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    // Vertical pickets at x: 2-4 and x: 11-13
+                    bool isPicket1 = (x >= 2 && x <= 4 && y >= 1 && y <= 14);
+                    bool isPicket2 = (x >= 11 && x <= 13 && y >= 1 && y <= 14);
+                    // Pointed tips
+                    if ((x == 2 || x == 4) && y == 14) isPicket1 = false;
+                    if ((x == 11 || x == 13) && y == 14) isPicket2 = false;
+
+                    // Horizontal rails at y: 4-5 and y: 9-10
+                    bool isRail = (y >= 4 && y <= 5) || (y >= 9 && y <= 10);
+
+                    if (isPicket1 || isPicket2)
+                    {
+                        tex.SetPixel(x, y, (x % 3 == 0) ? woodPicketLight : woodPicket);
+                    }
+                    else if (isRail)
+                    {
+                        tex.SetPixel(x, y, woodPicketDark);
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/Environment/fence_rustic.png");
+        }
+
+        private static void GenerateTerraceIconTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color bgCircle = new Color(0.25f, 0.65f, 0.45f); // Garden green
+            Color umbrellaWhite = new Color(0.95f, 0.95f, 0.95f);
+            Color umbrellaYellow = new Color(1.0f, 0.82f, 0.22f);
+            Color wood = new Color(0.55f, 0.35f, 0.20f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(16, 16));
+                    if (dist <= 14.5f)
+                    {
+                        // Umbrella top dome (y: 16 to 28, x: 5 to 27)
+                        if (y >= 16 && y <= 27 && x >= 5 && x <= 27 && dist <= 12f)
+                        {
+                            tex.SetPixel(x, y, ((x / 4) % 2 == 0) ? umbrellaYellow : umbrellaWhite);
+                        }
+                        // Pole (x: 15-16, y: 6 to 16)
+                        else if ((x == 15 || x == 16) && y >= 6 && y <= 16)
+                        {
+                            tex.SetPixel(x, y, wood);
+                        }
+                        // Table disk (y: 8 to 11, x: 9 to 23)
+                        else if (y >= 8 && y <= 11 && x >= 9 && x <= 23)
+                        {
+                            tex.SetPixel(x, y, wood);
+                        }
+                        else
+                        {
+                            tex.SetPixel(x, y, bgCircle);
+                        }
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/UI/exp_terrace.png");
+        }
+
+        private static void GenerateCropsIconTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color bgCircle = new Color(0.40f, 0.58f, 0.25f);
+            Color soil = new Color(0.42f, 0.26f, 0.15f);
+            Color plantGreen = new Color(0.25f, 0.82f, 0.35f);
+            Color carrotOrange = new Color(0.98f, 0.52f, 0.15f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(16, 16));
+                    if (dist <= 14.5f)
+                    {
+                        // Soil mound (y: 6 to 14, x: 6 to 26)
+                        if (y >= 6 && y <= 13 && x >= 6 && x <= 26)
+                        {
+                            tex.SetPixel(x, y, soil);
+                        }
+                        // Plant leaves (y: 14 to 25)
+                        else if (y >= 14 && y <= 24 && ((x >= 8 && x <= 13) || (x >= 18 && x <= 23)))
+                        {
+                            tex.SetPixel(x, y, plantGreen);
+                        }
+                        // Carrot in soil
+                        else if (y >= 10 && y <= 16 && (x >= 14 && x <= 17))
+                        {
+                            tex.SetPixel(x, y, carrotOrange);
+                        }
+                        else
+                        {
+                            tex.SetPixel(x, y, bgCircle);
+                        }
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/UI/exp_crops.png");
+        }
+
+        private static void GenerateCraftingIconTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color bgCircle = new Color(0.35f, 0.45f, 0.65f);
+            Color gearSteel = new Color(0.85f, 0.88f, 0.92f);
+            Color gearCenter = new Color(0.55f, 0.60f, 0.68f);
+            Color hammerWood = new Color(0.65f, 0.40f, 0.20f);
+            Color hammerHead = new Color(0.35f, 0.38f, 0.45f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(16, 16));
+                    if (dist <= 14.5f)
+                    {
+                        float gearDist = Vector2.Distance(new Vector2(x, y), new Vector2(16, 16));
+                        // Gear teeth and body
+                        if (gearDist >= 4f && gearDist <= 9.5f)
+                        {
+                            tex.SetPixel(x, y, gearSteel);
+                        }
+                        else if (gearDist < 4f)
+                        {
+                            tex.SetPixel(x, y, gearCenter);
+                        }
+                        else
+                        {
+                            tex.SetPixel(x, y, bgCircle);
+                        }
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/UI/exp_crafting.png");
+        }
+
+        private static void GenerateMarketIconTexture()
+        {
+            int size = 32;
+            Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false);
+            tex.filterMode = FilterMode.Point;
+
+            Color bgCircle = new Color(0.85f, 0.55f, 0.25f);
+            Color canopyRed = new Color(0.88f, 0.25f, 0.25f);
+            Color canopyWhite = new Color(0.96f, 0.96f, 0.96f);
+            Color goldCoin = new Color(1.0f, 0.82f, 0.22f);
+            Color wood = new Color(0.52f, 0.32f, 0.16f);
+
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    float dist = Vector2.Distance(new Vector2(x, y), new Vector2(16, 16));
+                    if (dist <= 14.5f)
+                    {
+                        // Canopy awning (y: 17 to 25, x: 6 to 26)
+                        if (y >= 17 && y <= 25 && x >= 6 && x <= 26)
+                        {
+                            tex.SetPixel(x, y, ((x / 4) % 2 == 0) ? canopyRed : canopyWhite);
+                        }
+                        // Counter (y: 8 to 13, x: 7 to 25)
+                        else if (y >= 8 && y <= 13 && x >= 7 && x <= 25)
+                        {
+                            tex.SetPixel(x, y, wood);
+                        }
+                        // Coin stack (y: 11 to 16, x: 13 to 19)
+                        else if (y >= 11 && y <= 16 && x >= 13 && x <= 19)
+                        {
+                            tex.SetPixel(x, y, goldCoin);
+                        }
+                        else
+                        {
+                            tex.SetPixel(x, y, bgCircle);
+                        }
+                    }
+                    else
+                    {
+                        tex.SetPixel(x, y, Color.clear);
+                    }
+                }
+            }
+            tex.Apply();
+            SaveTextureAsPNG(tex, "Assets/_Projet/Art/UI/exp_market.png");
         }
 
         private static void SaveTextureAsPNG(Texture2D tex, string path)

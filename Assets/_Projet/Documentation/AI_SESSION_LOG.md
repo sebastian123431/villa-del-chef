@@ -131,4 +131,41 @@ Siguiente recomendación:
 Proceder con la FASE 4: Expansiones de la Villa & Zonificación (`ExpansionSO`, costos en oro y nivel de restaurante, áreas exteriores/terrazas integradas, desbloqueo progresivo y límites visuales con niebla o vallas de construcción).
 ============================================================
 
+============================================================
+AI SESSION 004
+
+Fecha:
+2026-09-22
+
+Objetivo solicitado:
+Desarrollar e integrar completamente la FASE 4: Expansiones de la Villa & Zonificación Modular para Villa del Chef.
+
+Contexto leído:
+- Arquitectura de cuadrícula (`GridManager.cs`) y modo construcción (`BuildManager.cs`).
+- Persistencia en `SaveData.cs` y `SaveManager.cs`.
+- Mapeo de `ZoneType` y validación de colocación de mobiliario.
+
+Trabajo realizado:
+1. Creación de `ExpansionSO.cs`: ScriptableObject con identificador, nombre visible, descripción temática, límites rectangulares en grilla (`gridBounds`), tipo de zona asignada (`targetZone`), nivel mínimo requerido, costo en monedas de oro, recompensa de XP y coordenadas en el mundo para su marcador físico.
+2. Integración de `ZoneType.Terrace` en `GridManager.cs` y adición de la propiedad `isUnlocked` a `GridCell.cs`.
+3. Adición de métodos de gestión de áreas en `GridManager.cs`: `IsAreaUnlocked(startX, startY, sizeX, sizeY)`, `UnlockZoneArea(bounds, zoneType)` y `LockZoneArea(bounds, zoneType)`.
+4. Actualización de `BuildManager.cs` para validar `isAreaUnlocked` antes de permitir la colocación o compra de cualquier objeto en la cuadrícula.
+5. Habilitación de colocación de mesas y sillas en exteriores (`ZoneType.Terrace`), permitiendo que los clientes coman en terrazas y patios con servicio de camareros unificado.
+6. Creación de `ExpansionSign.cs`: Marcador interactuable en el mundo (`IInteractable`) con animación de levitación sutil del icono de candado/estrella dorada, apertura de UI y desaparición animada con partículas al completarse la compra.
+7. Creación de `ExpansionUI.cs`: Interfaz modal táctil para móviles y PC con validación dinámica en tiempo real de nivel de restaurante y balance de monedas, otorgamiento de experiencia y soporte de audio.
+8. Creación de `ExpansionManager.cs`: Singleton con persistencia atómica en `SaveData.unlockedExpansions`, gestión de ciclo de compra, bloqueo inicial de terrenos y desbloqueo sincronizado con `GridManager` y `SaveManager`.
+9. Actualización de `GameEvents.cs` (`OnExpansionUnlocked`) y `QuestSO.cs` (`QuestType.UnlockExpansion`).
+10. Generación procedimental de sprites en `ArtAssetGenerator.cs`: `sign_for_sale.png` (letrero de madera 16x24), `fence_rustic.png` (valla 16x16) e iconos temáticos de 32x32 para Terraza, Huerto, Crafting y Mercado.
+11. Configuración de las 4 expansiones fundacionales en `AssetDatabasePopulator.cs`: Terraza del Jardín (Nivel 2), Huerto Alto del Valle (Nivel 3), Taller de Molienda & Artesanía (Nivel 4) y Plaza del Mercado Gastronómico (Nivel 5).
+12. Actualización de `RestaurantSceneSetupEditor.cs` y `RestaurantBootstrap.cs` para inicializar automáticamente `ExpansionManager`, el modal `ExpansionUI` y los 4 marcadores de expansión en la villa.
+13. Verificación exhaustiva de compilación (`dotnet build`) tanto para `Assembly-CSharp.csproj` como `Assembly-CSharp-Editor.csproj` resultando en 0 errores y 0 advertencias.
+
+Estado de la sesión:
+COMPLETADA CON ÉXITO (FASE 4 FINALIZADA).
+
+Siguiente recomendación:
+Proceder con la FASE 5: Progresión Profunda, Reputación y Misiones (Sistema de Reputación dinámico, arquetipos de clientes extendidos en `CustomerSO`: Impaciente, Generoso, Gourmet, Familiar, Turista, Crítico, VIP; misiones con historia ligadas a los 7 especialistas de la villa).
+============================================================
+
+
 
