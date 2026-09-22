@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5cfe70cd3b65af4e8957425a03db271, type: 3}
+  m_Name: crop_blueberry
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CropSO
+  cropID: crop_blueberry
+  cropName: "Arbusto de Ar\xE1ndanos"
+  seedIcon: {fileID: 21300000, guid: 3229da07061761f46891c04888cfc75c, type: 3}
+  harvestIngredient: {fileID: 11400000, guid: 7fa072395bdb8d84c82819eb5463a6e4, type: 2}
+  harvestAmount: 4
+  seedCost: 14
+  unlockLevel: 1
+  totalGrowthTimeSeconds: 80
+  seedStageSprite: {fileID: 21300000, guid: 3229da07061761f46891c04888cfc75c, type: 3}
+  stage01Sprite: {fileID: 0}
+  stage02Sprite: {fileID: 0}
+  stage03Sprite: {fileID: 0}
+  readyStageSprite: {fileID: 21300000, guid: 3229da07061761f46891c04888cfc75c, type: 3}
+  harvestedStageSprite: {fileID: 0}

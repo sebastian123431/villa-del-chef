@@ -1,0 +1,27 @@
+========================================================================
+           VILLA DEL CHEF - CARPETA DE IMPORTACIÓN RÁPIDA (_Drop)
+========================================================================
+
+¡Aquí puedes arrastrar cualquier paquete de sprites que descargues!
+
+¿CÓMO USARLO?
+1. Descarga cualquier pack de muebles, personajes, cocina o comida en formato:
+   - Archivos individuales (.PNG, .JPG)
+   - O carpetas / archivos comprimidos (.ZIP)
+2. Arrástralos o pégalos directamente dentro de esta carpeta (Assets/_Drop).
+3. En Unity, haz clic en el menú superior:
+   Tools > Villa del Chef > Import & Organize Assets from _Drop
+
+¿QUÉ HARÁ EL SISTEMA AUTOMÁTICAMENTE?
+- Descomprimirá los archivos .zip si los hay.
+- Identificará si son sillas, mesas, estufas, personajes, comida o iconos UI.
+- Los moverá ordenadamente a su carpeta en Assets/_Projet/Art/...
+- Les aplicará automáticamente la configuración Pixel Art perfecta:
+  * Texture Type: Sprite (2D and UI)
+  * Sprite Mode: Single
+  * Pixels Per Unit: 16
+  * Filter Mode: Point (sin desenfoques, nitidez 100%)
+  * Compression: None (calidad pura de pixel art)
+- Limpiará esta carpeta dejándola vacía y lista para el próximo pack.
+
+========================================================================

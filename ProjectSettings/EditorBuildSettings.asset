@@ -6,7 +6,14 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/SampleScene.unity
-    guid: 8c9cfa26abfee488c85f1582747f6a02
+    path: Assets/_Projet/Scenes/00_Boot.unity
+    guid: 5b01ffa4d3f89b2499d5ae414815eb8a
+  - enabled: 1
+    path: Assets/_Projet/Scenes/01_MainMenu.unity
+    guid: c93a5bd3738489845acf5de33c155c34
+  - enabled: 1
+    path: Assets/_Projet/Scenes/02_Restaurant.unity
+    guid: 7e8863eefe74a86489418a66fb7b3b6e
   m_configObjects:
+    com.unity.dt.app-ui: {fileID: 11400000, guid: 1b1c20d82303e4b5781c3ef50ac1449f, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}

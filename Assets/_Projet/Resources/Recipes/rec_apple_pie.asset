@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcc47e58370a07246913a8a2844398a1, type: 3}
+  m_Name: rec_apple_pie
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.RecipeSO
+  recipeID: rec_apple_pie
+  recipeName: Pie de Manzana Horneado
+  icon: {fileID: 21300000, guid: 5bdefd35ed6f63246988b935d6ecb439, type: 3}
+  finishedDishSprite: {fileID: 21300000, guid: d0915367fc1958f42bac7ebd147cbe0e, type: 3}
+  category: 0
+  rarity: 0
+  requiredStation: 2
+  requiredIngredients:
+  - ingredient: {fileID: 11400000, guid: 66aa9b6638da7a846925f60b306404f0, type: 2}
+    amount: 1
+  - ingredient: {fileID: 11400000, guid: 1dc050d55d313a341b34f6e9bbdf6301, type: 2}
+    amount: 3
+  cookTimeSeconds: 18
+  sellPrice: 175
+  experienceReward: 35
+  unlockLevel: 1
+  description: 

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcc47e58370a07246913a8a2844398a1, type: 3}
+  m_Name: rec_fries
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.RecipeSO
+  recipeID: rec_fries
+  recipeName: Papas Fritas Crujientes
+  icon: {fileID: 21300000, guid: 501f931011674cf43b96ef4c7c066b87, type: 3}
+  finishedDishSprite: {fileID: 21300000, guid: 0a1b58cb535657e4588530fb73c6ccbb, type: 3}
+  category: 0
+  rarity: 0
+  requiredStation: 3
+  requiredIngredients:
+  - ingredient: {fileID: 11400000, guid: de9123cd2fc562a4a899e19e24776986, type: 2}
+    amount: 2
+  cookTimeSeconds: 8
+  sellPrice: 80
+  experienceReward: 15
+  unlockLevel: 1
+  description: 
