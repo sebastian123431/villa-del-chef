@@ -62,19 +62,19 @@ namespace VillaDelChef.Core.Editor
             }
 
             // 3. Crafting Recipes
-            var craftingRecipes = Resources.LoadAll<CraftingRecipeSO>("Crafting");
+            var craftingRecipes = Resources.LoadAll<CraftingRecipeSO>("CraftingRecipes");
             var craftIds = new HashSet<string>();
             foreach (var cr in craftingRecipes)
             {
                 if (cr == null) continue;
-                if (string.IsNullOrWhiteSpace(cr.recipeID))
+                if (string.IsNullOrWhiteSpace(cr.craftID))
                 {
-                    Debug.LogError($"[GameDataValidator] CraftingRecipeSO '{cr.name}' no tiene recipeID asignado.", cr);
+                    Debug.LogError($"[GameDataValidator] CraftingRecipeSO '{cr.name}' no tiene craftID asignado.", cr);
                     errorCount++;
                 }
-                else if (!craftIds.Add(cr.recipeID))
+                else if (!craftIds.Add(cr.craftID))
                 {
-                    Debug.LogError($"[GameDataValidator] ID duplicado en CraftingRecipeSO: '{cr.recipeID}' en asset '{cr.name}'.", cr);
+                    Debug.LogError($"[GameDataValidator] ID duplicado en CraftingRecipeSO: '{cr.craftID}' en asset '{cr.name}'.", cr);
                     errorCount++;
                 }
             }
