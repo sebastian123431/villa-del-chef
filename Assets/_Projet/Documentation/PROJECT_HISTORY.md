@@ -392,5 +392,63 @@ ESTADO:
 COMPLETADO — Compilación con 0 errores y 0 advertencias en runtime y editor.
 
 PRÓXIMO PASO:
-Fase 7: Contenido y Variedad (expansión de recetas del Valle del Elqui, personalización estética, nuevos muebles y progresión avanzada).
+Fase 6.2: Cierre de Integración & Robustez de Sistemas.
 ------------------------------------------------------------
+
+FECHA: 2026-09-22
+VERSIÓN / TAG: 0.1.0 (Fase 6.2: Cierre de Integración)
+FASE: FASE 6.2 — Cierre de Integración & Robustez de Sistemas
+OBJETIVO:
+Resolver las inconsistencias de integración restantes en New Input System, gating de nivel de tiendas NPC, footprints en el grid, solapamiento con expansiones, exploit de starter items, lógica de Nueva Partida vs Continuar, doble PlaceDish y PlayerSettings.
+
+CAMBIOS REALIZADOS:
+- New Input System: evaluación desacoplada de `wasPressedThisFrame`, `isPressed` y `wasReleasedThisFrame`. Se eliminó el bloqueo donde `touch.press.isPressed == false` en el frame final impedía procesar el release. Implementado Pinch-to-Zoom y Long Press nativos en New Input.
+- Gating de nivel en tiendas: `VendorBuilding.CanInteract` valida `ProgressionManager.CurrentLevel >= unlockLevelRequirement`. Feedback flotante `🔒 Se desbloquea en Nivel X` al intentar interactuar con un puesto cerrado y atenuación a gris del local y NPC con respuesta a `GameEvents.OnLevelUp`.
+- Footprints en Grid: Implementado `GridManager.IsPlacementInsideGrid`. Reubicados los 7 especialistas en `y = 20` dentro del rango X: 1..27 (Marina 1, Bruno 5, Elena 9, Tomás 13, Amelia 17, Lucas 21, Sofía 25) con acera transitable en `y = 19`.
+- Bulevar comercial vs Expansiones: Altura de `exp_crops` y `exp_crafting` reducida a 3 filas (`y: 16..18`). Filas `y >= 19` declaradas como `ZoneType.Market` público accesible desde el inicio.
+- Bloqueo de construcción sobre tiendas: `GridManager.IsAreaAvailable` valida `!cell.isUnlocked`, `!cell.isWalkable` y `occupyingObject`. `VendorBuilding` registra su propio `GridObject`.
+- Restauración defensiva de transitabilidad: `BuildManager.ValidateNavigationSafety` protegido con bloque `try ... finally` para garantizar la restauración exacta de celdas candidatas.
+- Exploit de inventario inicial corregido: Añadida bandera persistente `starterItemsGranted` en `SaveData.cs`. El starter pack solo se entrega una vez en la vida de la partida.
+- Lógica de Continuar vs Nueva Partida: Añadida bandera `hasStartedGame` en `SaveData.cs`. `SaveManager.CanContinueGame()` determina si el botón Continuar se habilita. Modal de confirmación para Nueva Partida si ya hay progreso guardado.
+- Doble PlaceDish eliminada: Colocación en mesa delegada exclusivamente a `CustomerController.ReceiveDish()`, validando coincidencia de receta con el pedido.
+- Reservas de mozos: `WorkerController` libera reservas atómicas (`currentlyReservedDish` y `currentlyReservedTable`) en `OnDisable()` y `OnDestroy()`.
+- Optimización de memoria en Bootstrap: `RestaurantBootstrap.cs` migrado a evaluación perezosa (`GetOrCreateFallbackSprite` con fábrica lambda) para evitar generación innecesaria de texturas procedimentales.
+- Preparación de animaciones de NPC: `NPCSO` ampliado con soporte opcional para `RuntimeAnimatorController`, con fallback automático a `worldSprite` y `portrait`.
+- Herramienta de validación de datos: Creado `GameDataValidatorEditor.cs` (`Tools > Villa del Chef > Validate Game Data`).
+- PlayerSettings: Versión actualizada a `0.1.0`, orientación fija en Landscape, package name pendiente del propietario documentado para producción.
+
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Scripts/Core/Editor/GameDataValidatorEditor.cs`
+- `Assets/_Projet/Scripts/Core/Editor/GameDataValidatorEditor.cs.meta`
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/Input/TouchInputManager.cs`
+- `Assets/_Projet/Scripts/NPC/VendorBuilding.cs`
+- `Assets/_Projet/Scripts/NPC/NPCController.cs`
+- `Assets/_Projet/Scripts/ScriptableObjects/NPCSO.cs`
+- `Assets/_Projet/Scripts/Building/GridManager.cs`
+- `Assets/_Projet/Scripts/Building/BuildManager.cs`
+- `Assets/_Projet/Scripts/Core/RestaurantBootstrap.cs`
+- `Assets/_Projet/Scripts/Core/Editor/RestaurantSceneSetupEditor.cs`
+- `Assets/_Projet/Scripts/Save/SaveData.cs`
+- `Assets/_Projet/Scripts/Save/SaveManager.cs`
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`
+- `Assets/_Projet/Scripts/Workers/WorkerController.cs`
+- `Assets/_Projet/Scripts/Economy/MerchantStall.cs`
+- `Assets/_Projet/Scripts/Crafting/CraftingStation.cs`
+- `Assets/_Projet/Scripts/UI/MainMenuController.cs`
+- `Assets/_Projet/Resources/Expansions/exp_crops.asset`
+- `Assets/_Projet/Resources/Expansions/exp_crafting.asset`
+- `ProjectSettings/ProjectSettings.asset`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/KNOWN_ISSUES.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assets/_Projet/Documentation/AI_SESSION_LOG.md`
+
+ESTADO:
+FASE 6.2 — CERRADA TÉCNICAMENTE CON ÉXITO [~] (0 errores y 0 advertencias en compilación C# runtime y editor).
+
+PRÓXIMO PASO:
+Pruebas interactivas en Unity Play Mode y generación de APK en Android. Posterior inicio de Fase 7.
+------------------------------------------------------------
+

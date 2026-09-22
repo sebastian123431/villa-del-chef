@@ -72,7 +72,7 @@ namespace VillaDelChef.Economy
 
         private void OnMouseDown()
         {
-            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
                 OnInteract();
             }

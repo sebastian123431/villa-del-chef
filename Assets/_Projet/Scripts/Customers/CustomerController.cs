@@ -269,16 +269,32 @@ namespace VillaDelChef.Customers
             return RecipeManager.Instance != null ? RecipeManager.Instance.GetRandomUnlockedRecipe() : null;
         }
 
-        public void ReceiveDish(DishInstance dish)
+        public bool ReceiveDish(DishInstance dish)
         {
-            if (currentState == CustomerState.WaitingForFood)
+            if (currentState != CustomerState.WaitingForFood)
             {
-                if (assignedTable != null)
-                {
-                    assignedTable.PlaceDish(dish);
-                }
-                currentState = CustomerState.Eating;
+                Debug.LogWarning($"[CustomerController] Cliente no está esperando comida (Estado actual: {currentState}).");
+                return false;
             }
+
+            if (dish == null || dish.recipeData == null || orderedDish == null)
+            {
+                Debug.LogWarning("[CustomerController] Intento de entrega con plato o receta nula.");
+                return false;
+            }
+
+            if (dish.recipeData.recipeID != orderedDish.recipeID)
+            {
+                Debug.LogWarning($"[CustomerController] Pedido no coincide. Esperado: {orderedDish.recipeID}, Recibido: {dish.recipeData.recipeID}");
+                return false;
+            }
+
+            if (assignedTable != null)
+            {
+                assignedTable.PlaceDish(dish);
+            }
+            currentState = CustomerState.Eating;
+            return true;
         }
 
         private IEnumerator LeaveRestaurantRoutine()

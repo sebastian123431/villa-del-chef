@@ -87,3 +87,22 @@ Leyenda:
 - [x] Configuración de PlayerSettings: Nombre de producto "Villa del Chef" y orientación forzada en Landscape (desactivado Portrait)
 - [x] MainMenu responsivo con soporte para Jugar, Continuar (según `SaveManager.HasSaveFile`), Opciones, Créditos, Salir (solo PC) y slot para `mainmenu_background.png`
 
+## FASE 6.2 — Cierre de Integración & Robustez de Sistemas
+- [~] Estado actual de la fase: PARCIAL / EN CIERRE TÉCNICO (Compilación C# 100% limpia sin errores; Play Mode en runtime y Android Build físico pendientes de ejecución en el entorno del propietario).
+- [x] New Input System táctil: Corregido bug donde `touch.press.isPressed == false` impedía procesar `wasReleasedThisFrame`.
+- [x] Gestos móviles New Input: Tap, Drag de cámara, Drag de ghost en Build Mode, Pinch-to-Zoom con sensibilidad configurable (`pinchZoomSensitivity = 0.05f`), Long Press (`longPressDuration = 0.5f`) y rotación mediante UI (`RotateBuildSelection`).
+- [x] Tiendas de NPCs: Gating de nivel real implementado (`CanInteract` evalúa `ProgressionManager.CurrentLevel >= unlockLevelRequirement`), feedback visual con color atenuado al estar bloqueadas y mensaje flotante informativo (`🔒 Se desbloquea en Nivel X`).
+- [x] Cuadrícula & Footprints de tiendas: Los 7 locales (Marina, Bruno, Elena, Tomás, Amelia, Lucas, Sofía) reubicados en `y = 20` dentro del rango X: 1..27 (footprint 3x2). Validación defensiva `IsPlacementInsideGrid` antes de spawnear.
+- [x] Zonificación & Expansiones: El bulevar comercial (`y >= 19`) es ahora zona pública abierta `ZoneType.Market`. Las expansiones (`exp_crops` y `exp_crafting`) se ajustaron a `height = 3` (y: 16..18) eliminando cualquier solapamiento con los comercios accesibles desde el inicio.
+- [x] Bloqueo de construcción sobre tiendas: `GridManager.IsAreaAvailable` verifica `isUnlocked`, `isWalkable` y `occupyingObject`, evitando construir muebles encima de tiendas o áreas bloqueadas.
+- [x] Prevención de excepciones en pathfinding: `BuildManager.ValidateNavigationSafety` protegido con bloque `try ... finally` para garantizar la restauración exacta de transitabilidad de celdas candidatas.
+- [x] Explotación de inventario inicial eliminada: Bandera `starterItemsGranted` en `SaveData.cs` asegura que el paquete de inicio solo se entrega una vez por partida, incluso si el inventario queda completamente a cero.
+- [x] Distinción de Nueva Partida vs Continuar: Bandera `hasStartedGame` en `SaveData.cs`. `SaveManager.CanContinueGame()` desacopla la existencia del archivo técnico de guardado del progreso real. Modal de confirmación para evitar sobreescritura accidental.
+- [x] Entrega de platos atómica: Se eliminó la doble llamada `PlaceDish`. La entrega se delega exclusivamente a `CustomerController.ReceiveDish()`, quien valida que el plato coincida con el pedido antes de posicionarlo en la mesa.
+- [x] Liberación de reservas en mozos: `WorkerController` libera atómicamente reservas de platos (`isReserved`) y mesas sucias (`isCleaningReserved`) en `OnDisable`, `OnDestroy` y cancelaciones de ruta.
+- [x] Optimización de memoria en arranque: `RestaurantBootstrap.cs` migrado a evaluación perezosa (`GetOrCreateFallbackSprite` con fábrica lambda) para evitar la creación inútil de texturas procedimentales si los assets existen.
+- [x] Compatibilidad con animación de NPCs: `NPCSO` extendido con soporte opcional para `RuntimeAnimatorController`, manteniendo fallback a `worldSprite` y `portrait`.
+- [x] Herramienta de validación de datos: Implementada en `Tools > Villa del Chef > Validate Game Data` (`GameDataValidatorEditor.cs`) para auditar IDs duplicados, referencias nulas y límites de grilla.
+- [x] Configuración de PlayerSettings: Versión actualizada a `0.1.0`, bundle version code `1`, orientación bloqueada en Landscape, package identifier preparado para desarrollo.
+- [ ] Validación física en dispositivo Android / APK build.
+

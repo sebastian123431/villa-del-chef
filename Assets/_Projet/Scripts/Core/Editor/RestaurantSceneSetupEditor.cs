@@ -658,6 +658,24 @@ namespace VillaDelChef.EditorTools
 
             MainMenuController menu = safeAreaGO.AddComponent<MainMenuController>();
 
+            // Optional Background Graphic container
+            GameObject bgGO = new GameObject("BackgroundImage");
+            bgGO.transform.SetParent(safeAreaGO.transform, false);
+            bgGO.transform.SetAsFirstSibling();
+            RectTransform bgRT = bgGO.AddComponent<RectTransform>();
+            bgRT.anchorMin = Vector2.zero;
+            bgRT.anchorMax = Vector2.one;
+            bgRT.sizeDelta = Vector2.zero;
+            Image bgImg = bgGO.AddComponent<Image>();
+            bgImg.color = new Color(0f, 0f, 0f, 0f); // transparent if no background image yet
+            Sprite mainmenuBg = AssetDatabase.LoadAssetAtPath<Sprite>("Assets/_Projet/Art/UI/MainMenu/mainmenu_background.png");
+            if (mainmenuBg != null)
+            {
+                bgImg.sprite = mainmenuBg;
+                bgImg.color = Color.white;
+            }
+            menu.backgroundImage = bgImg;
+
             // Exotic Title Banner with layered shadow, tropical subtitle, and badge (Centered)
             CreateTextElement(safeAreaGO, "TitleShadow", "VILLA DEL CHEF", 76, new Vector2(0f, 258f), new Vector2(950, 110), new Color(0.18f, 0.08f, 0.02f, 0.85f));
             CreateTextElement(safeAreaGO, "Title", "VILLA DEL CHEF", 76, new Vector2(0f, 260f), new Vector2(950, 110), new Color(1f, 0.88f, 0.25f));
@@ -666,9 +684,28 @@ namespace VillaDelChef.EditorTools
             CreateTextElement(safeAreaGO, "Subtitle", "🌴 ¡Cocina, Cultiva, Decora y Atiende a tus Clientes! 🍽️", 26, new Vector2(0f, 140f), new Vector2(900, 45), new Color(0.95f, 0.95f, 1f));
 
             // Center Menu Buttons
-            menu.playButton = CreateButton(safeAreaGO, "PlayBtn", "🍽️ ¡JUGAR!", new Vector2(0f, -30f), new Vector2(300, 80), new Color(0.2f, 0.75f, 0.4f));
-            menu.optionsButton = CreateButton(safeAreaGO, "OptionsBtn", "OPCIONES", new Vector2(0f, -125f), new Vector2(300, 70), new Color(0.25f, 0.5f, 0.85f));
-            menu.quitButton = CreateButton(safeAreaGO, "QuitBtn", "SALIR", new Vector2(0f, -215f), new Vector2(300, 65), new Color(0.75f, 0.25f, 0.25f));
+            menu.continueButton = CreateButton(safeAreaGO, "ContinueBtn", "▶️ CONTINUAR", new Vector2(0f, 15f), new Vector2(320, 65), new Color(0.2f, 0.75f, 0.4f));
+            menu.playButton = CreateButton(safeAreaGO, "PlayBtn", "🍽️ NUEVA PARTIDA", new Vector2(0f, -60f), new Vector2(320, 60), new Color(0.85f, 0.55f, 0.2f));
+            menu.optionsButton = CreateButton(safeAreaGO, "OptionsBtn", "⚙️ OPCIONES", new Vector2(0f, -130f), new Vector2(320, 55), new Color(0.25f, 0.5f, 0.85f));
+            menu.creditsButton = CreateButton(safeAreaGO, "CreditsBtn", "📜 CRÉDITOS", new Vector2(0f, -195f), new Vector2(320, 55), new Color(0.45f, 0.35f, 0.75f));
+            menu.quitButton = CreateButton(safeAreaGO, "QuitBtn", "SALIR", new Vector2(0f, -260f), new Vector2(320, 50), new Color(0.75f, 0.25f, 0.25f));
+
+            // New Game Confirmation Panel
+            GameObject cnfPanelGO = new GameObject("ConfirmNewGamePanel");
+            cnfPanelGO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform cnfRT = cnfPanelGO.AddComponent<RectTransform>();
+            cnfRT.anchorMin = new Vector2(0.5f, 0.5f);
+            cnfRT.anchorMax = new Vector2(0.5f, 0.5f);
+            cnfRT.sizeDelta = new Vector2(640, 320);
+            cnfRT.anchoredPosition = Vector2.zero;
+            Image cnfBg = cnfPanelGO.AddComponent<Image>();
+            cnfBg.color = new Color(0.1f, 0.12f, 0.16f, 0.98f);
+
+            CreateTextElement(cnfPanelGO, "CnfText", "¿Comenzar una nueva partida?\nSe perderá el progreso guardado actual.", 24, new Vector2(0f, 40f), new Vector2(580, 120), Color.white);
+            menu.confirmNewGameBtn = CreateButton(cnfPanelGO, "ConfirmBtn", "CONFIRMAR", new Vector2(130f, -80f), new Vector2(180, 55), new Color(0.8f, 0.25f, 0.25f));
+            menu.cancelNewGameBtn = CreateButton(cnfPanelGO, "CancelBtn", "CANCELAR", new Vector2(-130f, -80f), new Vector2(180, 55), new Color(0.3f, 0.5f, 0.8f));
+            menu.confirmNewGamePanel = cnfPanelGO;
+            cnfPanelGO.SetActive(false);
 
             // Options Panel
             GameObject optPanelGO = new GameObject("OptionsPanel");
@@ -688,6 +725,23 @@ namespace VillaDelChef.EditorTools
             menu.closeOptionsButton = CreateButton(optPanelGO, "CloseOptBtn", "VOLVER", new Vector2(0f, -170f), new Vector2(200, 60), new Color(0.3f, 0.5f, 0.8f));
             menu.optionsPanel = optPanelGO;
             optPanelGO.SetActive(false);
+
+            // Credits Panel
+            GameObject credPanelGO = new GameObject("CreditsPanel");
+            credPanelGO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform credRT = credPanelGO.AddComponent<RectTransform>();
+            credRT.anchorMin = new Vector2(0.5f, 0.5f);
+            credRT.anchorMax = new Vector2(0.5f, 0.5f);
+            credRT.sizeDelta = new Vector2(650, 480);
+            credRT.anchoredPosition = Vector2.zero;
+            Image credBg = credPanelGO.AddComponent<Image>();
+            credBg.color = new Color(0.12f, 0.14f, 0.18f, 0.97f);
+
+            CreateTextElement(credPanelGO, "CredTitle", "CRÉDITOS", 36, new Vector2(0f, 170f), new Vector2(400, 50), Color.white);
+            CreateTextElement(credPanelGO, "CredBody", "VILLA DEL CHEF\n\nDesarrollo, Diseño y Arte Pixel Art\nEquipo de Villa del Chef\n\nHecho con pasión en Unity 6", 22, new Vector2(0f, 30f), new Vector2(520, 200), new Color(0.9f, 0.9f, 0.95f));
+            menu.closeCreditsButton = CreateButton(credPanelGO, "CloseCredBtn", "VOLVER", new Vector2(0f, -170f), new Vector2(200, 60), new Color(0.3f, 0.5f, 0.8f));
+            menu.creditsPanel = credPanelGO;
+            credPanelGO.SetActive(false);
 
             // Audio Manager in Main Menu
             GameObject audioGO = new GameObject("AudioManager");

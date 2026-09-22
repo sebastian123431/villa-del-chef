@@ -267,55 +267,17 @@ namespace VillaDelChef.Building
             }
 
             bool isSafe = true;
-
-            // 1. DeliveryCounter -> Table
-            if (VillaDelChef.Restaurant.DeliveryCounter.Instance != null)
+            try
             {
-                Vector2Int counterPos = VillaDelChef.Restaurant.DeliveryCounter.Instance.gridPosition;
-                foreach (var obj in activeFurniture)
+                // 1. DeliveryCounter -> Table
+                if (VillaDelChef.Restaurant.DeliveryCounter.Instance != null)
                 {
-                    if (obj is VillaDelChef.Restaurant.Table table && obj.gameObject.activeInHierarchy)
+                    Vector2Int counterPos = VillaDelChef.Restaurant.DeliveryCounter.Instance.gridPosition;
+                    foreach (var obj in activeFurniture)
                     {
-                        var path = Utilities.GridPathfinding.FindPath(counterPos, table.gridPosition);
-                        if (path == null || path.Count == 0)
+                        if (obj is VillaDelChef.Restaurant.Table table && obj.gameObject.activeInHierarchy)
                         {
-                            isSafe = false;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // 2. Entrance -> Tables
-            if (isSafe && VillaDelChef.Managers.CustomerManager.Instance != null)
-            {
-                Vector2Int entrancePos = VillaDelChef.Managers.CustomerManager.Instance.entranceGridPos;
-                foreach (var obj in activeFurniture)
-                {
-                    if (obj is VillaDelChef.Restaurant.Table table && obj.gameObject.activeInHierarchy)
-                    {
-                        var path = Utilities.GridPathfinding.FindPath(entrancePos, table.gridPosition);
-                        if (path == null || path.Count == 0)
-                        {
-                            isSafe = false;
-                            break;
-                        }
-                    }
-                }
-            }
-
-            // 3. Worker -> DeliveryCounter
-            if (isSafe && VillaDelChef.Restaurant.DeliveryCounter.Instance != null)
-            {
-                Vector2Int counterPos = VillaDelChef.Restaurant.DeliveryCounter.Instance.gridPosition;
-                var workers = UnityEngine.Object.FindObjectsByType<VillaDelChef.Workers.WorkerController>(FindObjectsInactive.Exclude);
-                if (workers != null && workers.Length > 0)
-                {
-                    foreach (var w in workers)
-                    {
-                        if (w != null)
-                        {
-                            var path = Utilities.GridPathfinding.FindPath(w.idleGridPos, counterPos);
+                            var path = Utilities.GridPathfinding.FindPath(counterPos, table.gridPosition);
                             if (path == null || path.Count == 0)
                             {
                                 isSafe = false;
@@ -324,14 +286,56 @@ namespace VillaDelChef.Building
                         }
                     }
                 }
-            }
 
-            // Restore candidate cells to their EXACT original values (never assume true)
-            foreach (var kvp in previousWalkability)
-            {
-                if (kvp.Key != null)
+                // 2. Entrance -> Tables
+                if (isSafe && VillaDelChef.Managers.CustomerManager.Instance != null)
                 {
-                    kvp.Key.isWalkable = kvp.Value;
+                    Vector2Int entrancePos = VillaDelChef.Managers.CustomerManager.Instance.entranceGridPos;
+                    foreach (var obj in activeFurniture)
+                    {
+                        if (obj is VillaDelChef.Restaurant.Table table && obj.gameObject.activeInHierarchy)
+                        {
+                            var path = Utilities.GridPathfinding.FindPath(entrancePos, table.gridPosition);
+                            if (path == null || path.Count == 0)
+                            {
+                                isSafe = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                // 3. Worker -> DeliveryCounter
+                if (isSafe && VillaDelChef.Restaurant.DeliveryCounter.Instance != null)
+                {
+                    Vector2Int counterPos = VillaDelChef.Restaurant.DeliveryCounter.Instance.gridPosition;
+                    var workers = UnityEngine.Object.FindObjectsByType<VillaDelChef.Workers.WorkerController>(FindObjectsInactive.Exclude);
+                    if (workers != null && workers.Length > 0)
+                    {
+                        foreach (var w in workers)
+                        {
+                            if (w != null)
+                            {
+                                var path = Utilities.GridPathfinding.FindPath(w.idleGridPos, counterPos);
+                                if (path == null || path.Count == 0)
+                                {
+                                    isSafe = false;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            finally
+            {
+                // Restore candidate cells to their EXACT original values (never assume true)
+                foreach (var kvp in previousWalkability)
+                {
+                    if (kvp.Key != null)
+                    {
+                        kvp.Key.isWalkable = kvp.Value;
+                    }
                 }
             }
 

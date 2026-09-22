@@ -73,11 +73,13 @@ namespace VillaDelChef.Save
 
         // Player stats
         public int coins = 250;
-
-
         public int experience = 0;
         public int level = 1;
         public int reputation = 10;
+
+        // Session & Progression State
+        public bool hasStartedGame = false;
+        public bool starterItemsGranted = false;
 
         // Inventory
         public List<InventoryItemEntry> inventory = new List<InventoryItemEntry>();

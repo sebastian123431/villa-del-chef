@@ -41,10 +41,22 @@ namespace VillaDelChef.NPC
         {
             if (npcData == null) return;
 
-            if (characterRenderer != null && npcData.worldSprite != null)
+            if (npcData.animatorController != null)
             {
-                characterRenderer.sprite = npcData.worldSprite;
+                Animator anim = GetComponent<Animator>() ?? gameObject.AddComponent<Animator>();
+                anim.runtimeAnimatorController = npcData.animatorController;
+                anim.enabled = true;
             }
+            else
+            {
+                Animator anim = GetComponent<Animator>();
+                if (anim != null) anim.enabled = false;
+                if (characterRenderer != null)
+                {
+                    characterRenderer.sprite = npcData.worldSprite ?? npcData.portrait;
+                }
+            }
+
             if (vendorController != null && npcData.vendorData != null)
             {
                 vendorController.vendorData = npcData.vendorData;
@@ -73,7 +85,7 @@ namespace VillaDelChef.NPC
 
         private void OnMouseDown()
         {
-            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
                 Interact();
             }

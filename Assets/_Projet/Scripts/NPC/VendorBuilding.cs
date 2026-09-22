@@ -3,6 +3,7 @@ using VillaDelChef.Building;
 using VillaDelChef.Core;
 using VillaDelChef.Economy;
 using VillaDelChef.Interaction;
+using VillaDelChef.Managers;
 using VillaDelChef.ScriptableObjects;
 using VillaDelChef.UI;
 
@@ -25,16 +26,76 @@ namespace VillaDelChef.NPC
         public int sizeX = 3;
         public int sizeY = 2;
 
-        [Header("Components & Visuals")]
+        [Header("Visual Components")]
         public SpriteRenderer stallRenderer;
         public NPCController associatedNPC;
         public GameObject floatingSign;
+        public TextMesh signTextMesh;
 
         public string InteractionPrompt => $"🏪 {shopName}\n[Tocar para Comprar]";
-        public bool CanInteract => true;
+        public bool CanInteract
+        {
+            get
+            {
+                if (VillaDelChef.Progression.ProgressionManager.Instance != null)
+                {
+                    return VillaDelChef.Progression.ProgressionManager.Instance.CurrentLevel >= unlockLevelRequirement;
+                }
+                return true;
+            }
+        }
+
+        private void OnEnable()
+        {
+            RefreshUnlockState();
+            GameEvents.OnLevelUp += HandleLevelUp;
+        }
+
+        private void OnDisable()
+        {
+            GameEvents.OnLevelUp -= HandleLevelUp;
+        }
+
+        private void HandleLevelUp(int newLevel)
+        {
+            RefreshUnlockState();
+        }
+
+        public void ShowLockedFeedback()
+        {
+            int req = unlockLevelRequirement;
+            FloatingTextManager.Instance?.Show($"🔒 Se desbloquea en Nivel {req}", transform.position + Vector3.up * 1.5f, Color.yellow);
+            AudioManager.Instance?.PlayButtonClick();
+        }
+
+        public void RefreshUnlockState()
+        {
+            bool unlocked = CanInteract;
+            Color tint = unlocked ? Color.white : new Color(0.55f, 0.55f, 0.55f, 0.95f);
+            if (stallRenderer != null) stallRenderer.color = tint;
+            if (associatedNPC != null && associatedNPC.characterRenderer != null)
+            {
+                associatedNPC.characterRenderer.color = tint;
+            }
+            if (floatingSign != null)
+            {
+                var tm = floatingSign.GetComponent<TextMesh>();
+                if (tm != null)
+                {
+                    tm.text = unlocked ? $"🛒 {shopName}\n[Tocar]" : $"🔒 {shopName}\n[Nivel {unlockLevelRequirement}]";
+                    tm.color = unlocked ? new Color(1f, 0.92f, 0.35f) : new Color(0.85f, 0.85f, 0.85f, 0.7f);
+                }
+            }
+        }
 
         public void Interact()
         {
+            if (!CanInteract)
+            {
+                ShowLockedFeedback();
+                return;
+            }
+
             if (associatedNPC != null && associatedNPC.npcData != null)
             {
                 associatedNPC.Interact();
@@ -71,10 +132,13 @@ namespace VillaDelChef.NPC
             col.size = new Vector2(sizeX, sizeY + 0.5f);
             col.offset = new Vector2(0f, 0.25f);
 
-            // Register occupancy in GridManager
+            // Register occupancy in GridManager using a GridObject so furniture cannot be placed on top
+            GridObject gridObj = GetComponent<GridObject>() ?? gameObject.AddComponent<GridObject>();
+            gridObj.gridPosition = gridPosition;
+            gridObj.blocksWalkability = true;
             if (GridManager.Instance != null)
             {
-                GridManager.Instance.SetOccupancy(gridPosition.x, gridPosition.y, sizeX, sizeY, null, true);
+                GridManager.Instance.SetOccupancy(gridPosition.x, gridPosition.y, sizeX, sizeY, gridObj, true);
             }
 
             // Spawn or configure NPC character attached to building
@@ -98,6 +162,7 @@ namespace VillaDelChef.NPC
 
             // Setup floating 3D text / sign
             CreateFloatingSign();
+            RefreshUnlockState();
         }
 
         private void CreateFloatingSign()
@@ -122,7 +187,7 @@ namespace VillaDelChef.NPC
 
         private void OnMouseDown()
         {
-            if (!UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
+            if (UnityEngine.EventSystems.EventSystem.current == null || !UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
             {
                 Interact();
             }

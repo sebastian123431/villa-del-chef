@@ -69,6 +69,14 @@ namespace VillaDelChef.Save
                     // Calculate offline time
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
+
+                    // Migration for older saves prior to hasStartedGame / starterItemsGranted flags
+                    if (!currentSaveData.hasStartedGame && (currentSaveData.level > 1 || currentSaveData.experience > 0 || currentSaveData.placedFurniture.Count > 0 || currentSaveData.inventory.Count > 0))
+                    {
+                        currentSaveData.hasStartedGame = true;
+                        currentSaveData.starterItemsGranted = true;
+                    }
+
                     Debug.Log($"[SaveManager] Loaded save game (v{currentSaveData.saveVersion}). Offline time: {OfflineSecondsElapsed} seconds.");
                     return;
                 }
@@ -87,6 +95,14 @@ namespace VillaDelChef.Save
                     currentSaveData = JsonUtility.FromJson<SaveData>(json);
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
+
+                    // Migration for older saves prior to hasStartedGame / starterItemsGranted flags
+                    if (!currentSaveData.hasStartedGame && (currentSaveData.level > 1 || currentSaveData.experience > 0 || currentSaveData.placedFurniture.Count > 0 || currentSaveData.inventory.Count > 0))
+                    {
+                        currentSaveData.hasStartedGame = true;
+                        currentSaveData.starterItemsGranted = true;
+                    }
+
                     Debug.Log($"[SaveManager] Restored save game from backup. Offline time: {OfflineSecondsElapsed} seconds.");
                     return;
                 }
@@ -142,6 +158,20 @@ namespace VillaDelChef.Save
             }
         }
 
+        public bool CanContinueGame()
+        {
+            return currentSaveData != null && currentSaveData.hasStartedGame;
+        }
+
+        public void StartNewGame()
+        {
+            ResetSaveData();
+            if (currentSaveData != null)
+            {
+                currentSaveData.hasStartedGame = true;
+                SaveGame();
+            }
+        }
 
         private void CreateDefaultSave()
         {
@@ -151,6 +181,8 @@ namespace VillaDelChef.Save
                 experience = 0,
                 level = 1,
                 reputation = 10,
+                hasStartedGame = false,
+                starterItemsGranted = false,
                 lastSaveTimestampSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
             OfflineSecondsElapsed = 0;
@@ -162,6 +194,11 @@ namespace VillaDelChef.Save
             if (File.Exists(saveFilePath))
             {
                 File.Delete(saveFilePath);
+            }
+            string backupPath = saveFilePath + ".bak";
+            if (File.Exists(backupPath))
+            {
+                File.Delete(backupPath);
             }
             CreateDefaultSave();
         }

@@ -134,14 +134,122 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 
 ---
 
-### ISSUE #012
-- **Título**: BuildManager.ValidateNavigationSafety restauraba transitabilidad forzando true.
-- **Severidad**: MEDIA.
-- **Sistema**: Construcción / Pathfinding (`BuildManager.cs`).
-- **Descripción**: Durante la validación temporal de colocación, las celdas se marcaban como no transitables (`isWalkable = false`) y al finalizar se restauraban con `isWalkable = true`, corrompiendo celdas que eran originalmente no transitables (como muros perimetrales).
-- **Solución Propuesta**: Almacenar el estado original en un diccionario `previousWalkability` y restaurar con exactitud el valor previo de cada celda. Validar rutas críticas (DeliveryCounter a Mesas, Entrada a Mesas, Worker a DeliveryCounter).
+### ISSUE #013
+- **Título**: New Input System touch release ignorado por condición exterior `isPressed == false`.
+- **Severidad**: CRÍTICA.
+- **Sistema**: Input táctil (`TouchInputManager.cs`).
+- **Descripción**: La rama New Input System evaluaba `touch.press.isPressed` como guarda externa previa, impidiendo capturar el evento `wasReleasedThisFrame` ya que en el frame del release `isPressed` ya es falso. Esto causaba taps colgados o gestos no completados.
+- **Solución Propuesta**: Desacoplar la evaluación de estados (`wasPressedThisFrame`, `isPressed`, `wasReleasedThisFrame`) para que el release se procese independientemente del estado actual de presión.
 - **Estado**: RESUELTO.
-- **Solución Aplicada**: `BuildManager.ValidateNavigationSafety()` ahora almacena el estado previo en `previousWalkability` y restaura cada celda exactamente a su valor anterior. Se validan las 3 rutas esenciales y se muestra notificación al usuario si la colocación bloquearía el paso.
-- **Fecha**: 2026-09-22 (Fase 6.1).
+- **Solución Aplicada**: Se desacoplaron las tres fases en `TouchInputManager.HandleNewInputSystem()`. `HandleTouchBegan` se ejecuta al presionar, `HandleTouchMoved` mientras se mantiene presionado, y `HandleTouchEnded` incondicionalmente en el frame de soltado.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #014
+- **Título**: Tiendas de NPCs permitían interacción a pesar de no cumplir `unlockLevelRequirement`.
+- **Severidad**: ALTA.
+- **Sistema**: Progresión / Tiendas NPC (`VendorBuilding.cs`, `VendorUI.cs`).
+- **Descripción**: `VendorBuilding.CanInteract` no validaba el nivel actual del jugador contra `unlockLevelRequirement`, permitiendo abrir la tienda y comprar artículos de especialistas bloqueados.
+- **Solución Propuesta**: Conectar `CanInteract` con `ProgressionManager.Instance.CurrentLevel >= unlockLevelRequirement`, proveer feedback flotante y atenuar visualmente el puesto.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `VendorBuilding.CanInteract` comprueba `ProgressionManager.CurrentLevel`. Si está bloqueada, se invoca `ShowLockedFeedback()` mostrando un texto flotante `🔒 Se desbloquea en Nivel X`, y el SpriteRenderer del puesto y NPC se atenúa a gris sutil mediante `RefreshUnlockState()`, respondiendo a `GameEvents.OnLevelUp`.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #015
+- **Título**: Coordenadas de puestos de Lucas y Sofía fuera de los límites del Grid.
+- **Severidad**: ALTA.
+- **Sistema**: Grilla / Bootstrap (`RestaurantBootstrap.cs`, `GridManager.cs`).
+- **Descripción**: `SpawnSpecialistVendorBuildings()` ubicaba a Lucas en `X=32` y Sofía en `X=36`. Con `gridWidth = 32` (rango 0..31), ambos edificios quedaban completamente fuera de la grilla lógica.
+- **Solución Propuesta**: Reubicar los 7 puestos en `y = 20` dentro del rango X: 1..27 con separación de 1 casilla, y añadir validación defensiva `IsPlacementInsideGrid`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se implementó `GridManager.IsPlacementInsideGrid(origin, sizeX, sizeY)` y se reubicaron los 7 puestos en `y = 20`: Marina (1), Bruno (5), Elena (9), Tomás (13), Amelia (17), Lucas (21), Sofía (25). Todos quedan 100% dentro del grid con una acera peatonal transitable en `y = 19`.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #016
+- **Título**: Locales comerciales de NPCs caían dentro de expansiones inicialmente bloqueadas.
+- **Severidad**: ALTA.
+- **Sistema**: Expansiones / Zonificación (`exp_crops.asset`, `exp_crafting.asset`, `GridManager.cs`).
+- **Descripción**: Las expansiones `exp_crops` (Y: 16..23) y `exp_crafting` (Y: 16..23) cubrían la zona norte del mapa, provocando que los comercios públicos quedaran inaccesibles hasta comprar dichas expansiones de alto costo.
+- **Solución Propuesta**: Reducir la altura de las expansiones a 3 filas (`height = 3`, Y: 16..18) y declarar las filas superiores (`y >= 19`) como bulevar comercial público permanente (`ZoneType.Market`).
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `exp_crops.asset` y `exp_crafting.asset` fueron ajustadas a `height = 3` (Y: 16..18). `GridManager.InitializeGrid()` asigna `ZoneType.Market` a todas las celdas con `y >= 19`, desbloqueadas y transitables por defecto.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #017
+- **Título**: Exploit de paquete de inventario inicial al reiniciar con inventario en cero.
+- **Severidad**: MEDIA.
+- **Sistema**: Economía / Inventario (`RestaurantBootstrap.cs`, `SaveData.cs`).
+- **Descripción**: La lógica de inicio comprobaba `InventoryManager.GetAllItems().Count == 0` para regalar 25 ingredientes. Si un jugador consumía todos sus ingredientes y recargaba la escena, recibía el paquete una y otra vez.
+- **Solución Propuesta**: Agregar una bandera persistente `starterItemsGranted` en `SaveData.cs`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se agregó `bool starterItemsGranted` a `SaveData.cs`. `RestaurantBootstrap.cs` entrega el paquete únicamente si `!starterItemsGranted`, marcándolo en `true` y guardando la partida. Se incluyó migración automática para partidas previas.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #018
+- **Título**: Botón Continuar en MainMenu activo en primera instalación por guardado técnico default.
+- **Severidad**: MEDIA.
+- **Sistema**: Menú Principal / Persistencia (`SaveManager.cs`, `MainMenuController.cs`).
+- **Descripción**: `BootManager` invoca `SaveManager` antes del menú principal. Si no había guardado previo, `CreateDefaultSave()` creaba un archivo físico, haciendo que `File.Exists` retornara `true` y el botón "Continuar" apareciera activo en una instalación limpia.
+- **Solución Propuesta**: Agregar bandera `hasStartedGame` en `SaveData.cs` y centralizar en `SaveManager.CanContinueGame()`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se agregó `bool hasStartedGame = false` a `SaveData.cs` y el método `SaveManager.CanContinueGame()`. `MainMenuController.continueButton.interactable` solo se activa cuando `CanContinueGame()` es verdadero. Si el jugador pulsa "Nueva Partida" existiendo progreso, se despliega un modal de confirmación para evitar pérdidas accidentales.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #019
+- **Título**: Doble ejecución de `PlaceDish` en entrega de comida.
+- **Severidad**: MEDIA.
+- **Sistema**: Mozos / Clientes / Mesas (`WorkerController.cs`, `CustomerController.cs`, `Table.cs`).
+- **Descripción**: `WorkerController` ejecutaba `targetTable.PlaceDish(carryingDish)` y luego `currentCustomer.ReceiveDish(carryingDish)`, el cual volvía a ejecutar `assignedTable.PlaceDish(dish)`. Además, no se validaba si el plato coincidía con el pedido del comensal.
+- **Solución Propuesta**: Delegar la colocación exclusivamente a `CustomerController.ReceiveDish()`, validando coincidencia de receta.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `WorkerController` invoca únicamente `currentCustomer.ReceiveDish(carryingDish)`. `CustomerController` valida que `dish.recipeData.recipeID == orderedDish.recipeID` antes de ordenar a la mesa `assignedTable.PlaceDish(dish)` y pasar al estado `Eating`. Si no coincide, el mozo devuelve el plato al mostrador de forma segura.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #020
+- **Título**: Eager evaluation de texturas procedimentales en `RestaurantBootstrap.cs`.
+- **Severidad**: BAJA (Optimización de memoria / arranque).
+- **Sistema**: Core / Bootstrap (`RestaurantBootstrap.cs`).
+- **Descripción**: La llamada `GetOrFallbackSprite(path, CreatePixelSprite(...))` evaluaba los argumentos en C# de forma anticipada, generando decenas de texturas y sprites procedurales en memoria incluso cuando el asset real existía en disco.
+- **Solución Propuesta**: Migrar a evaluación perezosa `GetOrCreateFallbackSprite(path, Func<Sprite>)`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se implementó `GetOrCreateFallbackSprite(string path, System.Func<Sprite> factory)`. La fábrica procedural solo se ejecuta si el asset real falla al cargarse, eliminando las asignaciones superfluas de texturas.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #021
+- **Título**: Celdas ocupadas por tiendas NPC permitían construcción de muebles encima.
+- **Severidad**: MEDIA.
+- **Sistema**: Construcción (`GridManager.cs`, `VendorBuilding.cs`).
+- **Descripción**: `VendorBuilding` registraba ocupación en el grid pasando `occupyingObject = null`. `GridManager.IsAreaAvailable` solo comprobaba `occupyingObject != null`, permitiendo colocar muebles directamente encima de los puestos comerciales.
+- **Solución Propuesta**: Validar `!cell.isUnlocked` y `!cell.isWalkable` en `IsAreaAvailable`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `GridManager.IsAreaAvailable` ahora rechaza cualquier celda donde `!cell.isUnlocked || !cell.isWalkable || cell.occupyingObject != null`. Adicionalmente, `VendorBuilding` registra un `GridObject` representativo en su footprint.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #022
+- **Título**: Reservas de mozos no se liberaban al desactivar o destruir el componente.
+- **Severidad**: MEDIA.
+- **Sistema**: Mozos (`WorkerController.cs`).
+- **Descripción**: Si un trabajador se destruía, desactivaba o perdía su ruta mientras tenía un plato (`isReserved`) o una mesa sucia (`isCleaningReserved`) reservada, dichos elementos quedaban bloqueados permanentemente para otros trabajadores.
+- **Solución Propuesta**: Rastrear `currentlyReservedDish` y `currentlyReservedTable` y liberarlos en `OnDisable`, `OnDestroy` y abortos de tarea.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se crearon referencias internas `currentlyReservedDish` y `currentlyReservedTable`, gestionadas con el método `ReleaseReservations()` invocado automáticamente en `OnDisable()` y `OnDestroy()`, liberando las reservas y devolviendo platos al mostrador.
+- **Fecha**: 2026-09-22 (Fase 6.2).
 
 

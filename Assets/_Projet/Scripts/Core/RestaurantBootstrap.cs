@@ -144,32 +144,32 @@ namespace VillaDelChef.Core
 
         private void CreateDefaultDataAndObjects()
         {
-            // 1. Generate or load crisp procedural pixel sprites for restaurant and market
-            Sprite woodFloorSprite = GetOrFallbackSprite("Environment/Tiles/floor_restaurant_wood.png", CreatePixelSprite(32, 32, new Color(0.75f, 0.50f, 0.30f), true));
-            Sprite kitchenFloorSprite = GetOrFallbackSprite("Environment/Tiles/floor_kitchen_checker.png", CreatePixelSprite(32, 32, new Color(0.85f, 0.85f, 0.85f), true));
-            Sprite wallBorderSprite = GetOrFallbackSprite("Construction/border_restaurant_wall.png", CreatePixelSprite(16, 16, new Color(0.40f, 0.25f, 0.15f), true));
-            Sprite shopStallSprite = GetOrFallbackSprite("Exterior/shop_market_stall.png", CreatePixelSprite(48, 48, new Color(0.85f, 0.25f, 0.25f), true));
-            Sprite millSprite = GetOrFallbackSprite("Kitchen/station_mill.png", CreatePixelSprite(32, 32, new Color(0.55f, 0.55f, 0.58f), true));
+            // 1. Generate or load crisp procedural pixel sprites for restaurant and market (Lazy fallback to prevent texture allocations)
+            Sprite woodFloorSprite = GetOrCreateFallbackSprite("Environment/Tiles/floor_restaurant_wood.png", () => CreatePixelSprite(32, 32, new Color(0.75f, 0.50f, 0.30f), true));
+            Sprite kitchenFloorSprite = GetOrCreateFallbackSprite("Environment/Tiles/floor_kitchen_checker.png", () => CreatePixelSprite(32, 32, new Color(0.85f, 0.85f, 0.85f), true));
+            Sprite wallBorderSprite = GetOrCreateFallbackSprite("Construction/border_restaurant_wall.png", () => CreatePixelSprite(16, 16, new Color(0.40f, 0.25f, 0.15f), true));
+            Sprite shopStallSprite = GetOrCreateFallbackSprite("Exterior/shop_market_stall.png", () => CreatePixelSprite(48, 48, new Color(0.85f, 0.25f, 0.25f), true));
+            Sprite millSprite = GetOrCreateFallbackSprite("Kitchen/station_mill.png", () => CreatePixelSprite(32, 32, new Color(0.55f, 0.55f, 0.58f), true));
 
-            Sprite tableSprite = GetOrFallbackSprite("Furniture/Tables/table_wood.png", CreatePixelSprite(32, 32, new Color(0.58f, 0.35f, 0.20f), true));
-            Sprite chairSprite = GetOrFallbackSprite("Furniture/Chairs/chair_wood.png", CreatePixelSprite(16, 16, new Color(0.70f, 0.45f, 0.25f), true));
-            Sprite stoveSprite = GetOrFallbackSprite("Furniture/Kitchen/Stations/station_stove_pro.png", GetOrFallbackSprite("Furniture/Kitchen/stove_kitchen.png", CreatePixelSprite(32, 32, new Color(0.35f, 0.38f, 0.45f), true)));
-            Sprite grillSprite = GetOrFallbackSprite("Furniture/Kitchen/Stations/station_grill_iron.png", GetOrFallbackSprite("Furniture/Kitchen/grill_iron.png", CreatePixelSprite(32, 32, new Color(0.45f, 0.28f, 0.25f), true)));
-            Sprite counterSprite = GetOrFallbackSprite("Furniture/Kitchen/Stations/station_prep_table_steel.png", GetOrFallbackSprite("Furniture/Counters/counter_delivery.png", CreatePixelSprite(48, 16, new Color(0.82f, 0.62f, 0.42f), true)));
-            Sprite cropPlotSprite = GetOrFallbackSprite("Exterior/Crops/crop_plot.png", CreatePixelSprite(32, 32, new Color(0.42f, 0.26f, 0.14f), true));
+            Sprite tableSprite = GetOrCreateFallbackSprite("Furniture/Tables/table_wood.png", () => CreatePixelSprite(32, 32, new Color(0.58f, 0.35f, 0.20f), true));
+            Sprite chairSprite = GetOrCreateFallbackSprite("Furniture/Chairs/chair_wood.png", () => CreatePixelSprite(16, 16, new Color(0.70f, 0.45f, 0.25f), true));
+            Sprite stoveSprite = GetOrCreateFallbackSprite("Furniture/Kitchen/Stations/station_stove_pro.png", "Furniture/Kitchen/stove_kitchen.png", () => CreatePixelSprite(32, 32, new Color(0.35f, 0.38f, 0.45f), true));
+            Sprite grillSprite = GetOrCreateFallbackSprite("Furniture/Kitchen/Stations/station_grill_iron.png", "Furniture/Kitchen/grill_iron.png", () => CreatePixelSprite(32, 32, new Color(0.45f, 0.28f, 0.25f), true));
+            Sprite counterSprite = GetOrCreateFallbackSprite("Furniture/Kitchen/Stations/station_prep_table_steel.png", "Furniture/Counters/counter_delivery.png", () => CreatePixelSprite(48, 16, new Color(0.82f, 0.62f, 0.42f), true));
+            Sprite cropPlotSprite = GetOrCreateFallbackSprite("Exterior/Crops/crop_plot.png", () => CreatePixelSprite(32, 32, new Color(0.42f, 0.26f, 0.14f), true));
 
-            Sprite tomatoSprite = GetOrFallbackSprite("Food/InUse/Ingredients/Fruits/strawberry.png", CreatePixelSprite(16, 16, new Color(0.92f, 0.20f, 0.18f), false));
-            Sprite lettuceSprite = GetOrFallbackSprite("Food/InUse/Ingredients/Fruits/lemon.png", CreatePixelSprite(16, 16, new Color(0.25f, 0.82f, 0.30f), false));
-            Sprite meatSprite = GetOrFallbackSprite("Food/InUse/Ingredients/Purchasable/10_beef.png", CreatePixelSprite(16, 16, new Color(0.80f, 0.30f, 0.28f), false));
-            Sprite breadSprite = GetOrFallbackSprite("Food/InUse/Ingredients/Purchasable/65_loafbread.png", CreatePixelSprite(16, 16, new Color(0.90f, 0.75f, 0.45f), false));
-            Sprite cheeseSprite = GetOrFallbackSprite("Food/InUse/Ingredients/Purchasable/24_cheese.png", CreatePixelSprite(16, 16, new Color(1.0f, 0.88f, 0.30f), false));
+            Sprite tomatoSprite = GetOrCreateFallbackSprite("Food/InUse/Ingredients/Fruits/strawberry.png", () => CreatePixelSprite(16, 16, new Color(0.92f, 0.20f, 0.18f), false));
+            Sprite lettuceSprite = GetOrCreateFallbackSprite("Food/InUse/Ingredients/Fruits/lemon.png", () => CreatePixelSprite(16, 16, new Color(0.25f, 0.82f, 0.30f), false));
+            Sprite meatSprite = GetOrCreateFallbackSprite("Food/InUse/Ingredients/Purchasable/10_beef.png", () => CreatePixelSprite(16, 16, new Color(0.80f, 0.30f, 0.28f), false));
+            Sprite breadSprite = GetOrCreateFallbackSprite("Food/InUse/Ingredients/Purchasable/65_loafbread.png", () => CreatePixelSprite(16, 16, new Color(0.90f, 0.75f, 0.45f), false));
+            Sprite cheeseSprite = GetOrCreateFallbackSprite("Food/InUse/Ingredients/Purchasable/24_cheese.png", () => CreatePixelSprite(16, 16, new Color(1.0f, 0.88f, 0.30f), false));
 
-            Sprite burgerSprite = GetOrFallbackSprite("Food/InUse/PreparedDishes/15_burger.png", CreatePixelSprite(24, 24, new Color(0.88f, 0.60f, 0.25f), true));
-            Sprite saladSprite = GetOrFallbackSprite("Food/InUse/PreparedDishes/44_frenchfries.png", CreatePixelSprite(24, 24, new Color(0.30f, 0.80f, 0.35f), true));
-            Sprite steakSprite = GetOrFallbackSprite("Food/InUse/PreparedDishes/95_steak.png", CreatePixelSprite(24, 24, new Color(0.65f, 0.25f, 0.20f), true));
+            Sprite burgerSprite = GetOrCreateFallbackSprite("Food/InUse/PreparedDishes/15_burger.png", () => CreatePixelSprite(24, 24, new Color(0.88f, 0.60f, 0.25f), true));
+            Sprite saladSprite = GetOrCreateFallbackSprite("Food/InUse/PreparedDishes/44_frenchfries.png", () => CreatePixelSprite(24, 24, new Color(0.30f, 0.80f, 0.35f), true));
+            Sprite steakSprite = GetOrCreateFallbackSprite("Food/InUse/PreparedDishes/95_steak.png", () => CreatePixelSprite(24, 24, new Color(0.65f, 0.25f, 0.20f), true));
 
-            Sprite customerSprite = GetOrFallbackSprite("Characters/Customers/customer_normal.png", CreatePixelSprite(24, 32, new Color(0.20f, 0.60f, 0.90f), false));
-            Sprite workerSprite = GetOrFallbackSprite("Characters/Workers/worker_helper.png", CreatePixelSprite(24, 32, new Color(0.95f, 0.55f, 0.15f), false));
+            Sprite customerSprite = GetOrCreateFallbackSprite("Characters/Customers/customer_normal.png", () => CreatePixelSprite(24, 32, new Color(0.20f, 0.60f, 0.90f), false));
+            Sprite workerSprite = GetOrCreateFallbackSprite("Characters/Workers/worker_helper.png", () => CreatePixelSprite(24, 32, new Color(0.95f, 0.55f, 0.15f), false));
 
             // 2. Setup Ingredients
             var tomatoSO = ScriptableObject.CreateInstance<IngredientSO>();
@@ -335,14 +335,23 @@ namespace VillaDelChef.Core
             else
             {
                 // In Production / Data-Driven Mode:
-                // Only provide starter ingredients if inventory is completely empty (fresh start)
-                if (InventoryManager.Instance != null && InventoryManager.Instance.GetAllItems().Count == 0)
+                // Only provide starter ingredients if starter pack has NEVER been granted
+                if (SaveManager.Instance != null && SaveManager.Instance.CurrentSave != null)
                 {
-                    InventoryManager.Instance.AddItem("ing_meat", 5);
-                    InventoryManager.Instance.AddItem("ing_bread", 5);
-                    InventoryManager.Instance.AddItem("ing_cheese", 5);
-                    InventoryManager.Instance.AddItem("ing_strawberry", 5);
-                    InventoryManager.Instance.AddItem("ing_potato", 5);
+                    if (!SaveManager.Instance.CurrentSave.starterItemsGranted)
+                    {
+                        if (InventoryManager.Instance != null)
+                        {
+                            InventoryManager.Instance.AddItem("ing_meat", 5);
+                            InventoryManager.Instance.AddItem("ing_bread", 5);
+                            InventoryManager.Instance.AddItem("ing_cheese", 5);
+                            InventoryManager.Instance.AddItem("ing_strawberry", 5);
+                            InventoryManager.Instance.AddItem("ing_potato", 5);
+                        }
+                        SaveManager.Instance.CurrentSave.starterItemsGranted = true;
+                        SaveManager.Instance.SaveGame();
+                        Debug.Log("[RestaurantBootstrap] Starter pack entregado al jugador por única vez.");
+                    }
                 }
 
                 initialPlotCrop1 = Resources.Load<CropSO>("Crops/crop_strawberry") ?? (FarmingManager.Instance != null && FarmingManager.Instance.allCrops.Count > 0 ? FarmingManager.Instance.allCrops[0] : null);
@@ -443,15 +452,15 @@ namespace VillaDelChef.Core
             SpawnTableWithChairs(tableSO, chairSO, new Vector2Int(18, 12), tableSprite, chairSprite);
 
             // Exterior Garden Area: 3 Crop Plots in garden
-            SpawnCropPlot(plotSO, new Vector2Int(16, 18), cropPlotSprite, initialPlotCrop1);
-            SpawnCropPlot(plotSO, new Vector2Int(20, 18), cropPlotSprite, initialPlotCrop2);
-            SpawnCropPlot(plotSO, new Vector2Int(24, 18), cropPlotSprite, null);
+            SpawnCropPlot(plotSO, new Vector2Int(8, 17), cropPlotSprite, initialPlotCrop1);
+            SpawnCropPlot(plotSO, new Vector2Int(10, 17), cropPlotSprite, initialPlotCrop2);
+            SpawnCropPlot(plotSO, new Vector2Int(18, 17), cropPlotSprite, null);
 
-            // Physical Specialist Vendor Buildings in garden exterior
+            // Physical Specialist Vendor Buildings in garden exterior / market boulevard (y = 20)
             SpawnSpecialistVendorBuildings(shopStallSprite);
 
             // Crafting Station: Molino de Grano next to the garden
-            SpawnCraftingStation(CraftingStationType.Molino, "Molino de Grano", new Vector2Int(13, 18), millSprite);
+            SpawnCraftingStation(CraftingStationType.Molino, "Molino de Grano", new Vector2Int(12, 17), millSprite);
 
             // Helper Worker inside the kitchen
             if (WorkerManager.Instance != null)
@@ -568,6 +577,30 @@ namespace VillaDelChef.Core
             if (loaded != null) return loaded;
 #endif
             return fallback;
+        }
+
+        private Sprite GetOrCreateFallbackSprite(string subpath, System.Func<Sprite> fallbackFactory)
+        {
+#if UNITY_EDITOR
+            string fullPath = "Assets/_Projet/Art/" + subpath;
+            Sprite loaded = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(fullPath);
+            if (loaded != null) return loaded;
+#endif
+            return fallbackFactory != null ? fallbackFactory() : null;
+        }
+
+        private Sprite GetOrCreateFallbackSprite(string subpath, string secondarySubpath, System.Func<Sprite> fallbackFactory)
+        {
+#if UNITY_EDITOR
+            string fullPath = "Assets/_Projet/Art/" + subpath;
+            Sprite loaded = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(fullPath);
+            if (loaded != null) return loaded;
+
+            string fullPath2 = "Assets/_Projet/Art/" + secondarySubpath;
+            Sprite loaded2 = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(fullPath2);
+            if (loaded2 != null) return loaded2;
+#endif
+            return fallbackFactory != null ? fallbackFactory() : null;
         }
 
         private Sprite CreatePixelSprite(int width, int height, Color color, bool hasBorder)
@@ -702,17 +735,23 @@ namespace VillaDelChef.Core
 
             var shops = new[]
             {
-                new { id = "shop_marina", name = "Pescadería de Marina", npcId = "npc_marina", pos = new Vector2Int(0, 18), minLevel = 2 },
-                new { id = "shop_bruno", name = "Carnicería Criolla de Bruno", npcId = "npc_bruno", pos = new Vector2Int(4, 18), minLevel = 1 },
-                new { id = "shop_elena", name = "Puesto Agrícola de Elena", npcId = "npc_elena", pos = new Vector2Int(8, 18), minLevel = 1 },
-                new { id = "shop_tomas", name = "Panadería y Molino de Tomás", npcId = "npc_tomas", pos = new Vector2Int(12, 18), minLevel = 1 },
-                new { id = "shop_amelia", name = "Equipamiento Gourmet de Amelia", npcId = "npc_amelia", pos = new Vector2Int(28, 18), minLevel = 3 },
-                new { id = "shop_lucas", name = "Carpintería de Lucas", npcId = "npc_lucas", pos = new Vector2Int(32, 18), minLevel = 2 },
-                new { id = "shop_sofia", name = "Decoraciones y Paisajismo de Sofía", npcId = "npc_sofia", pos = new Vector2Int(36, 18), minLevel = 2 }
+                new { id = "shop_marina", name = "Pescadería de Marina", npcId = "npc_marina", pos = new Vector2Int(1, 20), minLevel = 2 },
+                new { id = "shop_bruno", name = "Carnicería Criolla de Bruno", npcId = "npc_bruno", pos = new Vector2Int(5, 20), minLevel = 1 },
+                new { id = "shop_elena", name = "Puesto Agrícola de Elena", npcId = "npc_elena", pos = new Vector2Int(9, 20), minLevel = 1 },
+                new { id = "shop_tomas", name = "Panadería y Molino de Tomás", npcId = "npc_tomas", pos = new Vector2Int(13, 20), minLevel = 1 },
+                new { id = "shop_amelia", name = "Equipamiento Gourmet de Amelia", npcId = "npc_amelia", pos = new Vector2Int(17, 20), minLevel = 3 },
+                new { id = "shop_lucas", name = "Carpintería de Lucas", npcId = "npc_lucas", pos = new Vector2Int(21, 20), minLevel = 2 },
+                new { id = "shop_sofia", name = "Decoraciones y Paisajismo de Sofía", npcId = "npc_sofia", pos = new Vector2Int(25, 20), minLevel = 2 }
             };
 
             foreach (var s in shops)
             {
+                if (GridManager.Instance != null && !GridManager.Instance.IsPlacementInsideGrid(s.pos, 3, 2))
+                {
+                    Debug.LogError($"[RestaurantBootstrap] Posición inválida fuera del grid para {s.name} en {s.pos}. Omitiendo spawn.");
+                    continue;
+                }
+
                 npcMap.TryGetValue(s.npcId, out NPCSO npc);
                 GameObject shopGO = new GameObject(s.name);
                 Vector3 worldPos = GridManager.Instance != null 

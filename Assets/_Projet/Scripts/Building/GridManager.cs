@@ -71,12 +71,17 @@ namespace VillaDelChef.Building
                 for (int y = 0; y < gridHeight; y++)
                 {
                     ZoneType zone = ZoneType.Dining;
-                    // Bottom 7 rows = Kitchen
+                    // Bottom 7 rows = Kitchen (0..6)
                     if (y < 7)
                     {
                         zone = ZoneType.Kitchen;
                     }
-                    // Top 8 rows = Exterior / Farming
+                    // Rows 19..23 = Market (public promenade for NPC shops, unlocked & accessible)
+                    else if (y >= 19)
+                    {
+                        zone = ZoneType.Market;
+                    }
+                    // Rows 16..18 = Exterior / Farming / Expansions
                     else if (y >= 16)
                     {
                         zone = ZoneType.Exterior;
@@ -106,6 +111,13 @@ namespace VillaDelChef.Building
             return x >= 0 && x < gridWidth && y >= 0 && y < gridHeight;
         }
 
+        public bool IsPlacementInsideGrid(Vector2Int origin, int sizeX, int sizeY)
+        {
+            if (origin.x < 0 || origin.y < 0) return false;
+            if (origin.x + sizeX > gridWidth || origin.y + sizeY > gridHeight) return false;
+            return true;
+        }
+
         public bool IsAreaAvailable(int startX, int startY, int sizeX, int sizeY, GridObject ignoreObject = null)
         {
             for (int x = startX; x < startX + sizeX; x++)
@@ -114,7 +126,13 @@ namespace VillaDelChef.Building
                 {
                     if (!IsInsideGrid(x, y)) return false;
                     GridCell cell = cells[x, y];
+                    if (!cell.isUnlocked) return false;
                     if (cell.occupyingObject != null && cell.occupyingObject != ignoreObject)
+                    {
+                        return false;
+                    }
+                    // If cell is marked unwalkable (e.g., static shop/obstacle), disallow placement
+                    if (!cell.isWalkable && (cell.occupyingObject == null || cell.occupyingObject != ignoreObject))
                     {
                         return false;
                     }

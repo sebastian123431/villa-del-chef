@@ -194,3 +194,87 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Arquitectura modular data-driven de alta fidelidad).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.1).
 
+---
+
+### DECISIÓN 013
+- **Título**: Bulevar del Mercado (`ZoneType.Market`) Público y Accesible Independiente de Expansiones.
+- **Problema**: Las expansiones bloqueadas `exp_crops` y `exp_crafting` cubrían las filas `y: 16..23` en el norte del mapa. Como los puestos comerciales de los especialistas estaban en `y = 18`, los jugadores no podían acceder a los comerciantes públicos sin haber comprado antes expansiones caras.
+- **Decisión**: Restringir la altura de `exp_crops` y `exp_crafting` a 3 filas (`height = 3`, `y: 16..18`). Declarar todas las filas `y >= 19` como `ZoneType.Market`, configuradas en `GridManager.InitializeGrid()` como públicas, transitables y desbloqueadas desde el frame 1. Reubicar los 7 puestos comerciales en `y = 20` (footprint 3x2) con acera peatonal despejada en `y = 19`.
+- **Alternativas consideradas**:
+  1. Obligar al jugador a desbloquear expansiones para poder comprar insumos básicos (rompe el bucle de juego temprano).
+  2. Mover las tiendas dentro del restaurante comedor (rompe la estética y reduce espacio de mesas).
+  3. Establecer un bulevar comercial público en el sector norte (`y >= 19`) manteniendo las expansiones a sus costados.
+- **Elegida**: 3 (Bulevar público en `y >= 19`).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 014
+- **Título**: Desacoplamiento de Guardado Técnico vs Partida Jugada (`hasStartedGame` y `starterItemsGranted`).
+- **Problema**: `BootManager` inicializa `SaveManager`, el cual crea un archivo `villadelchef_save.json` por defecto si no existe ninguno. Esto provocaba que `SaveManager.HasSaveFile()` retornara siempre `true`, haciendo que el botón "CONTINUAR" estuviera activo en la primera instalación. Además, comprobar `inventory.Count == 0` permitía al jugador reiniciar con inventario vacío y recibir el starter pack ilimitadamente.
+- **Decisión**:
+  1. Agregar `hasStartedGame = false` y `starterItemsGranted = false` a `SaveData.cs`.
+  2. Implementar `SaveManager.CanContinueGame() => CurrentSave != null && CurrentSave.hasStartedGame`.
+  3. El botón "CONTINUAR" en `MainMenuController` solo se habilita cuando `CanContinueGame()` es verdadero.
+  4. Si el jugador pulsa "NUEVA PARTIDA" teniendo una partida previa en progreso, se muestra un modal de confirmación antes de resetear datos.
+  5. El paquete de inicio se entrega una sola vez: `starterItemsGranted` pasa a `true` y se persiste.
+  6. Migración retroactiva automática para partidas existentes que ya tuvieran progreso.
+- **Alternativas consideradas**:
+  1. No crear save en Boot y crearlo solo al jugar (puede causar NullReference en sistemas que consultan volumen o settings).
+  2. Usar PlayerPrefs separado para la bandera (fragmenta la persistencia fuera del JSON).
+  3. Banderas serializadas en `SaveData` con migración transparente.
+- **Elegida**: 3 (Banderas en `SaveData` con migración transparente).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 015
+- **Título**: Estrategia de New Input System con Evaluación Desacoplada de Liberación de Toque.
+- **Problema**: En el New Input System de Unity, en el frame exacto en que un dedo se levanta de la pantalla, `touch.press.isPressed` es `false`, pero `touch.press.wasReleasedThisFrame` es `true`. Evaluar `isPressed` como condición externa impedía procesar el release, perdiendo taps y cancelaciones de arrastre.
+- **Decisión**: Estructurar el New Input System en tres ramas independientes evaluadas secuencialmente: `wasPressedThisFrame` (inicio de gesto / pinch / hover), `isPressed` (arrastre continuo / pan / ghost preview) y `wasReleasedThisFrame` (finalización de gesto / tap / long press). Implementar además Pinch-to-Zoom y Long Press de forma nativa en New Input sin recurrir a excepciones.
+- **Alternativas consideradas**:
+  1. Regresar exclusivamente a Legacy Input (desaconsejado en Unity 6 y proyectos modernos).
+  2. Mantener excepciones try/catch por frame (impacta rendimiento y ensucia perfiles de CPU).
+  3. Flujo desacoplado en New Input System con sensibilidad de zoom y duraciones de tap/long press configurables.
+- **Elegida**: 3 (Flujo desacoplado en New Input System).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 016
+- **Título**: Compatibilidad Polimórfica para Animaciones de NPCs (`NPCSO.animatorController`).
+- **Problema**: El propietario está creando spritesheets y animaciones personalizadas en pixel art. El sistema de NPCs requería admitir animadores sin romper los NPCs existentes que solo disponen de sprites estáticos (`worldSprite` y `portrait`).
+- **Decisión**: Agregar el campo opcional `public RuntimeAnimatorController animatorController;` a `NPCSO`. En `NPCController.UpdateVisuals()`, si existe un `animatorController`, se añade/asigna el componente `Animator` y se activa; si no existe, se mantiene el `SpriteRenderer` asignando `worldSprite` (o `portrait` como fallback).
+- **Alternativas consideradas**:
+  1. Forzar un AnimatorController para todos los NPCs (requeriría crear 7 controladores vacíos artificialmente).
+  2. Mantener solo sprites estáticos sin soporte de Animator (bloquearía la incorporación del arte del usuario).
+  3. Soporte opcional data-driven con fallback en cascada.
+- **Elegida**: 3 (Soporte opcional data-driven con fallback en cascada).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 017
+- **Título**: Evaluación Perezosa (Lazy Evaluation) de Fallbacks Procedimentales en `RestaurantBootstrap`.
+- **Problema**: `GetOrFallbackSprite(path, CreatePixelSprite(...))` generaba llamadas a `CreatePixelSprite` antes de invocar el método debido a la evaluación ansiosa de argumentos en C#, creando decenas de texturas temporales en RAM incluso cuando los assets reales existían.
+- **Decisión**: Reemplazar la firma por `GetOrCreateFallbackSprite(string subpath, System.Func<Sprite> fallbackFactory)`. La lambda procedural solo se evalúa si el asset de disco no existe.
+- **Alternativas consideradas**:
+  1. Mantener las asignaciones anticipadas (desperdicio de memoria y GC en móviles).
+  2. Cargar todo síncronamente sin fallbacks (fallaría en escenas vacías o tests sin assets).
+  3. Evaluación perezosa mediante delegados `Func<Sprite>`.
+- **Elegida**: 3 (Evaluación perezosa).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 018
+- **Título**: Entrega de Platos Atómica y Single-Sourced en `CustomerController.ReceiveDish`.
+- **Problema**: `WorkerController` llamaba a `targetTable.PlaceDish(carryingDish)` y luego llamaba a `currentCustomer.ReceiveDish(carryingDish)` que volvía a llamar a `assignedTable.PlaceDish(dish)`, duplicando la colocación física y el parenting del plato, sin comprobar si el plato coincidía con el pedido real.
+- **Decisión**: El trabajador entrega el plato al cliente mediante `currentCustomer.ReceiveDish(carryingDish)`. El cliente valida que `dish.recipeData.recipeID == orderedDish.recipeID`. Si coincide, el cliente es la única fuente que llama a `assignedTable.PlaceDish(dish)` y pasa a `Eating`. Si no coincide, el mozo recupera el plato y lo regresa al mostrador sin romper el estado del cliente.
+- **Alternativas consideradas**:
+  1. Que la mesa sea la que orqueste la colocación y notificación (acopla la mesa a la lógica de pedidos).
+  2. Que el mozo llame a ambos métodos (causa el bug de doble invocación).
+  3. Delegación al cliente con validación estricta y rollback seguro para el mozo.
+- **Elegida**: 3 (Delegación al cliente con validación estricta).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+

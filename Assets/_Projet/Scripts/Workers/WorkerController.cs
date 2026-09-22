@@ -44,6 +44,44 @@ namespace VillaDelChef.Workers
 
         private float moveSpeed = 3.2f;
         private Coroutine activeTaskRoutine;
+        private DishInstance currentlyReservedDish;
+        private Table currentlyReservedTable;
+
+        private void OnDisable()
+        {
+            ReleaseReservations();
+        }
+
+        private void OnDestroy()
+        {
+            ReleaseReservations();
+        }
+
+        public void ReleaseReservations()
+        {
+            if (currentlyReservedDish != null)
+            {
+                currentlyReservedDish.isReserved = false;
+                currentlyReservedDish = null;
+            }
+            if (currentlyReservedTable != null)
+            {
+                currentlyReservedTable.isCleaningReserved = false;
+                currentlyReservedTable = null;
+            }
+            if (carryingDish != null)
+            {
+                if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.HasSpace())
+                {
+                    DeliveryCounter.Instance.AddDish(carryingDish);
+                }
+                else
+                {
+                    carryingDish.isReserved = false;
+                }
+                carryingDish = null;
+            }
+        }
 
         private void Start()
         {
@@ -81,6 +119,7 @@ namespace VillaDelChef.Workers
                 if (FindMatchingOrderAndDish(out Table waitingTable, out DishInstance matchingDish))
                 {
                     matchingDish.isReserved = true;
+                    currentlyReservedDish = matchingDish;
                     if (activeTaskRoutine != null) StopCoroutine(activeTaskRoutine);
                     activeTaskRoutine = StartCoroutine(DeliveryTaskRoutine(waitingTable, matchingDish));
                     return;
@@ -92,6 +131,7 @@ namespace VillaDelChef.Workers
             if (dirtyTable != null)
             {
                 dirtyTable.isCleaningReserved = true;
+                currentlyReservedTable = dirtyTable;
                 if (activeTaskRoutine != null) StopCoroutine(activeTaskRoutine);
                 activeTaskRoutine = StartCoroutine(CleaningTaskRoutine(dirtyTable));
                 return;
@@ -150,6 +190,7 @@ namespace VillaDelChef.Workers
             if (!reachedCounter)
             {
                 if (targetDish != null) targetDish.isReserved = false;
+                currentlyReservedDish = null;
                 currentState = WorkerState.Idle;
                 yield break;
             }
@@ -161,11 +202,13 @@ namespace VillaDelChef.Workers
             {
                 // If dish is no longer available, cleanly return to idle without picking wrong order
                 if (targetDish != null) targetDish.isReserved = false;
+                currentlyReservedDish = null;
                 currentState = WorkerState.Idle;
                 yield break;
             }
 
             carryingDish.isReserved = false;
+            currentlyReservedDish = null; // Handled directly via carryingDish now
             carryingDish.transform.SetParent(carrySocket != null ? carrySocket : transform);
             carryingDish.transform.localPosition = carrySocket != null ? Vector3.zero : new Vector3(0f, 0.4f, 0f);
 
@@ -183,19 +226,43 @@ namespace VillaDelChef.Workers
                     DeliveryCounter.Instance.AddDish(carryingDish);
                     carryingDish = null;
                 }
+                else
+                {
+                    // Mostrador lleno: des-reservar y mantener plato seguro con el trabajador
+                    if (carryingDish != null) carryingDish.isReserved = false;
+                }
                 currentState = WorkerState.Idle;
                 yield break;
             }
 
-            // Deliver dish directly to table and notify customer
-            targetTable.PlaceDish(carryingDish);
+            // Deliver dish to customer (who validates order and single-sources PlaceDish on the table)
+            bool accepted = false;
             if (targetTable.currentCustomer != null)
             {
-                targetTable.currentCustomer.ReceiveDish(carryingDish);
+                accepted = targetTable.currentCustomer.ReceiveDish(carryingDish);
+            }
+            else
+            {
+                // Fallback if customer left/despawned right as worker arrived
+                targetTable.PlaceDish(carryingDish);
+                accepted = true;
             }
 
-            GameEvents.TriggerDishDelivered(carryingDish, targetTable);
-            carryingDish = null;
+            if (accepted)
+            {
+                GameEvents.TriggerDishDelivered(carryingDish, targetTable);
+                carryingDish = null;
+            }
+            else
+            {
+                // If rejected (e.g. wrong dish/state), return to counter safely
+                Debug.LogWarning("[WorkerController] Cliente rechazó el plato o pedido inválido. Devolviendo al mostrador.");
+                if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.HasSpace())
+                {
+                    DeliveryCounter.Instance.AddDish(carryingDish);
+                    carryingDish = null;
+                }
+            }
 
             // 4. Return to Idle spot
             currentState = WorkerState.ReturningToIdle;
@@ -214,6 +281,7 @@ namespace VillaDelChef.Workers
             {
                 // Abort cleaning if table unreachable
                 targetTable.isCleaningReserved = false;
+                currentlyReservedTable = null;
                 currentState = WorkerState.Idle;
                 yield break;
             }
@@ -224,6 +292,7 @@ namespace VillaDelChef.Workers
             yield return new WaitForSeconds(cleanDuration);
 
             targetTable.FinishCleaning();
+            currentlyReservedTable = null;
 
             // Return to Idle spot
             currentState = WorkerState.ReturningToIdle;

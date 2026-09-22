@@ -14,6 +14,9 @@ namespace VillaDelChef.ScriptableObjects
         public Sprite portrait;
         public Sprite worldSprite;
 
+        [Header("Animation (Optional)")]
+        public RuntimeAnimatorController animatorController;
+
         [Header("Dialogue")]
         [TextArea(2, 4)]
         public string greetingDialogue = "¡Hola! Bienvenido a mi puesto en Villa del Chef.";

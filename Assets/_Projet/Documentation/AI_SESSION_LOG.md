@@ -281,7 +281,86 @@ Estado de la sesión:
 COMPLETADA CON ÉXITO (FASE 6.1 CONSOLIDADA).
 
 Siguiente recomendación:
-Proceder con la FASE 7 — CONTENIDO Y VARIEDAD (recetas autóctonas del Valle del Elqui, variaciones de clientes, mobiliario temático y eventos climáticos/temporales).
+Proceder con la FASE 6.2 — CIERRE DE INTEGRACIÓN (depurar bugs de release en New Input, gating de nivel de tiendas NPC, footprints en grid, solapamiento con expansiones, exploit de inventario inicial, validación Nueva Partida vs Continuar, doble PlaceDish y PlayerSettings).
+============================================================
+
+============================================================
+AI SESSION 003
+
+Fecha:
+2026-09-22
+
+Objetivo solicitado:
+Ejecutar la FASE 6.2 — CIERRE DE INTEGRACIÓN para Villa del Chef. Corregir y validar 13 áreas críticas (A a M) identificadas en auditoría técnica previa a la expansión de contenido de la Fase 7. Criterio de terminación: IMPLEMENTADO + INTEGRADO EN ESCENA + FUNCIONANDO EN RUNTIME + PERSISTENTE + SIN REGRESIONES + PROBADO.
+
+Contexto y archivos leídos:
+- `AGENTS.md`, `PROJECT_HISTORY.md`, `TECHNICAL_DECISIONS.md`, `ROADMAP.md`, `KNOWN_ISSUES.md`, `AI_SESSION_LOG.md`.
+- `TouchInputManager.cs`, `CameraController2D.cs`.
+- `GridManager.cs`, `BuildManager.cs`.
+- `VendorBuilding.cs`, `NPCSO.cs`, `NPCController.cs`, `MerchantStall.cs`, `CraftingStation.cs`.
+- `RestaurantBootstrap.cs`, `RestaurantSceneSetupEditor.cs`.
+- `CustomerController.cs`, `Table.cs`, `WorkerController.cs`, `DeliveryCounter.cs`.
+- `SaveData.cs`, `SaveManager.cs`.
+- `MainMenuController.cs`, `01_MainMenu.unity`.
+- `exp_crops.asset`, `exp_crafting.asset`, `exp_market.asset`, `exp_terrace.asset`.
+- `ProjectSettings/ProjectSettings.asset`.
+
+Problemas resueltos y trabajo realizado:
+1. New Input System táctil (`TouchInputManager.cs`):
+   - Desacoplada la evaluación de `touch.press.isPressed` para capturar `wasReleasedThisFrame` correctamente en el frame de levantamiento del dedo.
+   - Implementado Pinch-to-Zoom con dos dedos y sensibilidad configurable (`pinchZoomSensitivity = 0.05f`), enviando delta a `CameraController2D.Zoom()`.
+   - Implementado Long Press nativo (`longPressDuration = 0.5f`) disparado una sola vez por gesto.
+   - Conectado método `RotateBuildSelection()` para rotación mediante botón UI.
+2. Tiendas NPC y Gating de Nivel (`VendorBuilding.cs`):
+   - `CanInteract` ahora evalúa `ProgressionManager.Instance.CurrentLevel >= unlockLevelRequirement`.
+   - Feedback flotante informativo con `FloatingTextManager.Instance.Show("🔒 Se desbloquea en Nivel X")` al tocar una tienda bloqueada.
+   - Puesto y NPC se atenúan a gris (`RefreshUnlockState()`) mientras están bloqueados, actualizándose al disparar `GameEvents.OnLevelUp`.
+   - Protección con comprobación nula para `EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject()`.
+3. Coordenadas y Footprints en Grid (`GridManager.cs`, `RestaurantBootstrap.cs`):
+   - Añadido `GridManager.IsPlacementInsideGrid(origin, sizeX, sizeY)` para validación de footprint de 4 esquinas.
+   - Reubicados los 7 especialistas en `y = 20` dentro del rango X: 1..27 (Marina 1, Bruno 5, Elena 9, Tomás 13, Amelia 17, Lucas 21, Sofía 25).
+   - `VendorBuilding` registra ocupación con componente `GridObject` y `GridManager.IsAreaAvailable` bloquea colocación de muebles sobre celdas ocupadas o no transitables.
+4. Desacoplamiento de Bulevar Comercial y Expansiones (`exp_crops.asset`, `exp_crafting.asset`, `GridManager.cs`):
+   - Reducida la altura de `exp_crops` y `exp_crafting` a `height = 3` (y: 16..18).
+   - Filas `y >= 19` declaradas como bulevar público transitable permanente (`ZoneType.Market`), accesible desde el primer frame.
+5. Exploit de Paquete Inicial de Inventario (`SaveData.cs`, `RestaurantBootstrap.cs`):
+   - Añadida bandera persistente `bool starterItemsGranted` a `SaveData.cs`.
+   - El starter pack de 25 ingredientes se entrega una sola vez y no se vuelve a otorgar aunque el inventario quede en 0.
+   - Migración retroactiva automática en `SaveManager.LoadOrCreateData()`.
+6. Lógica de Menú Principal y Nueva Partida (`SaveManager.cs`, `MainMenuController.cs`, `RestaurantSceneSetupEditor.cs`):
+   - Añadida bandera `bool hasStartedGame = false` a `SaveData.cs`.
+   - `SaveManager.CanContinueGame()` desacopla el archivo de guardado técnico de la existencia de una partida real jugada.
+   - Botón "CONTINUAR" solo se activa cuando `hasStartedGame == true`.
+   - Modal de confirmación ante "NUEVA PARTIDA" para evitar borrar el progreso accidentalmente.
+   - Botón "SALIR" oculto en Android e iOS, visible exclusivamente en PC/Desktop Standalone.
+7. Atomicidad en Entrega de Platos (`WorkerController.cs`, `CustomerController.cs`):
+   - Eliminada la doble llamada a `PlaceDish`. La colocación en mesa se delegó a `CustomerController.ReceiveDish()`.
+   - `ReceiveDish()` valida que `dish.recipeData.recipeID == orderedDish.recipeID` antes de posicionar el plato y cambiar de estado a `Eating`.
+   - `WorkerController` libera reservas atómicas (`currentlyReservedDish` y `currentlyReservedTable`) en `OnDisable()` y `OnDestroy()`.
+8. Optimización de Memoria en Bootstrap (`RestaurantBootstrap.cs`):
+   - Implementado `GetOrCreateFallbackSprite` con fábrica delegada lambda (`Func<Sprite>`), eliminando asignaciones innecesarias de texturas y sprites procedurales.
+9. Preparación de Animaciones de NPCs (`NPCSO.cs`, `NPCController.cs`):
+   - Añadido campo `public RuntimeAnimatorController animatorController` a `NPCSO`.
+   - `NPCController` utiliza `Animator` si está presente, con fallback en cascada a `worldSprite` y `portrait`.
+10. Herramienta de Auditoría de Datos (`GameDataValidatorEditor.cs`):
+    - Creado menú `Tools > Villa del Chef > Validate Game Data` que valida IDs duplicados, referencias nulas y límites de grilla en todos los ScriptableObjects.
+11. PlayerSettings (`ProjectSettings.asset`):
+    - Versión establecida en `0.1.0`, código de versión Android en `1`, orientación fija en Landscape Left/Right (Portrait desactivado).
+12. Compilación y Git Diff:
+    - `Assembly-CSharp.csproj` compilado limpiamente con `dotnet build` (0 errores, 0 advertencias).
+    - `Assembly-CSharp-Editor.csproj` compilado limpiamente con `dotnet build` (0 errores, 0 advertencias).
+
+Pruebas ejecutadas:
+- Validación estática de código y referencias en C#.
+- Compilación C# externa completa (`dotnet build`) de proyectos de runtime y editor: Éxito total (0 errores).
+- Validación de archivos de configuración YAML (ProjectSettings, Expansiones .asset).
+- Nota de QA: Pruebas en Unity Play Mode y generación de APK física de Android pendientes de ejecución en el entorno local del propietario.
+
+Estado de la sesión:
+FASE 6.2 — CERRADA TÉCNICAMENTE CON ÉXITO [~].
+
+Siguiente recomendación:
+Abrir Unity Editor, ejecutar `Tools > Villa del Chef > Setup ALL Scenes`, ejecutar `Tools > Villa del Chef > Validate Game Data`, probar en Play Mode el bucle de juego completo y proceder a generar el Development Build APK para pruebas físicas en Android.
 ============================================================
 
 
