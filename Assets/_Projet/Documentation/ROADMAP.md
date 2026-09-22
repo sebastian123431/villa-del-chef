@@ -60,10 +60,12 @@ Leyenda:
 - [x] 4 expansiones de la villa configuradas en `AssetDatabasePopulator.cs` y auto-setup en bootstrap y editor
 
 ## FASE 5 — Progresión Profunda, Reputación y Misiones
-- [ ] Sistema de Reputación como recurso dinámico (afecta afluencia y clientes VIP)
-- [ ] Tipos de clientes extendidos en `CustomerSO` (Impaciente, Generoso, Gourmet, Familiar, Turista, Crítico, VIP)
-- [ ] Sistema de misiones ampliado (Tutorial, Historia, Diarias, Progresión)
-- [ ] Progresión de aprendizaje: Tomás enseña la receta de masa tras completar misión "El secreto de la masa"
+- [x] Sistema de Reputación como recurso dinámico en `EconomyManager` (afecta afluencia, reduce tiempos de spawn y atrae clientes VIP y Críticos)
+- [x] Tipos de clientes extendidos en `CustomerSO` (Normal, Impaciente, Generoso, Gourmet, Turista, Crítico Gastronómico, VIP) con multiplicadores de paciencia, propinas, bonus XP y penalizaciones
+- [x] Generación procedimental de sprites pixel art para los 7 clientes a 16 PPU (`ArtAssetGenerator.cs`)
+- [x] Spawning ponderado estocástico por nivel y reputación en `CustomerManager.cs`
+- [x] Sistema de misiones ampliado con historia y reputación (`QuestSO.cs`, `QuestManager.cs`)
+- [x] Cadena narrativa con los 7 especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) con desbloqueo de recetas y prestigio
 
 ## FASE 6 — Optimización Móvil & Pulido Audiovisual
 - [ ] Guardado atómico con archivo temporal y backup (`villadelchef_save_backup.json`)

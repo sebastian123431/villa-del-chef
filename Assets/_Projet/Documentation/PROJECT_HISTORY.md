@@ -260,5 +260,41 @@ COMPLETADO — Compilación limpia (0 errores, 0 advertencias en runtime y edito
 PRÓXIMO PASO:
 Fase 5: Progresión Profunda, Reputación y Misiones (Sistema de Reputación dinámico, arquetipos de clientes extendidos en `CustomerSO`: Impaciente, Generoso, Gourmet, Familiar, Turista, Crítico, VIP; progresión guiada y cadena de misiones narrativas con los especialistas).
 ------------------------------------------------------------
+FECHA:
+2026-09-22
+
+VERSIÓN / FASE:
+0.5.0 (Fase 5: Progresión Profunda, Reputación y Misiones de Especialistas)
+
+RESUMEN:
+- Implementación del sistema de Reputación Dinámica y Comportamiento de Clientes Reactivo.
+- Ampliación de `CustomerSO.cs` con arquetipo `CustomerArchetype.Gourmet`, recompensas de reputación (+1 a +15), penalizaciones de reputación (-2 a -10) por impaciencia, y bonificación de experiencia (bonusXP).
+- Integración en `CustomerController.cs` de recompensas y penalizaciones automáticas ligadas a la satisfacción del comensal.
+- Selección estocástica ponderada en `CustomerManager.cs` (`SelectCustomerType`): a mayor nivel de reputación del restaurante, mayor probabilidad de atraer Críticos Gastronómicos, Clientes VIP, Turistas y Gourmets.
+- Frecuencia dinámica de comensales en `CustomerManager.cs`: la tasa de llegada de clientes aumenta proporcionalmente a la reputación de la villa.
+- Cadena de misiones con historia ligada a los 7 especialistas locales en `AssetDatabasePopulator.cs` (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) con recompensas de oro, gemas, XP, reputación y desbloqueo de recetas exclusivas (`RecipeManager.UnlockRecipe`).
+- Generación de sprites pixel art procedimentales para los 7 arquetipos de clientes en `ArtAssetGenerator.cs` (16x24 PPU 16 Point) en `Assets/_Projet/Art/Characters/Customers/`.
+- Actualización de `QuestSO.cs` y `QuestManager.cs` para soportar `reputationReward` y `rewardRecipeID`.
+- Actualización de `RecipeManager.cs` con método `UnlockRecipe(string recipeID)` para desbloqueo dinámico por progreso narrativo.
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/ScriptableObjects/CustomerSO.cs`
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`
+- `Assets/_Projet/Scripts/Managers/CustomerManager.cs`
+- `Assets/_Projet/Scripts/ScriptableObjects/QuestSO.cs`
+- `Assets/_Projet/Scripts/Managers/QuestManager.cs`
+- `Assets/_Projet/Scripts/Managers/RecipeManager.cs`
+- `Assets/_Projet/Scripts/Core/Editor/ArtAssetGenerator.cs`
+- `Assets/_Projet/Scripts/Core/Editor/AssetDatabasePopulator.cs`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+
+ESTADO:
+COMPLETADO — Compilación limpia (0 errores, 0 advertencias en runtime y editor)
+
+PRÓXIMO PASO:
+Fase 6: Optimización Móvil & Pulido Audiovisual (Object Pooling para clientes y textos flotantes, configuración de Sprite Atlases para draw calls en móviles a 60 FPS, verificación de New/Old Input System y gestos táctiles).
+------------------------------------------------------------
+
 
 

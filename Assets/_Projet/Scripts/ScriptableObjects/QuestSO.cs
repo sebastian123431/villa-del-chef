@@ -33,6 +33,8 @@ namespace VillaDelChef.ScriptableObjects
         [Header("Rewards")]
         public int rewardCoins = 100;
         public int rewardXP = 30;
+        public int rewardReputation = 5;
+        public string storySpeakerName = "";
         public RecipeSO unlockedRecipeReward;
         public FurnitureSO unlockedFurnitureReward;
     }

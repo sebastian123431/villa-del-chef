@@ -85,6 +85,17 @@ namespace VillaDelChef.Managers
             return unlockedRecipeIDs.Contains(recipeID);
         }
 
+        public void UnlockRecipe(string recipeID)
+        {
+            if (string.IsNullOrEmpty(recipeID)) return;
+            if (!unlockedRecipeIDs.Contains(recipeID))
+            {
+                unlockedRecipeIDs.Add(recipeID);
+                Debug.Log($"[RecipeManager] Receta desbloqueada: {recipeID}");
+                SyncToSave();
+            }
+        }
+
         public List<RecipeSO> GetRecipesForStation(StationType stationType)
         {
             List<RecipeSO> list = new List<RecipeSO>();

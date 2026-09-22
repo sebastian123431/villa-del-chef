@@ -119,4 +119,20 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Marcadores interactivos en el mundo con zonificación dinámica y persistencia atómica).
 - **Estado**: IMPLEMENTADA Y ACTIVA.
 
+---
 
+### DECISIÓN 009
+- **Título**: Sistema de Reputación Dinámico, Selección Estocástica Ponderada de Arquetipos de Clientes y Desbloqueo de Recetas por Misiones Narrativas.
+- **Problema**: En simuladores de restaurante de calidad como ChefVille, los clientes no deben comportarse de forma homogénea ni estática. La reputación del restaurante debe impactar directamente en el ritmo de llegada y en el perfil de comensales que visitan la villa. Asimismo, las misiones principales encomendadas por los especialistas locales deben desbloquear recetas exclusivas y prestigio que impulsen la economía y la satisfacción general.
+- **Decisión**:
+  1. Se amplía `CustomerSO` integrando `reputationReward` (+1 a +15), `reputationPenalty` (-2 a -10), `bonusXP` y soporte para el arquetipo `CustomerArchetype.Gourmet`.
+  2. `CustomerController` premia la reputación y otorga XP al entregar platos a tiempo, y aplica penalizaciones de reputación si el cliente se marcha enojado por sobrepasar la paciencia de espera.
+  3. `CustomerManager` calcula dinámicamente el tiempo de spawn mediante un multiplicador de reputación (`repMultiplier = Mathf.Clamp(1f - (currentRep * 0.004f), 0.55f, 1.15f)`), atrayendo mayor afluencia de clientes a medida que la villa gana prestigio.
+  4. La selección de clientes en `CustomerManager.SelectCustomerType()` emplea ruleta estocástica ponderada por reputación: los arquetipos exigentes y de alto rendimiento (Críticos Gastronómicos con paciencia estricta pero +15 de reputación, VIPs con generosas propinas, Gourmets y Turistas) solo aparecen o incrementan su probabilidad al alcanzar umbrales altos de reputación (>= 50 a 75).
+  5. `QuestSO` añade `reputationReward` y `rewardRecipeID`. `QuestManager.CompleteQuest()` otorga reputación mediante `EconomyManager.ModifyReputation()` y desbloquea recetas culinarias específicas invocando `RecipeManager.UnlockRecipe()`.
+- **Alternativas consideradas**:
+  1. Reputación como número estético sin impacto en la simulación.
+  2. Spawn aleatorio plano sin ponderación (los clientes VIP y críticos aparecen igual con 0 reputación, restando coherencia y progresión).
+  3. Selección estocástica ponderada ligada a reputación + cadencia dinámica de clientes + recompensas de recetas en misiones narrativas.
+- **Elegida**: 3 (Simulación viva reactiva a la reputación con progresión guiada por misiones).
+- **Estado**: IMPLEMENTADA Y ACTIVA.

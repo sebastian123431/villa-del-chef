@@ -278,9 +278,40 @@ namespace VillaDelChef.EditorTools
             CreateOrUpdateExpansion("exp_market", "Plaza del Mercado Gastronómico", "Un amplio bulevar adoquinado donde los 7 comerciantes de la villa pueden establecer sus puestos comerciales permanentes.",
                 ZoneType.Market, new RectInt(26, 0, 6, 16), 5, 1200, 250, new Vector2(10.5f, -6f), FindSpriteByName("exp_market") ?? FindSpriteByName("coins"));
 
+            // 9. ARQUETIPOS DE CLIENTES CON REPUTACIÓN Y DINÁMICA (FASE 5)
+            CreateOrUpdateCustomer("cust_normal", "Comensal Tranquilo", CustomerArchetype.Normal, 2.5f, 60f, 0.5f, 1.0f, 1, 2, 2, 15, FindSpriteByName("cust_normal") ?? FindSpriteByName("chef_player"));
+            CreateOrUpdateCustomer("cust_impatient", "Oficinista Apurado", CustomerArchetype.Impaciente, 3.2f, 30f, 0.35f, 0.8f, 1, 2, 3, 20, FindSpriteByName("cust_impatient") ?? FindSpriteByName("chef_player"));
+            CreateOrUpdateCustomer("cust_generous", "Abuela Consentidora", CustomerArchetype.Generoso, 2.2f, 75f, 1.0f, 2.0f, 2, 3, 2, 25, FindSpriteByName("cust_generous") ?? FindSpriteByName("chef_player"));
+            CreateOrUpdateCustomer("cust_gourmet", "Sibarita del Buen Comer", CustomerArchetype.Gourmet, 2.4f, 50f, 0.7f, 1.8f, 2, 4, 4, 35, FindSpriteByName("cust_gourmet") ?? FindSpriteByName("chef_player"));
+            CreateOrUpdateCustomer("cust_tourist", "Turista Curioso", CustomerArchetype.Turista, 2.6f, 65f, 0.8f, 1.5f, 3, 4, 2, 30, FindSpriteByName("cust_tourist") ?? FindSpriteByName("chef_player"));
+            CreateOrUpdateCustomer("cust_critic", "Crítico Gastronómico", CustomerArchetype.CriticoGastronomico, 2.3f, 45f, 0.4f, 1.2f, 4, 15, 10, 100, FindSpriteByName("cust_critic") ?? FindSpriteByName("chef_player"));
+            CreateOrUpdateCustomer("cust_vip", "Celebridad Gourmet", CustomerArchetype.VIP, 2.7f, 40f, 0.95f, 3.0f, 5, 8, 6, 80, FindSpriteByName("cust_vip") ?? FindSpriteByName("chef_player"));
+
+            // 10. CADENA DE MISIONES NARRATIVAS CON LOS 7 ESPECIALISTAS (FASE 5)
+            CreateOrUpdateQuest("quest_elena_garden", "Huerto en Flor", "Cosecha 6 frutillas dulces de la huerta para los postres de la villa.",
+                QuestType.HarvestCrops, "crop_strawberry", 6, 180, 40, FindSpriteByName("strawberry") ?? FindSpriteByName("star"), 5, "Elena");
+
+            CreateOrUpdateQuest("quest_bruno_grill", "Festín del Asador", "Asa 4 hamburguesas a la parrilla con tocino y queso fundido.",
+                QuestType.CookDishes, "rec_burger", 4, 240, 50, FindSpriteByName("15_burger") ?? FindSpriteByName("tools"), 6, "Bruno");
+
+            CreateOrUpdateQuest("quest_tomas_flour", "El Secreto de la Molienda", "Muele 3 sacos de harina blanca en el molino de grano para amasar el pan del día.",
+                QuestType.CraftItems, "craft_flour", 3, 200, 45, FindSpriteByName("ing_flour") ?? FindSpriteByName("tools"), 6, "Tomás");
+
+            CreateOrUpdateQuest("quest_marina_salmon", "Frescura del Mar", "Sirve 2 platos de salmón fresco a los visitantes del restaurante.",
+                QuestType.CookDishes, "rec_salmon", 2, 280, 60, FindSpriteByName("88_salmon") ?? FindSpriteByName("coins"), 8, "Marina");
+
+            CreateOrUpdateQuest("quest_amelia_kitchen", "Cocina a Toda Marcha", "Fríe 5 porciones de papas crujientes en la freidora profesional.",
+                QuestType.CookDishes, "rec_fries", 5, 220, 45, FindSpriteByName("44_frenchfries") ?? FindSpriteByName("tools"), 5, "Amelia");
+
+            CreateOrUpdateQuest("quest_lucas_terrace", "Brisa en la Terraza", "Adquiere la expansión de la terraza del jardín para ofrecer mesas al aire libre.",
+                QuestType.UnlockExpansion, "exp_terrace", 1, 350, 80, FindSpriteByName("exp_terrace") ?? FindSpriteByName("star"), 10, "Lucas");
+
+            CreateOrUpdateQuest("quest_sofia_prestige", "Villa de Prestigio", "Genera 600 monedas deleitando a clientes de todos los rincones.",
+                QuestType.EarnCoins, "", 600, 300, 70, FindSpriteByName("coins"), 12, "Sofía");
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects, NPCs, Recetas de Crafting y Expansiones han sido creados!");
+            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects, NPCs, Crafting, Expansiones, Clientes y Misiones han sido creados!");
         }
 
         private static void EnsureDirectories()
@@ -297,6 +328,7 @@ namespace VillaDelChef.EditorTools
                 "Assets/_Projet/Resources/NPC",
                 "Assets/_Projet/Resources/CraftingRecipes",
                 "Assets/_Projet/Resources/Expansions",
+                "Assets/_Projet/Resources/Customers",
                 "Assets/_Projet/ScriptableObjects/Ingredients",
                 "Assets/_Projet/ScriptableObjects/Recipes",
                 "Assets/_Projet/ScriptableObjects/Crops",
@@ -433,7 +465,7 @@ namespace VillaDelChef.EditorTools
             return so;
         }
 
-        private static QuestSO CreateOrUpdateQuest(string id, string title, string desc, QuestType type, string target, int required, int rewardCoins, int rewardXP, Sprite icon)
+        private static QuestSO CreateOrUpdateQuest(string id, string title, string desc, QuestType type, string target, int required, int rewardCoins, int rewardXP, Sprite icon, int rewardRep = 0, string speaker = "", RecipeSO unlockRecipe = null)
         {
             string path = $"Assets/_Projet/Resources/Quests/{id}.asset";
             QuestSO so = AssetDatabase.LoadAssetAtPath<QuestSO>(path);
@@ -450,7 +482,35 @@ namespace VillaDelChef.EditorTools
             so.requiredAmount = required;
             so.rewardCoins = rewardCoins;
             so.rewardXP = rewardXP;
+            so.rewardReputation = rewardRep;
+            so.storySpeakerName = speaker;
+            so.unlockedRecipeReward = unlockRecipe;
             so.icon = icon;
+            EditorUtility.SetDirty(so);
+            return so;
+        }
+
+        private static CustomerSO CreateOrUpdateCustomer(string id, string title, CustomerArchetype archetype, float speed, float patience, float tipProb, float tipMult, int level, int repReward, int repPenalty, int bonusXP, Sprite sprite)
+        {
+            string path = $"Assets/_Projet/Resources/Customers/{id}.asset";
+            CustomerSO so = AssetDatabase.LoadAssetAtPath<CustomerSO>(path);
+            if (so == null)
+            {
+                so = ScriptableObject.CreateInstance<CustomerSO>();
+                AssetDatabase.CreateAsset(so, path);
+            }
+            so.customerID = id;
+            so.customerTitle = title;
+            so.archetype = archetype;
+            so.movementSpeed = speed;
+            so.basePatienceSeconds = patience;
+            so.tipProbability = tipProb;
+            so.tipMultiplier = tipMult;
+            so.unlockLevel = level;
+            so.reputationReward = repReward;
+            so.reputationPenalty = repPenalty;
+            so.bonusXP = bonusXP;
+            so.characterSprite = sprite;
             EditorUtility.SetDirty(so);
             return so;
         }

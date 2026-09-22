@@ -115,9 +115,19 @@ namespace VillaDelChef.Managers
             {
                 EconomyManager.Instance.AddCoins(q.questData.rewardCoins);
                 EconomyManager.Instance.AddExperience(q.questData.rewardXP);
+
+                if (q.questData.rewardReputation > 0)
+                {
+                    EconomyManager.Instance.ModifyReputation(q.questData.rewardReputation);
+                }
             }
 
-            Debug.Log($"[QuestManager] Completed quest: {q.questData.title}!");
+            if (q.questData.unlockedRecipeReward != null && RecipeManager.Instance != null)
+            {
+                RecipeManager.Instance.UnlockRecipe(q.questData.unlockedRecipeReward.recipeID);
+            }
+
+            Debug.Log($"[QuestManager] ¡Misión completada: {q.questData.title}!");
             GameEvents.TriggerQuestCompleted(q.questData);
         }
 

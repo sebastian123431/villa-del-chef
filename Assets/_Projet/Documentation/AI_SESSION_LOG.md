@@ -167,5 +167,39 @@ Siguiente recomendación:
 Proceder con la FASE 5: Progresión Profunda, Reputación y Misiones (Sistema de Reputación dinámico, arquetipos de clientes extendidos en `CustomerSO`: Impaciente, Generoso, Gourmet, Familiar, Turista, Crítico, VIP; misiones con historia ligadas a los 7 especialistas de la villa).
 ============================================================
 
+============================================================
+AI SESSION 005
+
+Fecha:
+2026-09-22
+
+Objetivo solicitado:
+Desarrollar e integrar completamente la FASE 5: Progresión Profunda, Reputación Dinámica y Misiones de Especialistas para Villa del Chef.
+
+Contexto leído:
+- Lógica de clientes (`CustomerSO.cs`, `CustomerController.cs`, `CustomerManager.cs`).
+- Lógica de progresión y economía (`EconomyManager.cs`, `ProgressionManager.cs`).
+- Lógica de recetas y misiones (`RecipeSO.cs`, `RecipeManager.cs`, `QuestSO.cs`, `QuestManager.cs`).
+
+Trabajo realizado:
+1. Ampliación de `CustomerSO.cs` incorporando `CustomerArchetype.Gourmet`, recompensas de reputación (`reputationReward`), penalizaciones de reputación (`reputationPenalty`), bonificación de experiencia (`bonusXP`) y diálogos de orden/espera/agradecimiento contextuales para cada tipo de cliente.
+2. Actualización de `CustomerController.cs` vinculando la reputación dinámica y XP al ciclo de vida del cliente: premia la reputación (+1 a +15 según arquetipo) y otorga XP al recibir sus platos, y penaliza la reputación (-2 a -10) si se marcha enojado por sobrepasar su paciencia.
+3. Actualización de `CustomerManager.cs` implementando cadencia dinámica de llegada inversamente proporcional a la reputación (`repMultiplier = Mathf.Clamp(1f - (currentRep * 0.004f), 0.55f, 1.15f)`).
+4. Implementación en `CustomerManager.cs` de ruleta estocástica ponderada por reputación (`SelectCustomerType`): comensales exigentes como Críticos Gastronómicos, VIPs, Turistas y Gourmets se habilitan y aumentan su probabilidad de visita a medida que la villa gana prestigio gastronómico.
+5. Actualización de `RecipeManager.cs` agregando el método público `UnlockRecipe(string recipeID)` para permitir el desbloqueo de platos culinarios recompensados por el progreso narrativo del jugador.
+6. Actualización de `QuestSO.cs` y `QuestManager.cs` para soportar `reputationReward` y `rewardRecipeID`, otorgando automáticamente reputación con `EconomyManager.ModifyReputation()` y desbloqueando recetas con `RecipeManager.UnlockRecipe()`.
+7. Generación procedimental de sprites pixel art en `ArtAssetGenerator.cs` para los 7 arquetipos de clientes (`cust_normal`, `cust_impatient`, `cust_generous`, `cust_gourmet`, `cust_tourist`, `cust_critic`, `cust_vip`) guardados en `Assets/_Projet/Art/Characters/Customers/`.
+8. Configuración de datos en `AssetDatabasePopulator.cs` creando los 7 ScriptableObjects de clientes y las 7 misiones narrativas con historia ligadas a los especialistas locales (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía).
+9. Actualización de la documentación en `ROADMAP.md` (Fase 5 marcada completada), `TECHNICAL_DECISIONS.md` (Decisión 009 registrada) y `PROJECT_HISTORY.md` (Versión 0.5.0 registrada).
+10. Verificación exhaustiva de compilación (`dotnet build`): 0 errores, 0 advertencias.
+
+Estado de la sesión:
+COMPLETADA CON ÉXITO (FASE 5 FINALIZADA).
+
+Siguiente recomendación:
+Proceder con la FASE 6: Optimización Móvil & Pulido Audiovisual (Object Pooling para clientes y textos flotantes, configuración de Sprite Atlases para optimizar draw calls en móviles a 60 FPS, verificación de New/Old Input System y gestos táctiles).
+============================================================
+
+
 
 

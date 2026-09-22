@@ -8,6 +8,7 @@ namespace VillaDelChef.ScriptableObjects
         Normal,
         Impaciente,
         Generoso,
+        Gourmet,
         VIP,
         CriticoGastronomico,
         Turista,
@@ -35,5 +36,13 @@ namespace VillaDelChef.ScriptableObjects
         [Header("Food Preferences")]
         public List<RecipeSO> preferredFoods = new List<RecipeSO>();
         public int unlockLevel = 1;
+
+        [Header("Reputation & Dialogues")]
+        public int reputationReward = 2;
+        public int reputationPenalty = 3;
+        public int bonusXP = 15;
+        public string arrivalDialogue;
+        public string satisfiedDialogue;
+        public string angryDialogue;
     }
 }

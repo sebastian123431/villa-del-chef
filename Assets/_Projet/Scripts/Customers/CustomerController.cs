@@ -142,8 +142,13 @@ namespace VillaDelChef.Customers
                 currentPatience -= Time.deltaTime;
                 if (currentPatience <= 0f)
                 {
-                    // Ran out of patience
+                    // Ran out of patience - anger penalty
                     if (orderBubble != null) orderBubble.SetActive(false);
+                    int repPenalty = (customerData != null) ? customerData.reputationPenalty : 2;
+                    if (EconomyManager.Instance != null)
+                    {
+                        EconomyManager.Instance.ModifyReputation(-repPenalty);
+                    }
                     GameEvents.TriggerCustomerServed(this, false);
                     yield return StartCoroutine(LeaveRestaurantRoutine());
                     yield break;
@@ -173,6 +178,15 @@ namespace VillaDelChef.Customers
                 if (orderedDish != null)
                 {
                     EconomyManager.Instance.AddExperience(orderedDish.experienceReward);
+                }
+
+                // Reputation reward and bonus XP
+                int repReward = (customerData != null) ? customerData.reputationReward : 1;
+                EconomyManager.Instance.ModifyReputation(repReward);
+
+                if (customerData != null && customerData.bonusXP > 0)
+                {
+                    EconomyManager.Instance.AddExperience(customerData.bonusXP);
                 }
             }
 
