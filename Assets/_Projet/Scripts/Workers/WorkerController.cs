@@ -17,6 +17,9 @@ namespace VillaDelChef.Workers
         WalkingToCounter,
         PickingDish,
         DeliveringToTable,
+        SearchingDirtyTable,
+        WalkingToDirtyTable,
+        Cleaning,
         ReturningToIdle
     }
 
@@ -32,6 +35,9 @@ namespace VillaDelChef.Workers
 
         [Header("Carrying State")]
         public DishInstance carryingDish;
+
+        [Header("Cleaning Settings")]
+        public float cleanDuration = 1.8f;
 
         [Header("Visuals")]
         public SpriteRenderer characterRenderer;
@@ -58,7 +64,7 @@ namespace VillaDelChef.Workers
         {
             while (true)
             {
-                yield return new WaitForSeconds(0.5f);
+                yield return new WaitForSeconds(0.4f);
 
                 if (currentState == WorkerState.Idle && carryingDish == null)
                 {
@@ -69,50 +75,94 @@ namespace VillaDelChef.Workers
 
         private void CheckForWork()
         {
-            if (DeliveryCounter.Instance == null || DeliveryCounter.Instance.readyDishes.Count == 0)
+            // PRIORITY 1: Find a ready dish that matches a customer's waiting order
+            if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.readyDishes.Count > 0)
             {
-                return;
+                if (FindMatchingOrderAndDish(out Table waitingTable, out DishInstance matchingDish))
+                {
+                    if (activeTaskRoutine != null) StopCoroutine(activeTaskRoutine);
+                    activeTaskRoutine = StartCoroutine(DeliveryTaskRoutine(waitingTable, matchingDish));
+                    return;
+                }
             }
 
-            // Find a table that ordered this dish
-            DishInstance dishCandidate = DeliveryCounter.Instance.readyDishes[0];
-            Table targetTable = FindTableWaitingForDish(dishCandidate.recipeData);
-
-            if (targetTable != null)
+            // PRIORITY 2: Find a dirty table that needs cleaning
+            Table dirtyTable = FindDirtyTable();
+            if (dirtyTable != null)
             {
                 if (activeTaskRoutine != null) StopCoroutine(activeTaskRoutine);
-                activeTaskRoutine = StartCoroutine(DeliveryTaskRoutine(targetTable));
+                activeTaskRoutine = StartCoroutine(CleaningTaskRoutine(dirtyTable));
+                return;
             }
         }
 
-        private Table FindTableWaitingForDish(RecipeSO recipe)
+        private bool FindMatchingOrderAndDish(out Table matchingTable, out DishInstance matchingDish)
         {
-            if (BuildManager.Instance == null || recipe == null) return null;
+            matchingTable = null;
+            matchingDish = null;
+
+            if (BuildManager.Instance == null || DeliveryCounter.Instance == null) return false;
+
+            // Search all tables waiting for food
+            foreach (var obj in BuildManager.Instance.activeFurniture)
+            {
+                Table table = obj as Table;
+                if (table != null && table.currentOrder != null && table.servedDish == null && (table.tableState == TableState.WaitingFood || table.tableState == TableState.Occupied))
+                {
+                    DishInstance readyDish = DeliveryCounter.Instance.FindMatchingDish(table.currentOrder);
+                    if (readyDish != null)
+                    {
+                        matchingTable = table;
+                        matchingDish = readyDish;
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        private Table FindDirtyTable()
+        {
+            if (BuildManager.Instance == null) return null;
 
             foreach (var obj in BuildManager.Instance.activeFurniture)
             {
                 Table table = obj as Table;
-                if (table != null && table.currentOrder != null && table.currentOrder.recipeID == recipe.recipeID && table.servedDish == null)
+                if (table != null && (table.tableState == TableState.Dirty || table.needsCleaning))
                 {
                     return table;
                 }
             }
+
             return null;
         }
 
-        private IEnumerator DeliveryTaskRoutine(Table targetTable)
+        private IEnumerator DeliveryTaskRoutine(Table targetTable, DishInstance targetDish)
         {
             // 1. Walk to Delivery Counter
             currentState = WorkerState.WalkingToCounter;
-            yield return StartCoroutine(WalkToRoutine(DeliveryCounter.Instance.gridPosition));
+            bool reachedCounter = false;
+            yield return StartCoroutine(WalkToRoutine(DeliveryCounter.Instance.gridPosition, success => reachedCounter = success));
 
-            // 2. Pick up dish
-            currentState = WorkerState.PickingDish;
-            carryingDish = DeliveryCounter.Instance.TakeNextDish();
-            if (carryingDish == null)
+            if (!reachedCounter)
             {
                 currentState = WorkerState.Idle;
                 yield break;
+            }
+
+            // 2. Pick up specific matching dish
+            currentState = WorkerState.PickingDish;
+            carryingDish = DeliveryCounter.Instance.TakeSpecificDish(targetDish);
+            if (carryingDish == null)
+            {
+                // Fallback if another worker picked it up in between
+                carryingDish = DeliveryCounter.Instance.TakeNextDish();
+                if (carryingDish == null)
+                {
+                    currentState = WorkerState.Idle;
+                    yield break;
+                }
             }
 
             carryingDish.transform.SetParent(carrySocket != null ? carrySocket : transform);
@@ -120,19 +170,27 @@ namespace VillaDelChef.Workers
 
             // 3. Deliver to Table
             currentState = WorkerState.DeliveringToTable;
-            yield return StartCoroutine(WalkToRoutine(targetTable.gridPosition));
+            bool reachedTable = false;
+            yield return StartCoroutine(WalkToRoutine(targetTable.gridPosition, success => reachedTable = success));
 
-            // Deliver dish to table
-            targetTable.PlaceDish(carryingDish);
-            CustomerController customer = targetTable.GetComponentInChildren<CustomerController>();
-            if (customer == null)
+            if (!reachedTable)
             {
-                // Also check if customer is nearby
-                customer = FindAnyObjectByType<CustomerController>();
+                // Could not reach table - return dish to counter if space allows
+                Debug.LogWarning($"[WorkerController] No pudo alcanzar la mesa en {targetTable.gridPosition}. Devolviendo plato.");
+                if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.HasSpace())
+                {
+                    DeliveryCounter.Instance.AddDish(carryingDish);
+                    carryingDish = null;
+                }
+                currentState = WorkerState.Idle;
+                yield break;
             }
-            if (customer != null)
+
+            // Deliver dish directly to table and notify customer
+            targetTable.PlaceDish(carryingDish);
+            if (targetTable.currentCustomer != null)
             {
-                customer.ReceiveDish(carryingDish);
+                targetTable.currentCustomer.ReceiveDish(carryingDish);
             }
 
             GameEvents.TriggerDishDelivered(carryingDish, targetTable);
@@ -140,21 +198,47 @@ namespace VillaDelChef.Workers
 
             // 4. Return to Idle spot
             currentState = WorkerState.ReturningToIdle;
-            yield return StartCoroutine(WalkToRoutine(idleGridPos));
+            yield return StartCoroutine(WalkToRoutine(idleGridPos, null));
             currentState = WorkerState.Idle;
         }
 
-        private IEnumerator WalkToRoutine(Vector2Int targetGrid)
+        private IEnumerator CleaningTaskRoutine(Table targetTable)
+        {
+            currentState = WorkerState.WalkingToDirtyTable;
+            targetTable.StartCleaning();
+
+            bool reached = false;
+            yield return StartCoroutine(WalkToRoutine(targetTable.gridPosition, success => reached = success));
+
+            if (!reached)
+            {
+                // Abort cleaning if table unreachable
+                targetTable.tableState = TableState.Dirty;
+                currentState = WorkerState.Idle;
+                yield break;
+            }
+
+            // Cleaning in progress
+            currentState = WorkerState.Cleaning;
+            yield return new WaitForSeconds(cleanDuration);
+
+            targetTable.FinishCleaning();
+
+            // Return to Idle spot
+            currentState = WorkerState.ReturningToIdle;
+            yield return StartCoroutine(WalkToRoutine(idleGridPos, null));
+            currentState = WorkerState.Idle;
+        }
+
+        private IEnumerator WalkToRoutine(Vector2Int targetGrid, System.Action<bool> onComplete)
         {
             Vector2Int startGrid = GridManager.Instance != null ? GridManager.Instance.WorldToGrid(transform.position) : Vector2Int.zero;
             List<Vector2Int> path = GridPathfinding.FindPath(startGrid, targetGrid);
 
             if (path == null || path.Count == 0)
             {
-                if (GridManager.Instance != null)
-                {
-                    transform.position = GridManager.Instance.GridToWorld(targetGrid);
-                }
+                Debug.LogWarning($"[WorkerController] No se encontró ruta transitable desde {startGrid} hasta {targetGrid}. Tarea cancelada sin teletransporte.");
+                onComplete?.Invoke(false);
                 yield break;
             }
 
@@ -171,6 +255,8 @@ namespace VillaDelChef.Workers
                     yield return null;
                 }
             }
+
+            onComplete?.Invoke(true);
         }
     }
 }

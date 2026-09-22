@@ -1,6 +1,7 @@
 using UnityEngine;
 using VillaDelChef.Building;
 using VillaDelChef.Core;
+using VillaDelChef.Interaction;
 using VillaDelChef.Inventory;
 using VillaDelChef.Restaurant;
 using VillaDelChef.ScriptableObjects;
@@ -15,8 +16,12 @@ namespace VillaDelChef.Cooking
         DishReady
     }
 
-    public class CookingStation : GridObject
+    public class CookingStation : GridObject, IInteractable
     {
+        public string InteractionPrompt => currentState == StationState.DishReady ? "Recoger Plato" : "Cocinar";
+        public bool CanInteract => true;
+        public void Interact() => OnInteract();
+
         [Header("Station Configuration")]
         public StationType stationType = StationType.Cocina;
         public StationSO stationData;

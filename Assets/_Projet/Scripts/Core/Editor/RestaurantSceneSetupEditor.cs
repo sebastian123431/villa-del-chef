@@ -320,6 +320,68 @@ namespace VillaDelChef.EditorTools
             hud.marketPanel = marketModalGO;
             marketModalGO.SetActive(false);
 
+            // Vendor Modal Dialog (NPC Specialist Shop)
+            GameObject vendorModalGO = new GameObject("VendorModal");
+            vendorModalGO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform vRT = vendorModalGO.AddComponent<RectTransform>();
+            vRT.anchorMin = new Vector2(0.5f, 0.5f);
+            vRT.anchorMax = new Vector2(0.5f, 0.5f);
+            vRT.sizeDelta = new Vector2(860f, 580f);
+            Image vBg = vendorModalGO.AddComponent<Image>();
+            vBg.color = new Color(0.12f, 0.14f, 0.18f, 0.98f);
+
+            VendorUI vendorUI = vendorModalGO.AddComponent<VendorUI>();
+            vendorUI.panelRoot = vendorModalGO;
+            vendorUI.closeButton = CreateButton(vendorModalGO, "CloseBtn", "X", new Vector2(790, 520), new Vector2(50, 50), new Color(0.85f, 0.25f, 0.25f));
+
+            // NPC Header: Portrait, Name, Role, Dialogue, Restock Timer
+            GameObject vPortraitGO = new GameObject("Portrait", typeof(RectTransform), typeof(Image));
+            vPortraitGO.transform.SetParent(vendorModalGO.transform, false);
+            RectTransform vpRT = vPortraitGO.GetComponent<RectTransform>();
+            vpRT.anchorMin = new Vector2(0f, 1f);
+            vpRT.anchorMax = new Vector2(0f, 1f);
+            vpRT.sizeDelta = new Vector2(70, 70);
+            vpRT.anchoredPosition = new Vector2(55, -50);
+            vendorUI.npcPortraitImage = vPortraitGO.GetComponent<Image>();
+
+            vendorUI.npcNameText = CreateTextElement(vendorModalGO, "NPCName", "Elena", 26, new Vector2(230, -35), new Vector2(260, 36), new Color(1f, 0.88f, 0.35f));
+            vendorUI.npcRoleText = CreateTextElement(vendorModalGO, "NPCRole", "Agricultora de la Villa", 16, new Vector2(230, -65), new Vector2(260, 26), new Color(0.75f, 0.85f, 0.75f));
+            vendorUI.dialogueText = CreateTextElement(vendorModalGO, "Dialogue", "¡Hola Chef! Aquí tienes los ingredientes más frescos de la villa.", 15, new Vector2(540, -40), new Vector2(360, 50), Color.white);
+            vendorUI.restockTimerText = CreateTextElement(vendorModalGO, "Timer", "Reabastecimiento en: 03:00", 15, new Vector2(540, -75), new Vector2(360, 24), new Color(0.4f, 0.9f, 1f));
+
+            GameObject vendorScroll = new GameObject("VendorScroll");
+            vendorScroll.transform.SetParent(vendorModalGO.transform, false);
+            RectTransform vScrollRT = vendorScroll.AddComponent<RectTransform>();
+            vScrollRT.anchorMin = new Vector2(0.04f, 0.04f);
+            vScrollRT.anchorMax = new Vector2(0.96f, 0.80f);
+            vScrollRT.offsetMin = Vector2.zero;
+            vScrollRT.offsetMax = Vector2.zero;
+            ScrollRect vSr = vendorScroll.AddComponent<ScrollRect>();
+            vSr.horizontal = false;
+            vSr.vertical = true;
+
+            GameObject vContent = new GameObject("Content");
+            vContent.transform.SetParent(vendorScroll.transform, false);
+            RectTransform vContentRT = vContent.AddComponent<RectTransform>();
+            vContentRT.anchorMin = new Vector2(0f, 1f);
+            vContentRT.anchorMax = new Vector2(1f, 1f);
+            vContentRT.pivot = new Vector2(0.5f, 1f);
+            vContentRT.sizeDelta = new Vector2(0, 400);
+
+            VerticalLayoutGroup vVlg = vContent.AddComponent<VerticalLayoutGroup>();
+            vVlg.spacing = 10;
+            vVlg.childControlWidth = true;
+            vVlg.childControlHeight = false;
+            vVlg.childForceExpandWidth = true;
+            vVlg.childForceExpandHeight = false;
+
+            ContentSizeFitter vCsf = vContent.AddComponent<ContentSizeFitter>();
+            vCsf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+            vSr.content = vContentRT;
+            vendorUI.itemsContainer = vContent.transform;
+            vendorModalGO.SetActive(false);
+
             // Level Up Modal Dialog
             GameObject levelUpModalGO = new GameObject("LevelUpModal");
             levelUpModalGO.transform.SetParent(safeAreaGO.transform, false);

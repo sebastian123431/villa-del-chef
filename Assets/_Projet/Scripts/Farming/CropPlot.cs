@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using VillaDelChef.Building;
 using VillaDelChef.Core;
+using VillaDelChef.Interaction;
 using VillaDelChef.Inventory;
 using VillaDelChef.ScriptableObjects;
 using VillaDelChef.Managers;
@@ -15,8 +16,12 @@ namespace VillaDelChef.Farming
         ReadyToHarvest
     }
 
-    public class CropPlot : GridObject
+    public class CropPlot : GridObject, IInteractable
     {
+        public string InteractionPrompt => currentState == PlotState.ReadyToHarvest ? "Cosechar" : (currentState == PlotState.Empty ? "Sembrar" : "Cultivando");
+        public bool CanInteract => true;
+        public void Interact() => OnInteract();
+
         [Header("Plot Identification")]
         public int plotIndex = 0;
 
@@ -33,15 +38,17 @@ namespace VillaDelChef.Farming
         private void Start()
         {
             UpdateVisuals();
+            if (FarmingManager.Instance != null)
+            {
+                FarmingManager.Instance.RegisterPlot(this);
+            }
         }
 
-        private void Update()
+        public void TickGrowth(long currentNow)
         {
             if (currentState == PlotState.Growing && plantedCrop != null)
             {
-                long currentNow = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 long elapsed = currentNow - plantTimestampSeconds;
-
                 if (elapsed >= plantedCrop.totalGrowthTimeSeconds)
                 {
                     currentState = PlotState.ReadyToHarvest;
@@ -53,6 +60,7 @@ namespace VillaDelChef.Farming
                 }
             }
         }
+
 
         public void OnInteract()
         {

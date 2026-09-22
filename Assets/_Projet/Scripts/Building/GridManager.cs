@@ -8,7 +8,10 @@ namespace VillaDelChef.Building
         Kitchen,
         Dining,
         Exterior,
-        FarmingZone
+        Farming,
+        Market,
+        Crafting,
+        FarmingZone = Farming
     }
 
     public class GridCell
@@ -27,6 +30,7 @@ namespace VillaDelChef.Building
             this.isWalkable = true;
         }
     }
+
 
     public class GridManager : MonoBehaviour
     {
@@ -142,6 +146,43 @@ namespace VillaDelChef.Building
             if (!IsInsideGrid(x, y)) return false;
             return cells[x, y].isWalkable;
         }
+
+        public ZoneType GetZoneAt(int x, int y)
+        {
+            if (!IsInsideGrid(x, y)) return ZoneType.Exterior;
+            ZoneType z = cells[x, y].zone;
+            return (z == ZoneType.FarmingZone) ? ZoneType.Farming : z;
+        }
+
+        public bool IsAreaInAllowedZones(int startX, int startY, int sizeX, int sizeY, List<ZoneType> allowedZones)
+        {
+            if (allowedZones == null || allowedZones.Count == 0) return true;
+
+            for (int x = startX; x < startX + sizeX; x++)
+            {
+                for (int y = startY; y < startY + sizeY; y++)
+                {
+                    if (!IsInsideGrid(x, y)) return false;
+                    ZoneType current = GetZoneAt(x, y);
+
+                    bool isMatch = false;
+                    for (int i = 0; i < allowedZones.Count; i++)
+                    {
+                        ZoneType allowed = allowedZones[i];
+                        if (allowed == ZoneType.FarmingZone) allowed = ZoneType.Farming;
+                        if (allowed == current)
+                        {
+                            isMatch = true;
+                            break;
+                        }
+                    }
+
+                    if (!isMatch) return false;
+                }
+            }
+            return true;
+        }
+
 
         private void OnDrawGizmos()
         {

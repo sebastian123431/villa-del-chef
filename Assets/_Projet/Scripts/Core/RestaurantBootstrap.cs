@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using VillaDelChef.Building;
 using VillaDelChef.Cooking;
 using VillaDelChef.Core;
@@ -8,6 +9,7 @@ using VillaDelChef.Economy;
 using VillaDelChef.Farming;
 using VillaDelChef.Inventory;
 using VillaDelChef.Managers;
+using VillaDelChef.NPC;
 using VillaDelChef.PlayerInput;
 using VillaDelChef.Progression;
 using VillaDelChef.Restaurant;
@@ -109,6 +111,8 @@ namespace VillaDelChef.Core
             {
                 mainCam.gameObject.AddComponent<CameraController2D>();
             }
+
+            EnsureVendorUI();
         }
 
         private void CreateDefaultDataAndObjects()
@@ -657,9 +661,100 @@ namespace VillaDelChef.Core
 
             stall.floatingIndicator = signGO;
 
+            // Spawn NPC Vendor next to the physical stall
+            NPCSO elenaData = Resources.Load<NPCSO>("NPC/npc_elena");
+            if (elenaData == null)
+            {
+                var allNPCs = Resources.LoadAll<NPCSO>("NPC");
+                if (allNPCs != null && allNPCs.Length > 0) elenaData = allNPCs[0];
+            }
+
+            if (elenaData != null)
+            {
+                GameObject npcGO = new GameObject($"NPC_{elenaData.npcName}");
+                npcGO.transform.position = worldPos + new Vector3(-0.6f, -0.6f, 0f);
+
+                SpriteRenderer npcSR = npcGO.AddComponent<SpriteRenderer>();
+                npcSR.sortingOrder = 7;
+                npcSR.sprite = elenaData.worldSprite ?? elenaData.portrait;
+
+                BoxCollider2D npcCol = npcGO.AddComponent<BoxCollider2D>();
+                npcCol.size = new Vector2(1f, 1.4f);
+
+                NPCController npcCtrl = npcGO.AddComponent<NPCController>();
+                npcCtrl.npcData = elenaData;
+                npcCtrl.characterRenderer = npcSR;
+                stall.associatedNPC = npcCtrl;
+            }
+
             if (GridManager.Instance != null)
             {
                 GridManager.Instance.SetOccupancy(gridPos.x, gridPos.y, 3, 2, null, true);
+            }
+        }
+
+        private void EnsureVendorUI()
+        {
+            if (VendorUI.Instance == null)
+            {
+                Canvas canvas = FindAnyObjectByType<Canvas>();
+                if (canvas != null)
+                {
+                    GameObject vModal = new GameObject("VendorModal_Bootstrap", typeof(RectTransform), typeof(Image), typeof(VendorUI));
+                    vModal.transform.SetParent(canvas.transform, false);
+                    RectTransform vRT = vModal.GetComponent<RectTransform>();
+                    vRT.anchorMin = new Vector2(0.5f, 0.5f);
+                    vRT.anchorMax = new Vector2(0.5f, 0.5f);
+                    vRT.sizeDelta = new Vector2(700, 520);
+
+                    Image img = vModal.GetComponent<Image>();
+                    img.color = new Color(0.12f, 0.14f, 0.18f, 0.98f);
+
+                    VendorUI vUI = vModal.GetComponent<VendorUI>();
+                    vUI.panelRoot = vModal;
+
+                    // Title
+                    GameObject titleObj = new GameObject("Title", typeof(RectTransform), typeof(Text));
+                    titleObj.transform.SetParent(vModal.transform, false);
+                    Text titleT = titleObj.GetComponent<Text>();
+                    titleT.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf") ?? Resources.GetBuiltinResource<Font>("Arial.ttf");
+                    titleT.fontSize = 24;
+                    titleT.fontStyle = FontStyle.Bold;
+                    titleT.color = new Color(1f, 0.85f, 0.2f);
+                    titleT.text = "Puesto del Proveedor";
+                    RectTransform titleRt = titleObj.GetComponent<RectTransform>();
+                    titleRt.anchorMin = new Vector2(0.5f, 1f);
+                    titleRt.anchorMax = new Vector2(0.5f, 1f);
+                    titleRt.anchoredPosition = new Vector2(0, -35);
+                    titleRt.sizeDelta = new Vector2(400, 40);
+                    vUI.npcNameText = titleT;
+
+                    // Close Button
+                    GameObject closeBtnObj = new GameObject("CloseBtn", typeof(RectTransform), typeof(Image), typeof(Button));
+                    closeBtnObj.transform.SetParent(vModal.transform, false);
+                    RectTransform closeRt = closeBtnObj.GetComponent<RectTransform>();
+                    closeRt.anchorMin = new Vector2(1f, 1f);
+                    closeRt.anchorMax = new Vector2(1f, 1f);
+                    closeRt.anchoredPosition = new Vector2(-30, -30);
+                    closeRt.sizeDelta = new Vector2(40, 40);
+                    closeBtnObj.GetComponent<Image>().color = new Color(0.85f, 0.25f, 0.25f);
+                    vUI.closeButton = closeBtnObj.GetComponent<Button>();
+
+                    // Items Container
+                    GameObject contentObj = new GameObject("Content", typeof(RectTransform), typeof(VerticalLayoutGroup));
+                    contentObj.transform.SetParent(vModal.transform, false);
+                    RectTransform contentRt = contentObj.GetComponent<RectTransform>();
+                    contentRt.anchorMin = new Vector2(0.05f, 0.05f);
+                    contentRt.anchorMax = new Vector2(0.95f, 0.82f);
+                    contentRt.offsetMin = Vector2.zero;
+                    contentRt.offsetMax = Vector2.zero;
+
+                    var vlg = contentObj.GetComponent<VerticalLayoutGroup>();
+                    vlg.spacing = 8;
+                    vUI.itemsContainer = contentObj.transform;
+
+                    vModal.SetActive(false);
+                }
             }
         }
     }

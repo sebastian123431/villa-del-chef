@@ -90,7 +90,7 @@ namespace VillaDelChef.Customers
             assignedTable = foundTable;
             assignedChair = foundTable.GetFirstAvailableChair();
             if (assignedChair != null) assignedChair.SetOccupied(true);
-            assignedTable.isReserved = true;
+            assignedTable.ReserveForCustomer(this);
 
             // 2. Walk to Table
             currentState = CustomerState.WalkingToTable;
@@ -101,6 +101,7 @@ namespace VillaDelChef.Customers
             {
                 transform.position = assignedChair.GetSitPosition();
             }
+            assignedTable.CustomerSeated(this);
 
             // 3. Deciding Order
             currentState = CustomerState.DecidingOrder;
@@ -123,7 +124,8 @@ namespace VillaDelChef.Customers
                 yield break;
             }
 
-            assignedTable.currentOrder = orderedDish;
+            assignedTable.SetWaitingOrder(orderedDish);
+
 
             // 4. Waiting for Food
             currentState = CustomerState.WaitingForFood;
@@ -195,10 +197,18 @@ namespace VillaDelChef.Customers
 
         private IEnumerator LeaveRestaurantRoutine()
         {
+            bool hadEaten = (currentState == CustomerState.Paying || currentState == CustomerState.Eating);
             currentState = CustomerState.Leaving;
             if (assignedTable != null)
             {
-                assignedTable.ClearTable();
+                if (hadEaten)
+                {
+                    assignedTable.MarkDirty();
+                }
+                else
+                {
+                    assignedTable.ClearTable();
+                }
             }
             yield return StartCoroutine(WalkToRoutine(exitGridPos));
             GameEvents.TriggerCustomerLeft(this);
@@ -212,13 +222,10 @@ namespace VillaDelChef.Customers
 
             if (currentPath == null || currentPath.Count == 0)
             {
-                // Instant fallback move if path blocked
-                if (GridManager.Instance != null)
-                {
-                    transform.position = GridManager.Instance.GridToWorld(targetGrid);
-                }
+                Debug.LogWarning($"[CustomerController] No se encontró ruta caminable desde {startGrid} hasta {targetGrid}. Esperando sin teletransporte.");
                 yield break;
             }
+
 
             currentPathIndex = 0;
             while (currentPathIndex < currentPath.Count)

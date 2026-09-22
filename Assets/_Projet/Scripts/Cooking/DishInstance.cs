@@ -7,8 +7,8 @@ namespace VillaDelChef.Cooking
     {
         [Header("Dish Data")]
         public RecipeSO recipeData;
-        public object targetCustomer;
-        public object targetTable;
+        [System.NonSerialized] public object targetCustomer;
+        [System.NonSerialized] public object targetTable;
 
         [Header("Visuals")]
         public SpriteRenderer dishRenderer;

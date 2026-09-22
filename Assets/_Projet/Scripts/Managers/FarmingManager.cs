@@ -45,6 +45,25 @@ namespace VillaDelChef.Managers
             LoadPlotStates();
             GameEvents.OnCropPlanted += (plot, crop) => SavePlotStates();
             GameEvents.OnCropHarvested += (plot, crop, amount) => SavePlotStates();
+
+            StartCoroutine(CentralizedFarmingTickRoutine());
+        }
+
+        private System.Collections.IEnumerator CentralizedFarmingTickRoutine()
+        {
+            var wait = new WaitForSeconds(1f);
+            while (true)
+            {
+                yield return wait;
+                long now = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                for (int i = 0; i < activePlots.Count; i++)
+                {
+                    if (activePlots[i] != null && activePlots[i].currentState == PlotState.Growing)
+                    {
+                        activePlots[i].TickGrowth(now);
+                    }
+                }
+            }
         }
 
         public CropSO GetSelectedOrAvailableCrop()

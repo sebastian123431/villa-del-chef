@@ -108,7 +108,9 @@ namespace VillaDelChef.Building
 
             ghostPreviewInstance.transform.position = GridManager.Instance.GridToWorld(gridPos, sizeX, sizeY);
 
-            isCurrentPosValid = GridManager.Instance.IsAreaAvailable(gridPos.x, gridPos.y, sizeX, sizeY, movingObject);
+            bool areaAvailable = GridManager.Instance.IsAreaAvailable(gridPos.x, gridPos.y, sizeX, sizeY, movingObject);
+            bool zoneAllowed = GridManager.Instance.IsAreaInAllowedZones(gridPos.x, gridPos.y, sizeX, sizeY, selectedFurniture.allowedZones);
+            isCurrentPosValid = areaAvailable && zoneAllowed;
 
             // Update ghost tint / color
             SpriteRenderer[] renderers = ghostPreviewInstance.GetComponentsInChildren<SpriteRenderer>();
@@ -124,6 +126,16 @@ namespace VillaDelChef.Building
             if (selectedFurniture == null) return false;
             if (!isCurrentPosValid) return false;
 
+            int sizeX = (currentRotation % 180 == 0) ? selectedFurniture.sizeX : selectedFurniture.sizeY;
+            int sizeY = (currentRotation % 180 == 0) ? selectedFurniture.sizeY : selectedFurniture.sizeX;
+
+            // Verify navigation safety: do not block critical restaurant pathways
+            if (!ValidateNavigationSafety(currentHoverGrid.x, currentHoverGrid.y, sizeX, sizeY))
+            {
+                Debug.LogWarning("[BuildManager] Este objeto bloquearía el paso.");
+                return false;
+            }
+
             // If buying new object, check economy
             if (movingObject == null)
             {
@@ -137,6 +149,7 @@ namespace VillaDelChef.Building
                     EconomyManager.Instance.SpendCoins(selectedFurniture.cost);
                 }
             }
+
 
             GameObject spawnedObj = null;
             GridObject gridObj = null;
@@ -226,5 +239,53 @@ namespace VillaDelChef.Building
             sr.sortingOrder = 100;
             ghostPreviewInstance.transform.rotation = Quaternion.Euler(0f, 0f, currentRotation);
         }
+
+        private bool ValidateNavigationSafety(int startX, int startY, int sizeX, int sizeY)
+        {
+            if (GridManager.Instance == null) return true;
+
+            // Temporarily mark candidate cells as unwalkable
+            for (int x = startX; x < startX + sizeX; x++)
+            {
+                for (int y = startY; y < startY + sizeY; y++)
+                {
+                    var cell = GridManager.Instance.GetCell(x, y);
+                    if (cell != null) cell.isWalkable = false;
+                }
+            }
+
+            bool isSafe = true;
+
+            // If DeliveryCounter exists, ensure it can still reach all active tables
+            if (VillaDelChef.Restaurant.DeliveryCounter.Instance != null)
+            {
+                Vector2Int counterPos = VillaDelChef.Restaurant.DeliveryCounter.Instance.gridPosition;
+                foreach (var obj in activeFurniture)
+                {
+                    if (obj is VillaDelChef.Restaurant.Table table && obj.gameObject.activeInHierarchy)
+                    {
+                        var path = Utilities.GridPathfinding.FindPath(counterPos, table.gridPosition);
+                        if (path == null || path.Count == 0)
+                        {
+                            isSafe = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // Restore candidate cells
+            for (int x = startX; x < startX + sizeX; x++)
+            {
+                for (int y = startY; y < startY + sizeY; y++)
+                {
+                    var cell = GridManager.Instance.GetCell(x, y);
+                    if (cell != null) cell.isWalkable = true;
+                }
+            }
+
+            return isSafe;
+        }
     }
 }
+

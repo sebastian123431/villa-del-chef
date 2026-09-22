@@ -1,0 +1,84 @@
+# TECHNICAL_DECISIONS.md — Villa del Chef
+
+Registro permanente de decisiones arquitectónicas y técnicas tomadas en el proyecto. Ninguna decisión debe eliminarse; si queda obsoleta, marcar como OBSOLETA y referenciar la nueva decisión.
+
+---
+
+### DECISIÓN 001
+- **Título**: No utilizar Git LFS para imágenes ni audios ligeros.
+- **Problema**: GitHub tiene una cuota gratuita estricta de 1 GB de ancho de banda LFS por cuenta. Al intentar subir los PNGs y WAVs con LFS, el push fue rechazado por cuota excedida.
+- **Decisión**: Desactivar reglas LFS para `*.png`, `*.wav`, `*.mp3`, etc. en `.gitattributes`. Todos los assets pixel art del juego pesan < 10 MB combinados y Git estándar maneja perfectamente binarios de ese tamaño.
+- **Alternativas consideradas**:
+  1. Comprar paquetes adicionales de datos LFS en GitHub.
+  2. Alojar assets externamente.
+  3. Desactivar LFS y usar Git nativo.
+- **Elegida**: 3 (Desactivar LFS).
+- **Estado**: ACTIVA.
+
+---
+
+### DECISIÓN 002
+- **Título**: Desacoplamiento de subsistemas mediante eventos C# estáticos (`GameEvents.cs`).
+- **Problema**: El restaurante combina economía, misiones, cocina, granja, clientes e interfaz. Si cada script tuviera referencias directas cruzadas a otros managers, se crearía espagueti y acoplamiento frágil.
+- **Decisión**: Utilizar `GameEvents.cs` con eventos estáticos fuertemente tipados (`OnGoldChanged`, `OnDishPrepared`, `OnDishDelivered`, `OnCropHarvested`, etc.).
+- **Alternativas consideradas**:
+  1. Singletons referenciándose directamente entre sí.
+  2. ScriptableObject GameEvents (Arquitectura Ryan Hipple).
+  3. Eventos estáticos centralizados en C#.
+- **Elegida**: 3 (Eventos estáticos centralizados por velocidad, simplicidad y cero overhead en garbage collection para móvil).
+- **Estado**: ACTIVA.
+
+---
+
+### DECISIÓN 003
+- **Título**: Interfaz unificada `IInteractable` para interacción táctil/ratón.
+- **Problema**: `TouchInputManager.cs` utilizaba casts directos a `MerchantStall`, `CookingStation`, `CropPlot` y `DeliveryCounter`, requiriendo modificar el gestor de input cada vez que se agregaba un nuevo objeto interactivo.
+- **Decisión**: Crear la interfaz `IInteractable` en `VillaDelChef.Interaction` con métodos claros (`Interact()`, `CanInteract()`, etc.). Cualquier entidad interactuable (NPC, puesto, estación, cultivo, mesa) implementará `IInteractable`.
+- **Alternativas consideradas**:
+  1. Mantener comprobaciones `GetComponentInParent<ClaseConcreta>()`.
+  2. Interfaz unificada `IInteractable`.
+  3. Sistema de mensajes por tags de Unity.
+- **Elegida**: 2 (`IInteractable`).
+- **Estado**: ACTIVA.
+
+---
+
+### DECISIÓN 004
+- **Título**: Tiendas modulares con `NPCSO` y `VendorSO` en reemplazo de mercado universal estático.
+- **Problema**: El mercado original cargaba todos los `IngredientSO` mediante `Resources.LoadAll`, sin stock individual, sin comerciantes con personalidad, ni control de reabastecimiento.
+- **Decisión**: Cada comerciante en la villa tendrá su propio `NPCSO` y `VendorSO`, con catálogo individual, stock configurable, temporizadores de restock UTC y precios diferenciados.
+- **Alternativas consideradas**:
+  1. Tienda global única en el HUD.
+  2. Listas fijas hardcodeadas en scripts.
+  3. Datos orientados a ScriptableObjects (`NPCSO` + `VendorSO`) con `VendorUI` reutilizable.
+- **Elegida**: 3 (`NPCSO` + `VendorSO`).
+- **Estado**: ACTIVA.
+
+---
+
+### DECISIÓN 005
+- **Título**: Sistema de Crafting intermedio desacoplado (`CraftingRecipeSO` + `CraftingStation`).
+- **Problema**: En juegos clásicos tipo ChefVille, los ingredientes no solo se compran o cultivan, sino que se procesan (ej. trigo → harina → masa → pizza). Mezclar recetas de platos terminados con procesamiento de ingredientes dentro de `RecipeSO` crearía ambigüedad en los menús de cocina y en los pedidos de clientes.
+- **Decisión**: Crear `CraftingRecipeSO` y `CraftingManager` separados de `RecipeSO`. Los clientes solo piden `RecipeSO` (platos terminados), mientras que las estaciones de procesamiento producen insumos intermedios (`CraftingRecipeSO`).
+- **Alternativas consideradas**:
+  1. Usar la misma clase `RecipeSO` para todo con una bandera `isCrafted`.
+  2. Separar limpiamente `CraftingRecipeSO` y `CraftingStation`.
+- **Elegida**: 2 (Separación limpia).
+- **Estado**: ACTIVA.
+
+---
+
+### DECISIÓN 006
+- **Título**: Arquitectura de Comerciantes Especializados, Restock Basado en Epoch UTC y Fallback Polimórfico en `MerchantStall`.
+- **Problema**: El jugador necesita interactuar con NPCs específicos (agricultores, carniceros, panaderos, pescadores, carpinteros, ingenieros, decoradores). Al interactuar desde móviles o PC, el juego debe garantizar que el stock se conserve fielmente entre sesiones sin resetearse al cerrar la UI, que el reabastecimiento respete el paso del tiempo real (segundos UTC) y que cualquier puesto físico existente (`MerchantStall`) pueda redirigir suavemente tanto al nuevo `VendorUI` de un NPC asignado como al `MarketUI` tradicional si no hay ninguno.
+- **Decisión**:
+  1. `VendorController` calcula `nextRestockTimestampSeconds` como `DateTimeOffset.UtcNow.ToUnixTimeSeconds() + restockIntervalSeconds`.
+  2. La estructura `VendorSaveData` serializa en `SaveData.json` los pares `itemID:currentStock` y el timestamp de restock, previniendo reseteos no deseados.
+  3. `MerchantStall.cs` prioriza `associatedNPC.Interact()`, si no existe busca cualquier `NPCController` en escena con `VendorUI`, y como último recurso usa `MarketUI`.
+  4. `ArtAssetGenerator.cs` genera procedimentalmente texturas de 16x24 (world sprites) y 32x32 (retratos con fondo medallón) para los 7 NPCs, garantizando coherencia de pixel art a 16 PPU sin dependencias de assets externos.
+- **Alternativas consideradas**:
+  1. Temporizadores basados en `Time.time` de Unity (se reiniciarían al cerrar el juego).
+  2. Resetear el stock a tope cada vez que se abre la UI (rompe la economía y la gestión de recursos).
+  3. Usar timestamp UTC persistente en `SaveData`.
+- **Elegida**: 3 (Timestamp UTC persistente en `SaveData`).
+- **Estado**: IMPLEMENTADA Y ACTIVA.

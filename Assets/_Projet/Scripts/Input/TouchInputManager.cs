@@ -3,6 +3,7 @@ using UnityEngine.EventSystems;
 using VillaDelChef.Building;
 using VillaDelChef.Cooking;
 using VillaDelChef.Farming;
+using VillaDelChef.Interaction;
 
 namespace VillaDelChef.PlayerInput
 {
@@ -206,31 +207,7 @@ namespace VillaDelChef.PlayerInput
             RaycastHit2D hit = Physics2D.Raycast(worldPos2D, Vector2.zero);
             if (hit.collider != null)
             {
-                // Merchant Stall tapped
-                VillaDelChef.Economy.MerchantStall stall = hit.collider.GetComponentInParent<VillaDelChef.Economy.MerchantStall>();
-                if (stall != null)
-                {
-                    stall.OnInteract();
-                    return;
-                }
-
-                // Station tapped
-                CookingStation station = hit.collider.GetComponentInParent<CookingStation>();
-                if (station != null)
-                {
-                    station.OnInteract();
-                    return;
-                }
-
-                // Crop plot tapped
-                CropPlot plot = hit.collider.GetComponentInParent<CropPlot>();
-                if (plot != null)
-                {
-                    plot.OnInteract();
-                    return;
-                }
-
-                // Furniture tapped in build mode
+                // 1. If in build mode, tap selects furniture to move
                 if (BuildManager.Instance != null && BuildManager.Instance.isBuildMode)
                 {
                     GridObject gridObj = hit.collider.GetComponentInParent<GridObject>();
@@ -240,8 +217,17 @@ namespace VillaDelChef.PlayerInput
                         return;
                     }
                 }
+
+                // 2. Polymorphic IInteractable detection (Station, CropPlot, MerchantStall, DeliveryCounter, etc.)
+                IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
+                if (interactable != null && interactable.CanInteract)
+                {
+                    interactable.Interact();
+                    return;
+                }
             }
         }
+
 
         private void HandleLongPress(Vector2 screenPos)
         {

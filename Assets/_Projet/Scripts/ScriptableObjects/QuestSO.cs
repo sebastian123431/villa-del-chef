@@ -8,7 +8,8 @@ namespace VillaDelChef.ScriptableObjects
         HarvestCrops,
         ServeCustomers,
         EarnCoins,
-        BuyFurniture
+        BuyFurniture,
+        CollectIngredients
     }
 
     [CreateAssetMenu(fileName = "NewQuest", menuName = "VillaDelChef/Quest")]

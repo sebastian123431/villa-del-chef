@@ -51,6 +51,8 @@ namespace VillaDelChef.Save
 
         public void LoadOrCreateData()
         {
+            string backupPath = saveFilePath + ".bak";
+
             if (File.Exists(saveFilePath))
             {
                 try
@@ -61,18 +63,34 @@ namespace VillaDelChef.Save
                     // Calculate offline time
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
-                    Debug.Log($"[SaveManager] Loaded save game. Offline time: {OfflineSecondsElapsed} seconds.");
+                    Debug.Log($"[SaveManager] Loaded save game (v{currentSaveData.saveVersion}). Offline time: {OfflineSecondsElapsed} seconds.");
+                    return;
                 }
                 catch (Exception ex)
                 {
-                    Debug.LogWarning($"[SaveManager] Error loading save data: {ex.Message}. Creating fresh save.");
-                    CreateDefaultSave();
+                    Debug.LogWarning($"[SaveManager] Error loading primary save data: {ex.Message}. Attempting backup restore.");
                 }
             }
-            else
+
+            // Attempt backup restore
+            if (File.Exists(backupPath))
             {
-                CreateDefaultSave();
+                try
+                {
+                    string json = File.ReadAllText(backupPath);
+                    currentSaveData = JsonUtility.FromJson<SaveData>(json);
+                    long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                    OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
+                    Debug.Log($"[SaveManager] Restored save game from backup. Offline time: {OfflineSecondsElapsed} seconds.");
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogWarning($"[SaveManager] Error loading backup save data: {ex.Message}.");
+                }
             }
+
+            CreateDefaultSave();
         }
 
         public void SaveGame()
@@ -80,17 +98,34 @@ namespace VillaDelChef.Save
             if (currentSaveData == null) return;
 
             currentSaveData.lastSaveTimestampSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            string tempPath = saveFilePath + ".tmp";
+            string backupPath = saveFilePath + ".bak";
+
             try
             {
                 string json = JsonUtility.ToJson(currentSaveData, true);
-                File.WriteAllText(saveFilePath, json);
-                Debug.Log($"[SaveManager] Game saved successfully at {saveFilePath}");
+
+                // 1. Write to temporary file
+                File.WriteAllText(tempPath, json);
+
+                // 2. Backup existing save if present
+                if (File.Exists(saveFilePath))
+                {
+                    File.Copy(saveFilePath, backupPath, true);
+                }
+
+                // 3. Atomically replace main file
+                File.Copy(tempPath, saveFilePath, true);
+                File.Delete(tempPath);
+
+                Debug.Log($"[SaveManager] Game saved atomically at {saveFilePath}");
             }
             catch (Exception ex)
             {
                 Debug.LogError($"[SaveManager] Failed to save game: {ex.Message}");
             }
         }
+
 
         private void CreateDefaultSave()
         {

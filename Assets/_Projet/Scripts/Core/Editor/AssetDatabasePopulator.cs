@@ -155,15 +155,96 @@ namespace VillaDelChef.EditorTools
             CreateOrUpdateQuest("quest_earn_coins", "Camino a las Estrellas", "Gana 500 monedas atendiendo clientes y expandiendo tu menú.",
                 QuestType.EarnCoins, "", 500, 250, 60, FindSpriteByName("coins"));
 
+            // 6. COMERCIANTES Y NPCS ESPECIALIZADOS (FASE 2)
+            // Elena: Semillas y vegetales
+            var elenaItems = new List<VendorItemEntry>
+            {
+                new VendorItemEntry { itemID = "ing_strawberry", displayName = "Semillas de Frutilla", icon = ingStrawberry.icon, buyPrice = 12, maxStock = 15 },
+                new VendorItemEntry { itemID = "ing_lemon", displayName = "Semillas de Limón", icon = ingLemon.icon, buyPrice = 10, maxStock = 15 },
+                new VendorItemEntry { itemID = "ing_watermelon", displayName = "Semillas de Sandía", icon = ingWatermelon.icon, buyPrice = 20, maxStock = 10 },
+                new VendorItemEntry { itemID = "ing_apple", displayName = "Manzana de Huerta", icon = ingApple.icon, buyPrice = 10, maxStock = 15 },
+                new VendorItemEntry { itemID = "ing_potato", displayName = "Papas de Campo", icon = ingPotato.icon, buyPrice = 8, maxStock = 20 },
+                new VendorItemEntry { itemID = "ing_banana", displayName = "Plátano Maduro", icon = ingBanana.icon, buyPrice = 10, maxStock = 15 },
+                new VendorItemEntry { itemID = "ing_blueberry", displayName = "Arándano Silvestre", icon = ingBlueberry.icon, buyPrice = 12, maxStock = 15 }
+            };
+            var vendorElena = CreateOrUpdateVendor("vendor_elena", "Semillas & Huerto de Elena", 180, elenaItems);
+            CreateOrUpdateNPC("npc_elena", "Elena", "Agricultora de la Villa", FindSpriteByName("portrait_elena") ?? ingStrawberry.icon, FindSpriteByName("npc_elena"), "¡Hola Chef! La tierra fértil de la villa nos da las mejores semillas y verduras frescas.", vendorElena, 1);
+
+            // Bruno: Carnes y embutidos
+            var brunoItems = new List<VendorItemEntry>
+            {
+                new VendorItemEntry { itemID = "ing_meat", displayName = "Carne Fresca", icon = ingMeat.icon, buyPrice = 18, maxStock = 20 },
+                new VendorItemEntry { itemID = "ing_bacon", displayName = "Tocino Ahumado", icon = ingBacon.icon, buyPrice = 14, maxStock = 15 },
+                new VendorItemEntry { itemID = "ing_egg", displayName = "Huevos de Granja", icon = ingEgg.icon, buyPrice = 6, maxStock = 30 }
+            };
+            var vendorBruno = CreateOrUpdateVendor("vendor_bruno", "Carnicería Criolla de Bruno", 180, brunoItems);
+            CreateOrUpdateNPC("npc_bruno", "Bruno", "Maestro Carnicero", FindSpriteByName("portrait_bruno") ?? ingMeat.icon, FindSpriteByName("npc_bruno"), "¡Buenas! Los mejores cortes de carne, costillas y tocino artesanal para tu cocina.", vendorBruno, 1);
+
+            // Tomás: Panadería y lácteos
+            var tomasItems = new List<VendorItemEntry>
+            {
+                new VendorItemEntry { itemID = "ing_bread", displayName = "Pan Rústico Artesanal", icon = ingBread.icon, buyPrice = 8, maxStock = 25 },
+                new VendorItemEntry { itemID = "ing_cheese", displayName = "Queso Fundido Suave", icon = ingCheese.icon, buyPrice = 10, maxStock = 20 },
+                new VendorItemEntry { itemID = "ing_chocolate", displayName = "Chocolate Dulce", icon = ingChocolate.icon, buyPrice = 12, maxStock = 15 },
+                new VendorItemEntry { itemID = "ing_walnut", displayName = "Nueces Tostadas", icon = ingWalnut.icon, buyPrice = 12, maxStock = 15 }
+            };
+            var vendorTomas = CreateOrUpdateVendor("vendor_tomas", "Panadería & Molino de Tomás", 180, tomasItems);
+            CreateOrUpdateNPC("npc_tomas", "Tomás", "Panadero Artesanal", FindSpriteByName("portrait_tomas") ?? ingBread.icon, FindSpriteByName("npc_tomas"), "¡Huele a pan recién horneado! Harina pura, quesos y panecillos dorados para tus recetas.", vendorTomas, 1);
+
+            // Marina: Pescadería
+            var marinaItems = new List<VendorItemEntry>
+            {
+                new VendorItemEntry { itemID = "ing_salmon", displayName = "Salmón Fresco del Muelle", icon = ingSalmon.icon, buyPrice = 25, maxStock = 15 }
+            };
+            var vendorMarina = CreateOrUpdateVendor("vendor_marina", "Lonja Marina de Pescados", 180, marinaItems);
+            CreateOrUpdateNPC("npc_marina", "Marina", "Pescadora del Muelle", FindSpriteByName("portrait_marina") ?? ingSalmon.icon, FindSpriteByName("npc_marina"), "¡Directo del agua cristalina! Salmón fresco y delicias marinas para tu menú.", vendorMarina, 2);
+
+            // Amelia: Maquinaria y estaciones
+            var ameliaItems = new List<VendorItemEntry>
+            {
+                new VendorItemEntry { itemID = "station_cocina", displayName = "Cocina a Gas Profesional", icon = FindSpriteByName("station_stove_pro") ?? FindSpriteByName("tools"), buyPrice = 150, maxStock = 2, isInventoryItem = false },
+                new VendorItemEntry { itemID = "station_parrilla", displayName = "Parrilla de Hierro Industrial", icon = FindSpriteByName("station_grill_iron") ?? FindSpriteByName("10_beef"), buyPrice = 200, maxStock = 2, isInventoryItem = false },
+                new VendorItemEntry { itemID = "station_horno", displayName = "Horno de Piedra y Acero", icon = FindSpriteByName("station_oven_stone") ?? FindSpriteByName("81_pizza"), buyPrice = 250, maxStock = 1, isInventoryItem = false },
+                new VendorItemEntry { itemID = "station_freidora", displayName = "Freidora Profesional", icon = FindSpriteByName("station_fryer_basket") ?? FindSpriteByName("44_frenchfries"), buyPrice = 180, maxStock = 2, isInventoryItem = false }
+            };
+            var vendorAmelia = CreateOrUpdateVendor("vendor_amelia", "Equipamiento de Cocina Amelia", 300, ameliaItems);
+            CreateOrUpdateNPC("npc_amelia", "Amelia", "Proveedora de Cocinas & Equipamiento", FindSpriteByName("portrait_amelia") ?? FindSpriteByName("tools"), FindSpriteByName("npc_amelia"), "¡Hola colega! Te traigo la maquinaria industrial y estaciones de acero para hacer brillar tu cocina.", vendorAmelia, 2);
+
+            // Lucas: Muebles y carpintería
+            var lucasItems = new List<VendorItemEntry>
+            {
+                new VendorItemEntry { itemID = "table_wood", displayName = "Mesa de Madera Rústica", icon = FindSpriteByName("table") ?? FindSpriteByName("tools"), buyPrice = 80, maxStock = 5, isInventoryItem = false },
+                new VendorItemEntry { itemID = "chair_wood", displayName = "Silla de Madera", icon = FindSpriteByName("chair") ?? FindSpriteByName("tools"), buyPrice = 30, maxStock = 10, isInventoryItem = false },
+                new VendorItemEntry { itemID = "counter_delivery", displayName = "Mesa de Despacho", icon = FindSpriteByName("tools"), buyPrice = 100, maxStock = 2, isInventoryItem = false }
+            };
+            var vendorLucas = CreateOrUpdateVendor("vendor_lucas", "Carpintería y Muebles Lucas", 300, lucasItems);
+            CreateOrUpdateNPC("npc_lucas", "Lucas", "Carpintero & Constructor", FindSpriteByName("portrait_lucas") ?? FindSpriteByName("tools"), FindSpriteByName("npc_lucas"), "Mesas de roble, sillas cómodas y mostradores resistentes. ¡Hagamos tu restaurante acogedor!", vendorLucas, 1);
+
+            // Sofía: Decoraciones y ambientación
+            var sofiaItems = new List<VendorItemEntry>
+            {
+                new VendorItemEntry { itemID = "crop_plot", displayName = "Parcela de Cultivo Decorada", icon = FindSpriteByName("star"), buyPrice = 50, maxStock = 5, isInventoryItem = false }
+            };
+            var vendorSofia = CreateOrUpdateVendor("vendor_sofia", "Decoraciones & Estilo Sofía", 300, sofiaItems);
+            CreateOrUpdateNPC("npc_sofia", "Sofía", "Decoradora & Paisajista", FindSpriteByName("portrait_sofia") ?? FindSpriteByName("star"), FindSpriteByName("npc_sofia"), "¡La estética lo es todo! Plantas ornamentales, lámparas y faroles para enamorar a los clientes.", vendorSofia, 3);
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects han sido creados y vinculados con los sprites reales!");
+            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects y NPCs han sido creados y vinculados con los sprites reales!");
         }
 
         private static void EnsureDirectories()
         {
             string[] dirs = new[]
             {
+                "Assets/_Projet/Resources/Ingredients",
+                "Assets/_Projet/Resources/Recipes",
+                "Assets/_Projet/Resources/Crops",
+                "Assets/_Projet/Resources/Furniture",
+                "Assets/_Projet/Resources/Quests",
+                "Assets/_Projet/Resources/Stations",
+                "Assets/_Projet/Resources/Vendors",
+                "Assets/_Projet/Resources/NPC",
                 "Assets/_Projet/ScriptableObjects/Ingredients",
                 "Assets/_Projet/ScriptableObjects/Recipes",
                 "Assets/_Projet/ScriptableObjects/Crops",
@@ -318,6 +399,44 @@ namespace VillaDelChef.EditorTools
             so.rewardCoins = rewardCoins;
             so.rewardXP = rewardXP;
             so.icon = icon;
+            EditorUtility.SetDirty(so);
+            return so;
+        }
+
+        private static VendorSO CreateOrUpdateVendor(string id, string title, int restockInterval, List<VendorItemEntry> items)
+        {
+            string path = $"Assets/_Projet/Resources/Vendors/{id}.asset";
+            VendorSO so = AssetDatabase.LoadAssetAtPath<VendorSO>(path);
+            if (so == null)
+            {
+                so = ScriptableObject.CreateInstance<VendorSO>();
+                AssetDatabase.CreateAsset(so, path);
+            }
+            so.vendorID = id;
+            so.vendorTitle = title;
+            so.restockIntervalSeconds = restockInterval;
+            so.catalog = items ?? new List<VendorItemEntry>();
+            EditorUtility.SetDirty(so);
+            return so;
+        }
+
+        private static NPCSO CreateOrUpdateNPC(string id, string name, string role, Sprite portrait, Sprite worldSprite, string greeting, VendorSO vendor, int unlockLevel = 1)
+        {
+            string path = $"Assets/_Projet/Resources/NPC/{id}.asset";
+            NPCSO so = AssetDatabase.LoadAssetAtPath<NPCSO>(path);
+            if (so == null)
+            {
+                so = ScriptableObject.CreateInstance<NPCSO>();
+                AssetDatabase.CreateAsset(so, path);
+            }
+            so.npcID = id;
+            so.npcName = name;
+            so.roleTitle = role;
+            so.portrait = portrait;
+            so.worldSprite = worldSprite;
+            so.greetingDialogue = greeting;
+            so.vendorData = vendor;
+            so.unlockLevel = unlockLevel;
             EditorUtility.SetDirty(so);
             return so;
         }

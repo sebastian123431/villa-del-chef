@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using VillaDelChef.Building;
 
 namespace VillaDelChef.ScriptableObjects
 {
@@ -23,6 +25,10 @@ namespace VillaDelChef.ScriptableObjects
         public FurnitureCategory category;
         public Sprite shopIcon;
         public GameObject prefab;
+
+        [Header("Zonification")]
+        [Tooltip("Zonas permitidas donde este mueble puede colocarse. Si está vacía, se permite en cualquier zona.")]
+        public List<ZoneType> allowedZones = new List<ZoneType>();
 
         [Header("Grid Size")]
         [Tooltip("Width in 1x1 grid cells")]

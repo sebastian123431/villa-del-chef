@@ -17,6 +17,7 @@ namespace VillaDelChef.Save
         public int gridX;
         public int gridY;
         public int rotationDegrees;
+        public bool isDirty = false;
     }
 
     [Serializable]
@@ -37,10 +38,29 @@ namespace VillaDelChef.Save
     }
 
     [Serializable]
+    public class VendorStockSaveEntry
+    {
+        public string itemID;
+        public int currentStock;
+    }
+
+    [Serializable]
+    public class VendorSaveData
+    {
+        public string vendorID;
+        public long nextRestockTimestampSeconds;
+        public List<VendorStockSaveEntry> stock = new List<VendorStockSaveEntry>();
+    }
+
+    [Serializable]
     public class SaveData
     {
+        public int saveVersion = 1;
+
         // Player stats
         public int coins = 250;
+
+
         public int experience = 0;
         public int level = 1;
         public int reputation = 10;
@@ -59,6 +79,9 @@ namespace VillaDelChef.Save
 
         // Quests
         public List<QuestSaveData> quests = new List<QuestSaveData>();
+
+        // Vendors (NPC shops stock and restock timestamps)
+        public List<VendorSaveData> vendors = new List<VendorSaveData>();
 
         // Tutorial
         public bool tutorialCompleted = false;

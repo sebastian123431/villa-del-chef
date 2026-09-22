@@ -1,14 +1,22 @@
 using UnityEngine;
+using VillaDelChef.Interaction;
 using VillaDelChef.Managers;
 using VillaDelChef.UI;
 
 namespace VillaDelChef.Economy
 {
-    public class MerchantStall : MonoBehaviour
+    public class MerchantStall : MonoBehaviour, IInteractable
     {
+        public string InteractionPrompt => "Abrir Mercado";
+        public bool CanInteract => true;
+        public void Interact() => OnInteract();
+
         [Header("Visual Elements")]
         public SpriteRenderer stallRenderer;
         public GameObject floatingIndicator;
+
+        [Header("Associated NPC")]
+        public NPC.NPCController associatedNPC;
 
         [Header("Floating Animation")]
         public float bobSpeed = 2.5f;
@@ -35,13 +43,30 @@ namespace VillaDelChef.Economy
         public void OnInteract()
         {
             AudioManager.Instance?.PlayButtonClick();
+
+            if (associatedNPC != null)
+            {
+                associatedNPC.Interact();
+                return;
+            }
+
+            if (VendorUI.Instance != null)
+            {
+                var anyNPC = Object.FindAnyObjectByType<NPC.NPCController>();
+                if (anyNPC != null)
+                {
+                    VendorUI.Instance.OpenForNPC(anyNPC);
+                    return;
+                }
+            }
+
             if (MarketUI.Instance != null)
             {
                 MarketUI.Instance.Open();
             }
             else
             {
-                Debug.LogWarning("[MerchantStall] MarketUI.Instance no fue encontrado en la escena.");
+                Debug.LogWarning("[MerchantStall] Ni VendorUI ni MarketUI fueron encontrados en la escena.");
             }
         }
 
