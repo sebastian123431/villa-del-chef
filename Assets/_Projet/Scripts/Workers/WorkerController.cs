@@ -20,6 +20,8 @@ namespace VillaDelChef.Workers
         SearchingDirtyTable,
         WalkingToDirtyTable,
         Cleaning,
+        ReturningDish,
+        WaitingCounterSpace,
         ReturningToIdle
     }
 
@@ -71,13 +73,10 @@ namespace VillaDelChef.Workers
             }
             if (carryingDish != null)
             {
+                carryingDish.isReserved = false;
                 if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.HasSpace())
                 {
                     DeliveryCounter.Instance.AddDish(carryingDish);
-                }
-                else
-                {
-                    carryingDish.isReserved = false;
                 }
                 carryingDish = null;
             }
@@ -104,7 +103,14 @@ namespace VillaDelChef.Workers
             {
                 yield return new WaitForSeconds(0.4f);
 
-                if (currentState == WorkerState.Idle && carryingDish == null)
+                if (carryingDish != null)
+                {
+                    if (activeTaskRoutine == null)
+                    {
+                        activeTaskRoutine = StartCoroutine(ReturnDishRoutine());
+                    }
+                }
+                else if (currentState == WorkerState.Idle)
                 {
                     CheckForWork();
                 }
@@ -192,6 +198,7 @@ namespace VillaDelChef.Workers
                 if (targetDish != null) targetDish.isReserved = false;
                 currentlyReservedDish = null;
                 currentState = WorkerState.Idle;
+                activeTaskRoutine = null;
                 yield break;
             }
 
@@ -204,6 +211,7 @@ namespace VillaDelChef.Workers
                 if (targetDish != null) targetDish.isReserved = false;
                 currentlyReservedDish = null;
                 currentState = WorkerState.Idle;
+                activeTaskRoutine = null;
                 yield break;
             }
 
@@ -219,55 +227,83 @@ namespace VillaDelChef.Workers
 
             if (!reachedTable)
             {
-                // Could not reach table - return dish to counter if space allows
-                Debug.LogWarning($"[WorkerController] No pudo alcanzar la mesa en {targetTable.gridPosition}. Devolviendo plato.");
-                if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.HasSpace())
-                {
-                    DeliveryCounter.Instance.AddDish(carryingDish);
-                    carryingDish = null;
-                }
-                else
-                {
-                    // Mostrador lleno: des-reservar y mantener plato seguro con el trabajador
-                    if (carryingDish != null) carryingDish.isReserved = false;
-                }
-                currentState = WorkerState.Idle;
+                Debug.LogWarning($"[WorkerController] No pudo alcanzar la mesa en {targetTable.gridPosition}. Devolviendo plato al mostrador.");
+                yield return StartCoroutine(ReturnDishRoutine());
                 yield break;
             }
 
-            // Deliver dish to customer (who validates order and single-sources PlaceDish on the table)
-            bool accepted = false;
-            if (targetTable.currentCustomer != null)
+            // Verify customer and order state before delivering
+            bool canDeliver = false;
+            if (targetTable != null && targetTable.currentCustomer != null)
             {
-                accepted = targetTable.currentCustomer.ReceiveDish(carryingDish);
-            }
-            else
-            {
-                // Fallback if customer left/despawned right as worker arrived
-                targetTable.PlaceDish(carryingDish);
-                accepted = true;
+                var cust = targetTable.currentCustomer;
+                if (cust.currentState == CustomerState.WaitingForFood &&
+                    targetTable.currentOrder != null &&
+                    carryingDish != null &&
+                    carryingDish.recipeData != null &&
+                    targetTable.currentOrder.recipeID == carryingDish.recipeData.recipeID)
+                {
+                    canDeliver = true;
+                }
             }
 
-            if (accepted)
+            if (canDeliver)
             {
-                GameEvents.TriggerDishDelivered(carryingDish, targetTable);
-                carryingDish = null;
-            }
-            else
-            {
-                // If rejected (e.g. wrong dish/state), return to counter safely
-                Debug.LogWarning("[WorkerController] Cliente rechazó el plato o pedido inválido. Devolviendo al mostrador.");
-                if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.HasSpace())
+                bool accepted = targetTable.currentCustomer.ReceiveDish(carryingDish);
+                if (accepted)
                 {
-                    DeliveryCounter.Instance.AddDish(carryingDish);
+                    GameEvents.TriggerDishDelivered(carryingDish, targetTable);
                     carryingDish = null;
                 }
+            }
+
+            if (carryingDish != null)
+            {
+                // Customer despawned, table empty, wrong order, or rejected:
+                // Safely return to counter / wait for counter space
+                Debug.LogWarning("[WorkerController] Cliente no disponible o pedido inválido al llegar a la mesa. Devolviendo plato al mostrador.");
+                yield return StartCoroutine(ReturnDishRoutine());
+                yield break;
             }
 
             // 4. Return to Idle spot
             currentState = WorkerState.ReturningToIdle;
             yield return StartCoroutine(WalkToRoutine(idleGridPos, null));
             currentState = WorkerState.Idle;
+            activeTaskRoutine = null;
+        }
+
+        private IEnumerator ReturnDishRoutine()
+        {
+            currentState = WorkerState.ReturningDish;
+
+            while (carryingDish != null)
+            {
+                if (DeliveryCounter.Instance != null)
+                {
+                    bool reachedCounter = false;
+                    yield return StartCoroutine(WalkToRoutine(DeliveryCounter.Instance.gridPosition, success => reachedCounter = success));
+
+                    if (reachedCounter && DeliveryCounter.Instance.HasSpace())
+                    {
+                        carryingDish.isReserved = false;
+                        DeliveryCounter.Instance.AddDish(carryingDish);
+                        carryingDish = null;
+                        break;
+                    }
+                }
+
+                // If counter is full or counter not reached, wait in WaitingCounterSpace and retry
+                currentState = WorkerState.WaitingCounterSpace;
+                yield return new WaitForSeconds(1.0f);
+                currentState = WorkerState.ReturningDish;
+            }
+
+            // Return to Idle spot
+            currentState = WorkerState.ReturningToIdle;
+            yield return StartCoroutine(WalkToRoutine(idleGridPos, null));
+            currentState = WorkerState.Idle;
+            activeTaskRoutine = null;
         }
 
         private IEnumerator CleaningTaskRoutine(Table targetTable)
@@ -283,6 +319,7 @@ namespace VillaDelChef.Workers
                 targetTable.isCleaningReserved = false;
                 currentlyReservedTable = null;
                 currentState = WorkerState.Idle;
+                activeTaskRoutine = null;
                 yield break;
             }
 
@@ -298,6 +335,7 @@ namespace VillaDelChef.Workers
             currentState = WorkerState.ReturningToIdle;
             yield return StartCoroutine(WalkToRoutine(idleGridPos, null));
             currentState = WorkerState.Idle;
+            activeTaskRoutine = null;
         }
 
         private IEnumerator WalkToRoutine(Vector2Int targetGrid, System.Action<bool> onComplete)

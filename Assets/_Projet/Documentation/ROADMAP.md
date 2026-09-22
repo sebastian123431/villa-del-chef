@@ -102,7 +102,13 @@ Leyenda:
 - [x] Liberación de reservas en mozos: `WorkerController` libera atómicamente reservas de platos (`isReserved`) y mesas sucias (`isCleaningReserved`) en `OnDisable`, `OnDestroy` y cancelaciones de ruta.
 - [x] Optimización de memoria en arranque: `RestaurantBootstrap.cs` migrado a evaluación perezosa (`GetOrCreateFallbackSprite` con fábrica lambda) para evitar la creación inútil de texturas procedimentales si los assets existen.
 - [x] Compatibilidad con animación de NPCs: `NPCSO` extendido con soporte opcional para `RuntimeAnimatorController`, manteniendo fallback a `worldSprite` y `portrait`.
-- [x] Herramienta de validación de datos: Implementada en `Tools > Villa del Chef > Validate Game Data` (`GameDataValidatorEditor.cs`) para auditar IDs duplicados, referencias nulas y límites de grilla.
-- [x] Configuración de PlayerSettings: Versión actualizada a `0.1.0`, bundle version code `1`, orientación bloqueada en Landscape, package identifier preparado para desarrollo.
+- [x] Corrección crítica de GameDataValidatorEditor: `cr.craftID` y ruta `CraftingRecipes/` validadas por Unity en batchmode con 0 errores y 0 advertencias.
+- [x] Eliminación de bypass de nivel en NPCs: `NPCController` delega `CanInteract` y gating a su `VendorBuilding` padre; feedback de bloqueo unificado.
+- [x] Footprint y persistencia de edificios estáticos: `GridObject.playerMovable = false`, `overrideSizeX/Y` (3x2) y `SetupStatic` eliminan desregistro parcial o movimiento de tiendas comerciales con long press.
+- [x] Build Mode táctil móvil: Colocación fluida confirmada al soltar (`TouchPhase.Ended`), arrastre de ghost preview y discriminación de colocación de muebles nuevos vs recolocación de existentes.
+- [x] Recuperación segura de mozos: Estados `ReturningDish` y `WaitingCounterSpace` en `WorkerController` con retornos seguros cuando el mostrador de entrega está lleno o el comensal no está disponible.
+- [x] Migración centralizada SaveData v1 -> v2: `MigrateSaveIfNeeded()` infiere progreso en 14 dimensiones de juego tanto para el guardado primario como para el archivo de backup.
+- [x] Versionado definitivo de `01_MainMenu.unity`: Escena completamente generada y serializada con botones, paneles modales de confirmación, opciones y créditos.
+- [x] Blindaje de escenas en el Editor: `AutoSetupScenesOnEditorLoad` no destructivo; preserva arte y ajustes manuales en Git.
 - [ ] Validación física en dispositivo Android / APK build.
 

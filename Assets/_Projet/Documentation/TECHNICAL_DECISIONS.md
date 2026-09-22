@@ -278,3 +278,71 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Delegación al cliente con validación estricta).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
 
+---
+
+### DECISIÓN 019
+- **Título**: Estrategia de Input System Híbrido: Transición Segura con Backend Dual (`activeInputHandler = Both`).
+- **Problema**: Forzar New Input System al 100% como único módulo en Android/iOS puede ocasionar problemas con EventSystem, componentes UI heredados o gestos complejos. Sin embargo, depender exclusivamente del Legacy Input bloquea la modernización hacia el New Input System.
+- **Decisión**: Se adopta la **ESTRATEGIA A — TRANSICIÓN SEGURA**:
+  1. `ProjectSettings.asset` mantiene `activeInputHandler: 2` (Both).
+  2. `TouchInputManager` detecta dinámicamente si Legacy Input está operativo (`isLegacyInputAvailable`). Si está disponible, procesa toques nativos y mouse con alta estabilidad para Canvas y EventSystem.
+  3. La rama `#if ENABLE_INPUT_SYSTEM` procesa `Touchscreen.current` y `Mouse.current` con gestos completos (tap, drag, pinch, release y long press), lista como backend secundario resiliente sin riesgo de eventos duplicados.
+- **Alternativas consideradas**:
+  1. Migración destructiva obligatoria a New Input System (alto riesgo de regresiones en UI y toques móviles).
+  2. Quedarse anclado en Legacy Input sin soporte para las nuevas APIs de Unity 6.
+  3. Estrategia híbrida resiliente con Both en PlayerSettings y detección dinámica en tiempo de ejecución.
+- **Elegida**: 3 (Estrategia híbrida resiliente con transición segura).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 020
+- **Título**: Centralización de Gating de Nivel en `VendorBuilding` y Bloqueo de Bypass en `NPCController`.
+- **Problema**: Al implementar un GameObject hijo para el personaje con su propio `BoxCollider2D` y `NPCController`, los toques directos sobre el avatar del NPC se saltaban la verificación de nivel contenida en `VendorBuilding`, permitiendo compras en puestos comerciales bloqueados.
+- **Decisión**: `VendorBuilding` es la única fuente de verdad sobre el estado de desbloqueo del puesto. `NPCController` obtiene `GetComponentInParent<VendorBuilding>()`. En `CanInteract` y en `Interact()`, delega directamente a las propiedades y métodos del edificio padre. Si el puesto está bloqueado, se muestra el feedback informativo de bloqueo y no se despliega la interfaz de compra.
+- **Alternativas consideradas**:
+  1. Duplicar la variable `unlockLevelRequirement` y la lógica de nivel en `NPCController` (violación del principio DRY y riesgo de desincronización).
+  2. Eliminar el collider del NPC hijo (limitaría animaciones o feedback local sobre el personaje).
+  3. Delegación jerárquica padre-hijo donde el hijo consulta al componente raíz.
+- **Elegida**: 3 (Delegación jerárquica padre-hijo).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 021
+- **Título**: Blindaje de Objetos Estáticos contra Movimiento y Footprint Personalizado (`GridObject.playerMovable = false`).
+- **Problema**: Los puestos de especialistas (`VendorBuilding`) usaban `GridObject` para ocupar celdas, pero al no poseer `FurnitureSO`, reportaban tamaño 1x1 en lugar de 3x2, y podían ser seleccionados por Long Press o arrastre en Build Mode como si fueran mesas o sillas, desregistrando celdas erróneas.
+- **Decisión**: Se extiende `GridObject` con `playerMovable` (por defecto `true`), `overrideSizeX/Y` y el método `SetupStatic(pos, sizeX, sizeY, blocks)`. `BuildManager.StartMovingObject` y `TouchInputManager.HandleLongPress` verifican explícitamente `obj.playerMovable == true && obj.furnitureData != null`. Al destruir o desregistrar un puesto estático, se limpian las 6 celdas exactas sin dejar celdas fantasma.
+- **Alternativas consideradas**:
+  1. Crear una jerarquía de clases separada (`StaticGridObject`) que obligaría a reescribir `GridManager` y los arrays de ocupación.
+  2. Ignorar el problema y confiar en que el jugador no mantenga presionado el puesto.
+  3. Incorporar banderas `playerMovable` y overrides de tamaño directamente en `GridObject`.
+- **Elegida**: 3 (Extensión modular de `GridObject`).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 022
+- **Título**: Máquina de Estados de Retorno Seguro de Platos para Mozos (`WorkerState.ReturningDish` y `WaitingCounterSpace`).
+- **Problema**: Si un mozo no podía alcanzar una mesa o el comensal se marchaba, intentaba devolver el plato al mostrador. Si el mostrador de entrega estaba saturado, el mozo pasaba a `Idle` con el plato en mano, quedando congelado para siempre al no poder recibir nuevas tareas.
+- **Decisión**: Se introducen los estados `WorkerState.ReturningDish` y `WorkerState.WaitingCounterSpace` junto a la corrutina `ReturnDishRoutine()`. El mozo retiene el plato de forma segura, acude al mostrador y si este está lleno, entra en espera activa y reintenta periódicamente. Cuando se libera un espacio, deposita el plato, limpia la reserva y regresa a su puesto inactivo.
+- **Alternativas consideradas**:
+  1. Destruir el plato si el mostrador está lleno (pérdida injusta de recursos e ingredientes para el jugador).
+  2. Dejar al mozo en Idle bloqueado (bug crítico original).
+  3. Espera activa no bloqueante con máquina de estados finita hasta disponibilidad de espacio.
+- **Elegida**: 3 (Espera activa no bloqueante con estados explícitos).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+
+---
+
+### DECISIÓN 023
+- **Título**: Migración Centralizada de Datos de Guardado (SaveData v1 a v2) con Detección Multi-dimensional.
+- **Problema**: Partidas antiguas guardadas con `saveVersion = 1` carecían de `hasStartedGame` y `starterItemsGranted`. Si solo se evaluaban nivel y monedas, un jugador con parcelas sembradas o crafteo avanzado podía ser detectado como partida nueva y perder su estado.
+- **Decisión**: `SaveData.saveVersion` se eleva a `2`. Se implementa `MigrateSaveIfNeeded(SaveData data)` en `SaveManager.cs`. Se evalúan 14 campos representativos de progreso (nivel, experiencia, inventario, muebles colocados, parcelas de cultivo, misiones activas/completadas, tiendas visitadas, estaciones de crafteo, expansiones desbloqueadas, recetas aprendidas, tutorial, monedas y reputación). Si se detecta avance, se activan las banderas correspondientes y se guarda la versión migrada tanto en cargas primarias como en backups.
+- **Alternativas consideradas**:
+  1. Forzar wipe o reseteo de guardados al cambiar el esquema (inaceptable para usuarios en fase de pruebas).
+  2. Verificación simplificada de solo 4 campos (riesgo de clasificar partidas válidas como inactivas).
+  3. Método centralizado idempotente con comprobación exhaustiva de progreso.
+- **Elegida**: 3 (Método centralizado idempotente con comprobación exhaustiva).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
+

@@ -24,6 +24,10 @@ namespace VillaDelChef.Building
         public List<GridObject> activeFurniture = new List<GridObject>();
 
         private GridObject movingObject = null;
+        public GridObject MovingObject => movingObject;
+        public bool HasSelection => selectedFurniture != null;
+        public bool IsMovingExistingObject => movingObject != null;
+
         private Vector2Int currentHoverGrid;
         private bool isCurrentPosValid = false;
 
@@ -66,7 +70,7 @@ namespace VillaDelChef.Building
 
         public void StartMovingObject(GridObject obj)
         {
-            if (obj == null) return;
+            if (obj == null || !obj.playerMovable || obj.furnitureData == null) return;
             if (!isBuildMode) SetBuildMode(true);
 
             movingObject = obj;

@@ -16,8 +16,40 @@ namespace VillaDelChef.NPC
         public SpriteRenderer shadowRenderer;
         public GameObject talkIndicator;
 
-        public string InteractionPrompt => (npcData != null) ? $"Hablar con {npcData.npcName}" : "Hablar con Comerciante";
-        public bool CanInteract => npcData != null;
+        private VendorBuilding _parentBuilding;
+        public VendorBuilding ParentBuilding
+        {
+            get
+            {
+                if (_parentBuilding == null)
+                    _parentBuilding = GetComponentInParent<VendorBuilding>();
+                return _parentBuilding;
+            }
+        }
+
+        public string InteractionPrompt
+        {
+            get
+            {
+                if (ParentBuilding != null && !ParentBuilding.CanInteract)
+                {
+                    return $"🔒 Bloqueado (Nivel {ParentBuilding.unlockLevelRequirement})";
+                }
+                return (npcData != null) ? $"Hablar con {npcData.npcName}" : "Hablar con Comerciante";
+            }
+        }
+
+        public bool CanInteract
+        {
+            get
+            {
+                if (ParentBuilding != null)
+                {
+                    return ParentBuilding.CanInteract;
+                }
+                return npcData != null;
+            }
+        }
 
         private void Awake()
         {
@@ -65,6 +97,12 @@ namespace VillaDelChef.NPC
 
         public void Interact()
         {
+            if (ParentBuilding != null && !ParentBuilding.CanInteract)
+            {
+                ParentBuilding.ShowLockedFeedback();
+                return;
+            }
+
             OpenVendorInterface();
         }
 

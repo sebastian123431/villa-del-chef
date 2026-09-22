@@ -22,6 +22,7 @@ namespace VillaDelChef.PlayerInput
         private float touchStartTime;
         private bool isDragging = false;
         private bool isLongPressTriggered = false;
+        private bool wasPinching = false;
         private float prevNewInputPinchDistance = -1f;
 
         private Camera mainCamera;
@@ -87,6 +88,7 @@ namespace VillaDelChef.PlayerInput
                 // Pinch to zoom with 2 fingers
                 if (touch.touches.Count >= 2 && touch.touches[0].press.isPressed && touch.touches[1].press.isPressed)
                 {
+                    wasPinching = true;
                     Vector2 p0 = touch.touches[0].position.ReadValue();
                     Vector2 p1 = touch.touches[1].position.ReadValue();
                     float currentDist = Vector2.Distance(p0, p1);
@@ -153,7 +155,14 @@ namespace VillaDelChef.PlayerInput
                 }
                 else if (t0.press.wasReleasedThisFrame)
                 {
-                    if (!isDragging && !isLongPressTriggered && (Time.time - touchStartTime <= tapThreshold))
+                    if (BuildManager.Instance != null && BuildManager.Instance.isBuildMode && BuildManager.Instance.selectedFurniture != null)
+                    {
+                        Vector3 worldPos = mainCamera.ScreenToWorldPoint(pos);
+                        worldPos.z = 0f;
+                        BuildManager.Instance.UpdateHoverPosition(worldPos);
+                        BuildManager.Instance.TryPlaceObject();
+                    }
+                    else if (!isDragging && !isLongPressTriggered && !wasPinching && (Time.time - touchStartTime <= tapThreshold))
                     {
                         if (EventSystem.current == null || !EventSystem.current.IsPointerOverGameObject())
                         {
@@ -162,6 +171,7 @@ namespace VillaDelChef.PlayerInput
                     }
                     isDragging = false;
                     isLongPressTriggered = false;
+                    wasPinching = false;
                     prevNewInputPinchDistance = -1f;
                 }
             }
@@ -231,8 +241,9 @@ namespace VillaDelChef.PlayerInput
         private void HandleTouches()
         {
             // Pinch to zoom with 2 fingers
-            if (Input.touchCount == 2)
+            if (Input.touchCount >= 2)
             {
+                wasPinching = true;
                 Touch touch0 = Input.GetTouch(0);
                 Touch touch1 = Input.GetTouch(1);
 
@@ -247,8 +258,23 @@ namespace VillaDelChef.PlayerInput
                 return;
             }
 
+            if (Input.touchCount == 0)
+            {
+                wasPinching = false;
+                return;
+            }
+
             // Single finger gesture
             Touch touch = Input.GetTouch(0);
+
+            if (wasPinching)
+            {
+                if (touch.phase == TouchPhase.Ended || touch.phase == TouchPhase.Canceled)
+                {
+                    wasPinching = false;
+                }
+                return;
+            }
 
             if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
             {
@@ -293,10 +319,19 @@ namespace VillaDelChef.PlayerInput
                     break;
 
                 case TouchPhase.Ended:
-                    if (!isDragging && !isLongPressTriggered && (Time.time - touchStartTime <= tapThreshold))
+                    if (BuildManager.Instance != null && BuildManager.Instance.isBuildMode && BuildManager.Instance.selectedFurniture != null)
+                    {
+                        Vector3 worldPos = mainCamera.ScreenToWorldPoint(touch.position);
+                        worldPos.z = 0f;
+                        BuildManager.Instance.UpdateHoverPosition(worldPos);
+                        BuildManager.Instance.TryPlaceObject();
+                    }
+                    else if (!isDragging && !isLongPressTriggered && !wasPinching && (Time.time - touchStartTime <= tapThreshold))
                     {
                         HandleTap(touch.position);
                     }
+                    isDragging = false;
+                    isLongPressTriggered = false;
                     break;
             }
         }
@@ -372,20 +407,34 @@ namespace VillaDelChef.PlayerInput
             Vector3 worldPos = mainCamera.ScreenToWorldPoint(screenPos);
             Vector2 worldPos2D = new Vector2(worldPos.x, worldPos.y);
 
-            RaycastHit2D hit = Physics2D.Raycast(worldPos2D, Vector2.zero);
-            if (hit.collider != null)
+            // 1. If in build mode
+            if (BuildManager.Instance != null && BuildManager.Instance.isBuildMode)
             {
-                // 1. If in build mode, tap selects furniture to move
-                if (BuildManager.Instance != null && BuildManager.Instance.isBuildMode)
+                // If a furniture item is currently selected, tap confirms placement
+                if (BuildManager.Instance.selectedFurniture != null)
                 {
-                    GridObject gridObj = hit.collider.GetComponentInParent<GridObject>();
-                    if (gridObj != null)
+                    BuildManager.Instance.UpdateHoverPosition(worldPos);
+                    BuildManager.Instance.TryPlaceObject();
+                    return;
+                }
+
+                // If nothing is selected, tap on movable furniture selects it to move
+                RaycastHit2D buildHit = Physics2D.Raycast(worldPos2D, Vector2.zero);
+                if (buildHit.collider != null)
+                {
+                    GridObject gridObj = buildHit.collider.GetComponentInParent<GridObject>();
+                    if (gridObj != null && gridObj.playerMovable && gridObj.furnitureData != null)
                     {
                         BuildManager.Instance.StartMovingObject(gridObj);
                         return;
                     }
                 }
+                return;
+            }
 
+            RaycastHit2D hit = Physics2D.Raycast(worldPos2D, Vector2.zero);
+            if (hit.collider != null)
+            {
                 // 2. Polymorphic IInteractable detection (Station, CropPlot, MerchantStall, DeliveryCounter, etc.)
                 IInteractable interactable = hit.collider.GetComponentInParent<IInteractable>();
                 if (interactable != null)
@@ -412,7 +461,6 @@ namespace VillaDelChef.PlayerInput
             BuildManager.Instance?.RotateSelection();
         }
 
-
         private void HandleLongPress(Vector2 screenPos)
         {
             Vector3 worldPos = mainCamera.ScreenToWorldPoint(screenPos);
@@ -422,7 +470,7 @@ namespace VillaDelChef.PlayerInput
             if (hit.collider != null)
             {
                 GridObject gridObj = hit.collider.GetComponentInParent<GridObject>();
-                if (gridObj != null)
+                if (gridObj != null && gridObj.playerMovable && gridObj.furnitureData != null)
                 {
                     if (BuildManager.Instance != null)
                     {

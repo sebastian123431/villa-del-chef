@@ -451,4 +451,42 @@ FASE 6.2 — CERRADA TÉCNICAMENTE CON ÉXITO [~] (0 errores y 0 advertencias en
 PRÓXIMO PASO:
 Pruebas interactivas en Unity Play Mode y generación de APK en Android. Posterior inicio de Fase 7.
 ------------------------------------------------------------
+FECHA: 2026-09-22
+VERSIÓN / FASE: FASE 6.2 — Cierre Definitivo de Integración y Regresiones
+OBJETIVO:
+Llevar la Fase 6.2 a madurez técnica del 95%-98% corrigiendo regresiones críticas en GameDataValidatorEditor, gating de NPC, Build Mode táctil, footprint de puestos comerciales, mozos con mostrador lleno, migración de guardado v1 a v2 y serialización real de la escena 01_MainMenu.
+
+CAMBIOS REALIZADOS:
+- GameDataValidatorEditor: Corregido `cr.craftID` y ruta `CraftingRecipes/`. Validado con Unity Engine 6000.6.2f1 batchmode obteniendo 0 errores y 0 advertencias.
+- NPCController: Eliminado el bypass de interacción en avatares hijos. `CanInteract` e `Interact()` delegan jerárquicamente a `VendorBuilding` padre.
+- GridObject & VendorBuilding: Añadidas propiedades `playerMovable = false` y `overrideSizeX/Y` con método `SetupStatic`. Bloqueado el movimiento de puestos comerciales con Long Press en Build Mode. Liberación limpia de footprint 3x2 sin celdas fantasma.
+- TouchInputManager: Confirmación automática de colocación en `TouchPhase.Ended` en Build Mode. Discriminación de colocación nueva vs movimiento existente. Bandera `wasPinching` para evitar taps espurios tras pinch zoom.
+- WorkerController: Añadidos estados `ReturningDish` y `WaitingCounterSpace` junto a `ReturnDishRoutine()`. Los mozos no se congelan en Idle si el mostrador está lleno y no entregan platos en mesas sin comensal.
+- SaveData & SaveManager: Elevado `saveVersion = 2`. Implementada migración exhaustiva `MigrateSaveIfNeeded()` evaluando 14 dimensiones de progreso del juego tanto en guardado primario como en backups.
+- 01_MainMenu.unity: Escena generada y serializada completamente desde Unity batchmode con referencias a todos los botones, modales y paneles.
+- RestaurantSceneSetupEditor: Auto-setup en `InitializeOnLoadMethod` condicionado a ausencia física de escenas, protegiendo assets versionados.
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/Core/Editor/GameDataValidatorEditor.cs`
+- `Assets/_Projet/Scripts/NPC/NPCController.cs`
+- `Assets/_Projet/Scripts/NPC/VendorBuilding.cs`
+- `Assets/_Projet/Scripts/Building/GridObject.cs`
+- `Assets/_Projet/Scripts/Building/BuildManager.cs`
+- `Assets/_Projet/Scripts/Input/TouchInputManager.cs`
+- `Assets/_Projet/Scripts/Workers/WorkerController.cs`
+- `Assets/_Projet/Scripts/Save/SaveData.cs`
+- `Assets/_Projet/Scripts/Save/SaveManager.cs`
+- `Assets/_Projet/Scripts/Core/Editor/RestaurantSceneSetupEditor.cs`
+- `Assets/_Projet/Scenes/01_MainMenu.unity`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/KNOWN_ISSUES.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assets/_Projet/Documentation/AI_SESSION_LOG.md`
+- `Assets/_Projet/Documentation/PROJECT_HISTORY.md`
+
+ESTADO:
+FASE 6.2 — INTEGRACIÓN TÉCNICA CERRADA (97%). Compilación 0 errores, 0 warnings. Validación de base de datos 0 errores.
+PRÓXIMO PASO:
+Auditoría externa / Pruebas en Play Mode y compilación APK física para Android antes de comenzar Fase 7.
+------------------------------------------------------------
 

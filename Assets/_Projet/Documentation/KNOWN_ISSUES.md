@@ -252,4 +252,89 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 - **Solución Aplicada**: Se crearon referencias internas `currentlyReservedDish` y `currentlyReservedTable`, gestionadas con el método `ReleaseReservations()` invocado automáticamente en `OnDisable()` y `OnDestroy()`, liberando las reservas y devolviendo platos al mostrador.
 - **Fecha**: 2026-09-22 (Fase 6.2).
 
+---
+
+### ISSUE #023
+- **Título**: GameDataValidatorEditor fallaba con `cr.recipeID` y ruta `Crafting` inexistente.
+- **Severidad**: ALTA.
+- **Sistema**: Editor / Herramientas de Validación (`GameDataValidatorEditor.cs`).
+- **Descripción**: `GameDataValidatorEditor.cs` intentaba acceder a la propiedad inexistente `cr.recipeID` en `CraftingRecipeSO` (la propiedad real es `craftID`) y cargaba recetas desde `Resources.LoadAll<CraftingRecipeSO>("Crafting")` en lugar de la carpeta física real `CraftingRecipes/`. Esto impedía la compilación y validación de datos en Unity.
+- **Solución Propuesta**: Corregir a `cr.craftID` y actualizar la ruta a `CraftingRecipes`. Añadir guarda `!Application.isBatchMode` para permitir ejecución headless/CI.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se corrigieron todas las referencias a `cr.craftID` y la ruta a `"CraftingRecipes"`. Se validó mediante Unity batchmode con 0 errores y 0 advertencias.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #024
+- **Título**: Bypass de nivel en NPCController mediante interacción táctil directa sobre el NPC hijo.
+- **Severidad**: ALTA.
+- **Sistema**: NPC / Progresión (`NPCController.cs`, `VendorBuilding.cs`).
+- **Descripción**: `VendorBuilding` validaba `unlockLevelRequirement`, pero el `NPCController` hijo poseía su propio `BoxCollider2D` e implementaba `IInteractable` con `CanInteract => npcData != null`, permitiendo saltarse la restricción de nivel al tocar directamente al NPC en vez del edificio.
+- **Solución Propuesta**: `NPCController` debe consultar a su `VendorBuilding` padre si existe, delegando `CanInteract` y mostrando feedback bloqueado en `Interact()` sin abrir la tienda.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se centralizó la lógica en `VendorBuilding`. `NPCController` obtiene `GetComponentInParent<VendorBuilding>()`. Si el edificio está bloqueado, `CanInteract` es falso e `Interact()` invoca `ShowLockedFeedback()`, imposibilitando cualquier bypass.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #025
+- **Título**: Long press en Build Mode permitía seleccionar tiendas comerciales y objetos estáticos.
+- **Severidad**: MEDIA.
+- **Sistema**: Construcción / Grilla (`GridObject.cs`, `BuildManager.cs`, `TouchInputManager.cs`, `VendorBuilding.cs`).
+- **Descripción**: Los puestos comerciales registraban ocupación con `GridObject` genérico sin datos de mueble (`furnitureData == null`). Un long press sobre el puesto invocaba `StartMovingObject`, intentando mover o destruir el edificio comercial y dejando un footprint huérfano de 1x1.
+- **Solución Propuesta**: Añadir `playerMovable` y `overrideSizeX/Y` a `GridObject`. Filtrar en `BuildManager.StartMovingObject` y `TouchInputManager.HandleLongPress` para rechazar objetos no movibles.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se añadió `public bool playerMovable = true;` y soporte de footprint `overrideSizeX/Y` con método `SetupStatic`. En `BuildManager` y `TouchInputManager`, sólo los objetos con `playerMovable == true && furnitureData != null` pueden seleccionarse o moverse. Los locales comerciales quedan blindados contra desplazamientos.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #026
+- **Título**: Build Mode táctil en móvil no confirmaba colocación al soltar el dedo (`TouchPhase.Ended`).
+- **Severidad**: ALTA.
+- **Sistema**: Input Táctil / Construcción (`TouchInputManager.cs`).
+- **Descripción**: Al arrastrar o posicionar un mueble con touch en Build Mode, el evento `TouchPhase.Ended` solo evaluaba `HandleTap` bajo el umbral de arrastre. Si el jugador arrastraba el ghost para posicionarlo, al levantar el dedo el mueble quedaba como ghost sin colocarse nunca.
+- **Solución Propuesta**: Al soltar el dedo (`TouchPhase.Ended`) en Build Mode con un mueble seleccionado, llamar a `BuildManager.Instance.TryPlaceObject()`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: En `TouchInputManager` (tanto en Legacy como en New Input System), `TouchPhase.Ended` con `isBuildMode && selectedFurniture != null` actualiza la posición del hover y ejecuta `TryPlaceObject()`, permitiendo colocación táctil intuitiva de catálogo o recolocación.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #027
+- **Título**: Trabajador congelado indefinidamente con plato en mano si el mostrador estaba lleno.
+- **Severidad**: ALTA.
+- **Sistema**: Mozos (`WorkerController.cs`, `DeliveryCounter.cs`).
+- **Descripción**: Si un trabajador llevaba un plato pero la mesa era inalcanzable, o el cliente se marchaba antes de llegar, intentaba devolverlo al mostrador. Si el mostrador estaba lleno, el mozo pasaba a `WorkerState.Idle`, pero `WorkerThinkRoutine` solo busca trabajo si `carryingDish == null`. Como resultado, el trabajador quedaba congelado de por vida.
+- **Solución Propuesta**: Añadir estados seguros `WorkerState.ReturningDish` y `WorkerState.WaitingCounterSpace`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se implementó la corrutina `ReturnDishRoutine()` con los estados `ReturningDish` y `WaitingCounterSpace`. Si el mostrador está lleno, el mozo espera de forma segura y reintenta periódicamente depositar el plato. Si el cliente desaparece o cambia de pedido, el mozo nunca deja el plato en una mesa vacía y lo retorna al mostrador.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #028
+- **Título**: Migración de partidas antiguas a SaveData v2 incompleta y dispersa.
+- **Severidad**: MEDIA.
+- **Sistema**: Persistencia (`SaveData.cs`, `SaveManager.cs`).
+- **Descripción**: El esquema de guardado incorporó `hasStartedGame` y `starterItemsGranted`, pero la versión continuaba en `saveVersion = 1` y la migración solo evaluaba 4 variables básicas, ignorando progreso en cultivos, crafteo, expansiones, misiones, reputación y monedas.
+- **Solución Propuesta**: Incrementar a `saveVersion = 2`, crear `MigrateSaveIfNeeded()` evaluando las 14 dimensiones de progreso del jugador y aplicarlo tanto al archivo principal como a backups.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `SaveData.saveVersion` se elevó a 2. Se implementó `MigrateSaveIfNeeded(SaveData data)` en `SaveManager.cs`, el cual detecta cualquier progreso previo (nivel, XP, inventario, muebles, parcelas, misiones, tiendas, estaciones de crafteo, expansiones, recetas, tutorial, monedas y reputación) para inferir `hasStartedGame = true` y `starterItemsGranted = true` sin pérdida de datos.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+---
+
+### ISSUE #029
+- **Título**: AutoSetup de escenas en `RestaurantSceneSetupEditor` podía sobreescribir arte personalizado.
+- **Severidad**: MEDIA.
+- **Sistema**: Editor Tools (`RestaurantSceneSetupEditor.cs`).
+- **Descripción**: El atributo `[InitializeOnLoadMethod]` regeneraba automáticamente todas las escenas mediante una clave de EditorPrefs, con el riesgo de borrar personalizaciones manuales en escenas o assets del proyecto al abrir Unity.
+- **Solución Propuesta**: Condicionar la auto-generación únicamente a la ausencia física total de las escenas en disco, manteniendo el menú manual como herramienta de desarrollo.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `AutoSetupScenesOnEditorLoad` verifica si alguna de las 3 escenas (`00_Boot.unity`, `01_MainMenu.unity`, `02_Restaurant.unity`) no existe en disco antes de ejecutar `SetupAllScenes()`. Las escenas ya versionadas en Git se preservan intactas.
+- **Fecha**: 2026-09-22 (Fase 6.2).
+
+
 

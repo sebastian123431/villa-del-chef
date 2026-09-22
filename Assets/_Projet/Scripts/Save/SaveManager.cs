@@ -70,12 +70,8 @@ namespace VillaDelChef.Save
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
 
-                    // Migration for older saves prior to hasStartedGame / starterItemsGranted flags
-                    if (!currentSaveData.hasStartedGame && (currentSaveData.level > 1 || currentSaveData.experience > 0 || currentSaveData.placedFurniture.Count > 0 || currentSaveData.inventory.Count > 0))
-                    {
-                        currentSaveData.hasStartedGame = true;
-                        currentSaveData.starterItemsGranted = true;
-                    }
+                    // Centralized migration for older saves (e.g. v1 -> v2)
+                    MigrateSaveIfNeeded(currentSaveData);
 
                     Debug.Log($"[SaveManager] Loaded save game (v{currentSaveData.saveVersion}). Offline time: {OfflineSecondsElapsed} seconds.");
                     return;
@@ -96,12 +92,8 @@ namespace VillaDelChef.Save
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
 
-                    // Migration for older saves prior to hasStartedGame / starterItemsGranted flags
-                    if (!currentSaveData.hasStartedGame && (currentSaveData.level > 1 || currentSaveData.experience > 0 || currentSaveData.placedFurniture.Count > 0 || currentSaveData.inventory.Count > 0))
-                    {
-                        currentSaveData.hasStartedGame = true;
-                        currentSaveData.starterItemsGranted = true;
-                    }
+                    // Centralized migration for older saves (e.g. v1 -> v2)
+                    MigrateSaveIfNeeded(currentSaveData);
 
                     Debug.Log($"[SaveManager] Restored save game from backup. Offline time: {OfflineSecondsElapsed} seconds.");
                     return;
@@ -113,6 +105,42 @@ namespace VillaDelChef.Save
             }
 
             CreateDefaultSave();
+        }
+
+        private void MigrateSaveIfNeeded(SaveData data)
+        {
+            if (data == null) return;
+
+            if (data.saveVersion < 2)
+            {
+                Debug.Log($"[SaveManager] Migrando partida guardada de v{data.saveVersion} a v2...");
+
+                bool hasAnyProgress = 
+                    data.level > 1 ||
+                    data.experience > 0 ||
+                    (data.inventory != null && data.inventory.Count > 0) ||
+                    (data.placedFurniture != null && data.placedFurniture.Count > 0) ||
+                    (data.cropPlots != null && data.cropPlots.Count > 0) ||
+                    (data.quests != null && data.quests.Count > 0) ||
+                    (data.vendors != null && data.vendors.Count > 0) ||
+                    (data.craftingStations != null && data.craftingStations.Count > 0) ||
+                    (data.unlockedExpansions != null && data.unlockedExpansions.Count > 0) ||
+                    (data.unlockedRecipes != null && data.unlockedRecipes.Count > 0) ||
+                    data.tutorialCompleted ||
+                    data.tutorialStep > 0 ||
+                    (data.coins != 200 && data.coins != 250) ||
+                    data.reputation != 10;
+
+                if (hasAnyProgress)
+                {
+                    data.hasStartedGame = true;
+                    data.starterItemsGranted = true;
+                }
+
+                data.saveVersion = 2;
+                SaveGame();
+                Debug.Log($"[SaveManager] Migración a v2 completada. hasStartedGame={data.hasStartedGame}, starterItemsGranted={data.starterItemsGranted}");
+            }
         }
 
         public void SaveGame()
@@ -177,6 +205,7 @@ namespace VillaDelChef.Save
         {
             currentSaveData = new SaveData
             {
+                saveVersion = 2,
                 coins = 200,
                 experience = 0,
                 level = 1,

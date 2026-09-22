@@ -14,17 +14,52 @@ namespace VillaDelChef.Building
 
         [Header("Settings")]
         public bool blocksWalkability = true;
+        public bool playerMovable = true;
+        public int overrideSizeX = 1;
+        public int overrideSizeY = 1;
 
-        public int CurrentSizeX => (rotationDegrees % 180 == 0) ? (furnitureData != null ? furnitureData.sizeX : 1) : (furnitureData != null ? furnitureData.sizeY : 1);
-        public int CurrentSizeY => (rotationDegrees % 180 == 0) ? (furnitureData != null ? furnitureData.sizeY : 1) : (furnitureData != null ? furnitureData.sizeX : 1);
+        public int CurrentSizeX
+        {
+            get
+            {
+                int baseW = (furnitureData != null) ? furnitureData.sizeX : Mathf.Max(1, overrideSizeX);
+                int baseH = (furnitureData != null) ? furnitureData.sizeY : Mathf.Max(1, overrideSizeY);
+                return (rotationDegrees % 180 == 0) ? baseW : baseH;
+            }
+        }
+
+        public int CurrentSizeY
+        {
+            get
+            {
+                int baseW = (furnitureData != null) ? furnitureData.sizeX : Mathf.Max(1, overrideSizeX);
+                int baseH = (furnitureData != null) ? furnitureData.sizeY : Mathf.Max(1, overrideSizeY);
+                return (rotationDegrees % 180 == 0) ? baseH : baseW;
+            }
+        }
 
         public virtual void Setup(FurnitureSO data, Vector2Int pos, int rotation = 0)
         {
             this.furnitureData = data;
+            this.playerMovable = true;
             this.gridPosition = pos;
             this.rotationDegrees = rotation;
 
             transform.rotation = Quaternion.Euler(0f, 0f, rotation);
+            UpdateWorldPosition();
+            RegisterWithGrid();
+        }
+
+        public virtual void SetupStatic(Vector2Int pos, int sizeX, int sizeY, bool blocks = true)
+        {
+            this.furnitureData = null;
+            this.playerMovable = false;
+            this.gridPosition = pos;
+            this.overrideSizeX = sizeX;
+            this.overrideSizeY = sizeY;
+            this.rotationDegrees = 0;
+            this.blocksWalkability = blocks;
+
             UpdateWorldPosition();
             RegisterWithGrid();
         }

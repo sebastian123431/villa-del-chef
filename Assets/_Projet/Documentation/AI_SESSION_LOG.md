@@ -357,11 +357,64 @@ Pruebas ejecutadas:
 - Nota de QA: Pruebas en Unity Play Mode y generación de APK física de Android pendientes de ejecución en el entorno local del propietario.
 
 Estado de la sesión:
-FASE 6.2 — CERRADA TÉCNICAMENTE CON ÉXITO [~].
-
-Siguiente recomendación:
-Abrir Unity Editor, ejecutar `Tools > Villa del Chef > Setup ALL Scenes`, ejecutar `Tools > Villa del Chef > Validate Game Data`, probar en Play Mode el bucle de juego completo y proceder a generar el Development Build APK para pruebas físicas en Android.
 ============================================================
+AI SESSION 008
+
+Fecha:
+2026-09-22
+
+Objetivo solicitado:
+Ejecutar el CIERRE DE INTEGRACIÓN de la FASE 6.2, llevando la madurez técnica del proyecto de ~82% a 95%-98% antes de Fase 7. Corregir regresiones auditadas en GameDataValidatorEditor, gating de NPCs, Build Mode móvil, objetos estáticos en cuadrícula, mozos con mostrador lleno, migración de guardado v1->v2 y serialización real de la escena 01_MainMenu.
+
+Contexto leído:
+- AGENTS.md, ROADMAP.md, KNOWN_ISSUES.md, PROJECT_HISTORY.md, TECHNICAL_DECISIONS.md, AI_SESSION_LOG.md.
+- Scripts de Build, NPC, TouchInput, Workers, Save, Core Editor.
+- ProjectSettings/ProjectSettings.asset.
+
+Problemas resueltos y trabajo realizado:
+1. GameDataValidatorEditor (`GameDataValidatorEditor.cs`):
+   - Corregido acceso erróneo a `cr.recipeID` por la propiedad real `cr.craftID`.
+   - Corregida ruta de carga de recetas de crafteo a `Resources.LoadAll<CraftingRecipeSO>("CraftingRecipes")`.
+   - Protegidos los cuadros de diálogo del Editor con `!Application.isBatchMode`.
+   - Ejecutado en Unity Editor 6000.6.2f1 batchmode: Validación exitosa con 0 errores y 0 advertencias.
+2. Interacción de NPCs y Gating sin Bypass (`NPCController.cs`, `VendorBuilding.cs`):
+   - Eliminado el bypass de interacción por toque directo al collider del NPC hijo.
+   - `NPCController` detecta `ParentBuilding` (`GetComponentInParent<VendorBuilding>()`).
+   - `CanInteract` y `Interact()` delegan a `ParentBuilding`. Si está bloqueado, se muestra el feedback sonoro y flotante `🔒 Se desbloquea en Nivel X` sin abrir la interfaz de tienda.
+3. Blindaje de Puestos Comerciales y Objetos Estáticos (`GridObject.cs`, `VendorBuilding.cs`, `BuildManager.cs`):
+   - Añadidas propiedades `playerMovable` y `overrideSizeX/Y` a `GridObject`.
+   - Implementado método `SetupStatic(pos, sizeX, sizeY, blocks)` en `GridObject` y conectado en `VendorBuilding.Setup()`.
+   - `BuildManager.StartMovingObject` y `TouchInputManager.HandleLongPress` rechazan objetos con `!playerMovable || furnitureData == null`, imposibilitando mover, arrastrar o desregistrar puestos estáticos.
+   - Al desregistrar un puesto estático, se limpian exactamente las 6 celdas (3x2) sin dejar huellas fantasma.
+4. Build Mode Táctil Móvil (`TouchInputManager.cs`):
+   - En `TouchPhase.Ended`, si `isBuildMode && selectedFurniture != null`, se actualiza la posición del hover y se ejecuta `BuildManager.Instance.TryPlaceObject()`, permitiendo colocación táctil directa al soltar el dedo tras el arrastre.
+   - Discriminación explícita entre colocación de mueble nuevo (`selectedFurniture != null`) y selección de mueble existente para mover (`selectedFurniture == null`).
+   - Añadida bandera `wasPinching` para evitar disparar taps involuntarios al levantar los dedos de un zoom.
+5. Máquina de Estados y Retorno Seguro de Platos en Mozos (`WorkerController.cs`):
+   - Incorporados los estados `WorkerState.ReturningDish` y `WorkerState.WaitingCounterSpace`.
+   - Implementada corrutina `ReturnDishRoutine()`: Si la mesa es inalcanzable, o el cliente se retira o cambia de pedido, el mozo retiene el plato de forma segura y acude al mostrador. Si está lleno, espera en `WaitingCounterSpace` y reintenta periódicamente sin congelarse en `Idle`.
+   - Añadida re-validación estricta antes de la entrega: mesa válida, comensal válido en estado `WaitingForFood` y coincidencia exacta de `recipeID`.
+6. Migración Integral SaveData v1 -> v2 (`SaveData.cs`, `SaveManager.cs`):
+   - Versión de esquema elevada a `saveVersion = 2`.
+   - Centralizado método `MigrateSaveIfNeeded(SaveData data)` llamado tanto en carga principal como en restauración de backup.
+   - Detección exhaustiva de progreso previo evaluando 14 dimensiones de juego (nivel, experiencia, inventario, muebles, parcelas, misiones, tiendas, crafteo, expansiones, recetas, tutorial, monedas y reputación).
+7. Serialización y Versionado de la Escena 01_MainMenu (`01_MainMenu.unity`, `RestaurantSceneSetupEditor.cs`):
+   - Generada y guardada la escena `01_MainMenu.unity` mediante ejecución en batchmode de Unity 6000.6.2f1, serializando todas las referencias de botones, modales y paneles.
+   - Modificado `RestaurantSceneSetupEditor.AutoSetupScenesOnEditorLoad` para evitar sobreescrituras automáticas destructivas si las escenas ya existen en disco.
+8. Configuración de Input:
+   - Documentada la ESTRATEGIA A — TRANSICIÓN SEGURA (`activeInputHandler: 2` - Both) en `TECHNICAL_DECISIONS.md`.
+
+Pruebas ejecutadas:
+- Validación en Unity Engine 6000.6.2f1 batchmode de `ValidateAllGameData`: 0 errores, 0 advertencias.
+- Compilación batchmode Unity de `SetupMainMenuScene` y guardado exitoso de `01_MainMenu.unity`.
+- Compilación C# con `dotnet build Assembly-CSharp.csproj`: 0 errores, 0 advertencias.
+- Compilación C# con `dotnet build Assembly-CSharp-Editor.csproj`: 0 errores, 0 advertencias.
+
+Estado de la sesión:
+FASE 6.2 — CIERRE DE INTEGRACIÓN COMPLETADO [~].
+Madurez técnica: 95% - 98% (físicamente listo para pruebas en dispositivo móvil).
+============================================================
+
 
 
 

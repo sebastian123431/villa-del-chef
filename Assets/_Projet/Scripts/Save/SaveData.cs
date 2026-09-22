@@ -69,7 +69,7 @@ namespace VillaDelChef.Save
     [Serializable]
     public class SaveData
     {
-        public int saveVersion = 1;
+        public int saveVersion = 2;
 
         // Player stats
         public int coins = 250;

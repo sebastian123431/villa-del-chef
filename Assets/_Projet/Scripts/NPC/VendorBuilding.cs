@@ -98,7 +98,7 @@ namespace VillaDelChef.NPC
 
             if (associatedNPC != null && associatedNPC.npcData != null)
             {
-                associatedNPC.Interact();
+                associatedNPC.OpenVendorInterface();
             }
             else if (VendorUI.Instance != null && npcData != null)
             {
@@ -132,14 +132,9 @@ namespace VillaDelChef.NPC
             col.size = new Vector2(sizeX, sizeY + 0.5f);
             col.offset = new Vector2(0f, 0.25f);
 
-            // Register occupancy in GridManager using a GridObject so furniture cannot be placed on top
+            // Register occupancy in GridManager using a static GridObject so furniture cannot be placed on top and footprint unregisters cleanly
             GridObject gridObj = GetComponent<GridObject>() ?? gameObject.AddComponent<GridObject>();
-            gridObj.gridPosition = gridPosition;
-            gridObj.blocksWalkability = true;
-            if (GridManager.Instance != null)
-            {
-                GridManager.Instance.SetOccupancy(gridPosition.x, gridPosition.y, sizeX, sizeY, gridObj, true);
-            }
+            gridObj.SetupStatic(gridPosition, sizeX, sizeY, true);
 
             // Spawn or configure NPC character attached to building
             if (npcData != null && associatedNPC == null)

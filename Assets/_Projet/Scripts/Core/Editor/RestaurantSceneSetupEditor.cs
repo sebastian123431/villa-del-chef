@@ -26,10 +26,12 @@ namespace VillaDelChef.EditorTools
             {
                 SetPlayModeStartSceneToBoot();
 
-                string versionKey = "VillaDelChef_SceneSetup_v3_aesthetic_fix";
-                if (!EditorPrefs.GetBool(versionKey, false))
+                // Only generate scenes if they are completely missing on disk
+                if (!System.IO.File.Exists("Assets/_Projet/Scenes/00_Boot.unity") ||
+                    !System.IO.File.Exists("Assets/_Projet/Scenes/01_MainMenu.unity") ||
+                    !System.IO.File.Exists("Assets/_Projet/Scenes/02_Restaurant.unity"))
                 {
-                    EditorPrefs.SetBool(versionKey, true);
+                    Debug.Log("[RestaurantSceneSetupEditor] Escenas faltantes en disco. Inicializando configuración automática...");
                     SetupAllScenes();
                 }
             };
