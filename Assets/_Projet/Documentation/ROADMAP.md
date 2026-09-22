@@ -74,3 +74,16 @@ Leyenda:
 - [x] Creación y asignación de Sprite Atlases V2 para draw calls en 60 FPS móviles (`SpriteAtlasSetupEditor.cs` y `.spriteatlasv2`)
 - [x] Feedback visual flotante dinámico con `FloatingTextManager.cs` (+oro, +reputación, +XP, éxito, advertencias) sin GC spikes
 
+## FASE 6.1 — Consolidación General & Integración Real (Fases 1–6)
+- [x] Bug crítico corregido: Retorno de cliente al ObjectPool ya no libera mesas en estado `Dirty` o `Cleaning` (`ReleaseTableReference()` desacoplado de `ClearTable()`)
+- [x] Prevención de carreras en mozos: Reserva atómica de plato (`isReserved`) y de mesa sucia (`isCleaningReserved`)
+- [x] Eliminación de fallbacks aleatorios en entrega de platos (camarero cancela a Idle de forma segura)
+- [x] Refactor de `RestaurantBootstrap`: `useDevelopmentFallbackData = false` en producción; preserva catálogos completos en Resources (recetas, clientes, cultivos)
+- [x] Generación y versionado en Git de todos los ScriptableObjects y Sprites en `Assets/_Projet/Resources/`
+- [x] Locales y puestos físicos de los 7 especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) implementados en el mapa exterior con `VendorBuilding.cs` (`IInteractable`)
+- [x] Crafting offline con marcas de tiempo UTC (`craftStartTimestampSeconds`, `craftFinishTimestampSeconds`), cálculo de segundos transcurridos y tick centralizado en `CraftingManager` (0.5s)
+- [x] Restauración exacta de transitabilidad (`previousWalkability`) en `BuildManager.ValidateNavigationSafety` con validación de 3 rutas críticas
+- [x] Eliminación de excepciones por frame en `TouchInputManager.cs` y soporte para hover/colocación en New Input System
+- [x] Configuración de PlayerSettings: Nombre de producto "Villa del Chef" y orientación forzada en Landscape (desactivado Portrait)
+- [x] MainMenu responsivo con soporte para Jugar, Continuar (según `SaveManager.HasSaveFile`), Opciones, Créditos, Salir (solo PC) y slot para `mainmenu_background.png`
+

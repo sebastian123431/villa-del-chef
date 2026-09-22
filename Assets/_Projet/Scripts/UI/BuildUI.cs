@@ -46,6 +46,10 @@ namespace VillaDelChef.UI
 
         private void Start()
         {
+            if (catalogItems == null || catalogItems.Count == 0)
+            {
+                catalogItems = new List<FurnitureSO>(Resources.LoadAll<FurnitureSO>("Furniture"));
+            }
             if (rotateButton != null) rotateButton.onClick.AddListener(OnRotateClicked);
             if (closeButton != null) closeButton.onClick.AddListener(OnCloseClicked);
             PopulateCatalog();

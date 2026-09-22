@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af3860d56470ea540997303c5c01c829, type: 3}
+  m_Name: craft_sauce
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CraftingRecipeSO
+  craftID: craft_sauce
+  recipeName: Salsa Especial de la Casa
+  description: "Reduce y sazona salsa r\xFAstica espesa para pastas y pizzas al horno."
+  requiredStation: 2
+  icon: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  craftTimeSeconds: 12
+  requiredIngredients:
+  - ingredient: {fileID: 11400000, guid: de9123cd2fc562a4a899e19e24776986, type: 2}
+    amount: 2
+  resultIngredient: {fileID: 11400000, guid: 754df56ac51323a48a639ed44d8bcfad, type: 2}
+  resultAmount: 2
+  experienceReward: 18
+  requiredPlayerLevel: 1

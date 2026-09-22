@@ -83,6 +83,7 @@ namespace VillaDelChef.Managers
             {
                 plot.plotIndex = activePlots.Count;
                 activePlots.Add(plot);
+                RestorePlotFromSave(plot);
             }
         }
 
@@ -118,16 +119,25 @@ namespace VillaDelChef.Managers
             var savedPlots = SaveManager.Instance.CurrentSave.cropPlots;
             if (savedPlots == null || savedPlots.Count == 0) return;
 
-            for (int i = 0; i < savedPlots.Count && i < activePlots.Count; i++)
+            for (int i = 0; i < activePlots.Count; i++)
             {
-                var data = savedPlots[i];
-                if (data.isPlanted && !string.IsNullOrEmpty(data.cropID))
+                RestorePlotFromSave(activePlots[i]);
+            }
+        }
+
+        private void RestorePlotFromSave(CropPlot plot)
+        {
+            if (plot == null || SaveManager.Instance == null || SaveManager.Instance.CurrentSave == null) return;
+            var savedPlots = SaveManager.Instance.CurrentSave.cropPlots;
+            if (savedPlots == null || savedPlots.Count == 0) return;
+
+            var data = savedPlots.Find(p => p != null && p.plotIndex == plot.plotIndex);
+            if (data != null && data.isPlanted && !string.IsNullOrEmpty(data.cropID))
+            {
+                CropSO crop = allCrops.Find(c => c != null && c.cropID == data.cropID);
+                if (crop != null)
                 {
-                    CropSO crop = allCrops.Find(c => c != null && c.cropID == data.cropID);
-                    if (crop != null)
-                    {
-                        activePlots[i].RestoreState(crop, data.plantTimestampSeconds);
-                    }
+                    plot.RestoreState(crop, data.plantTimestampSeconds);
                 }
             }
         }

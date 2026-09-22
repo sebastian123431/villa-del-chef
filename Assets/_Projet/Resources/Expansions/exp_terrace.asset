@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c1de4b253f134f44dbaabd629cee9f7f, type: 3}
+  m_Name: exp_terrace
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ExpansionSO
+  expansionID: exp_terrace
+  displayName: "Terraza del Jard\xEDn"
+  description: Abre las puertas al patio exterior. Permite colocar mesas y sombrillas al aire libre para que los clientes disfruten del sol y la brisa.
+  icon: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
+  targetZone: 6
+  gridBounds:
+    x: 0
+    y: 7
+    width: 6
+    height: 9
+  requiredRestaurantLevel: 2
+  costGold: 200
+  rewardXP: 60
+  worldSignPosition: {x: -12.5, y: -3.5}

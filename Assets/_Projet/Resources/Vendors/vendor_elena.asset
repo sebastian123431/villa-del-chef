@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd0d976e5037647b8085ae43241cb9, type: 3}
+  m_Name: vendor_elena
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.VendorSO
+  vendorID: vendor_elena
+  vendorTitle: Semillas & Huerto de Elena
+  restockIntervalSeconds: 180
+  catalog:
+  - itemID: ing_strawberry
+    displayName: Semillas de Frutilla
+    icon: {fileID: 21300000, guid: 5541c28aa3e6dd54f9f728b8935b3687, type: 3}
+    buyPrice: 12
+    maxStock: 15
+    requiredPlayerLevel: 1
+    isInventoryItem: 1
+  - itemID: ing_lemon
+    displayName: "Semillas de Lim\xF3n"
+    icon: {fileID: 21300000, guid: c75b92ba74d83494ea051b6c64284556, type: 3}
+    buyPrice: 10
+    maxStock: 15
+    requiredPlayerLevel: 1
+    isInventoryItem: 1
+  - itemID: ing_watermelon
+    displayName: "Semillas de Sand\xEDa"
+    icon: {fileID: 21300000, guid: 8e9acaa1a79b0fd498fb579e0528957d, type: 3}
+    buyPrice: 20
+    maxStock: 10
+    requiredPlayerLevel: 1
+    isInventoryItem: 1
+  - itemID: ing_apple
+    displayName: Manzana de Huerta
+    icon: {fileID: 21300000, guid: 053b1536ade995e4e8e797bb20f4c25e, type: 3}
+    buyPrice: 10
+    maxStock: 15
+    requiredPlayerLevel: 1
+    isInventoryItem: 1
+  - itemID: ing_potato
+    displayName: Papas de Campo
+    icon: {fileID: 21300000, guid: 6f77a8ab778ece44b8d6d3887d88f74e, type: 3}
+    buyPrice: 8
+    maxStock: 20
+    requiredPlayerLevel: 1
+    isInventoryItem: 1
+  - itemID: ing_banana
+    displayName: "Pl\xE1tano Maduro"
+    icon: {fileID: 21300000, guid: 861b955d193f22a4c83299c0b992ed26, type: 3}
+    buyPrice: 10
+    maxStock: 15
+    requiredPlayerLevel: 1
+    isInventoryItem: 1
+  - itemID: ing_blueberry
+    displayName: "Ar\xE1ndano Silvestre"
+    icon: {fileID: 21300000, guid: 3229da07061761f46891c04888cfc75c, type: 3}
+    buyPrice: 12
+    maxStock: 15
+    requiredPlayerLevel: 1
+    isInventoryItem: 1

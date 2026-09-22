@@ -232,7 +232,56 @@ Estado de la sesión:
 COMPLETADA CON ÉXITO (FASE 6 FINALIZADA — ROADMAP COMPLETO AL 100%).
 
 Siguiente recomendación:
-El proyecto cuenta con todas las 6 fases de su hoja de ruta arquitectural completamente implementadas, compiladas y listas para su disfrute y expansión continua.
+============================================================
+AI SESSION 007
+
+Fecha:
+2026-09-22
+
+Objetivo solicitado:
+Ejecutar la FASE 6.1 — CONSOLIDACIÓN GENERAL de Villa del Chef.
+Auditar, verificar y corregir la integración real de las Fases 1 a 6 antes de comenzar la Fase 7.
+Garantizar que todo sistema cumpla: IMPLEMENTADO + INTEGRADO + VISIBLE EN GAMEPLAY + PERSISTENTE + PROBADO + SIN REGRESIONES.
+
+Contexto leído:
+- AGENTS.md
+- PROJECT_HISTORY.md, TECHNICAL_DECISIONS.md, ROADMAP.md, KNOWN_ISSUES.md, IDEAS_BACKLOG.md, AI_SESSION_LOG.md
+- Código fuente en `Assets/_Projet/Scripts/` y escenas en `Assets/_Projet/Scenes/`.
+
+Trabajo realizado:
+1. Generado informe de pre-implementación y plan aprobado (`implementation_plan.md`).
+2. Corregido bug crítico de mesa sucia:
+   - Desacoplado el abandono del comensal (`CustomerController.ReleaseTableReference()`) de la limpieza física de la mesa (`Table.ClearTable()`).
+   - `OnReturnToPool()` del comensal limpia referencias propias sin alterar mesas en estado `Dirty` o `Cleaning`.
+   - Implementadas reservas atómicas para mozos: `Table.isCleaningReserved` y `DishInstance.isReserved`, eliminando colisiones entre trabajadores y fallbacks ciegos en la entrega de platos.
+3. Refactorizado `RestaurantBootstrap.cs`:
+   - Incorporada bandera `useDevelopmentFallbackData = false;`. En producción, no sobrescribe `RecipeManager.allRecipes`, `CustomerManager.availableCustomerTypes` ni `FarmingManager.allCrops`.
+   - Inicialización limpia de inventario únicamente en partidas nuevas con catálogo real de insumos.
+4. Materializados y versionados en Git todos los ScriptableObjects y sus archivos `.meta` en `Assets/_Projet/Resources/` (`NPC/`, `Vendors/`, `CraftingRecipes/`, `Expansions/`, `Customers/`, `Quests/`, `Ingredients/`, `Recipes/`, `Stations/`).
+5. Completada la Fase 2 visual de especialistas con puestos físicos:
+   - Creado componente modular y reutilizable `VendorBuilding.cs` (`IInteractable`).
+   - Ubicados y configurados los 7 puestos especializados en la calle exterior: Elena (Agricultora), Bruno (Carnicero), Tomás (Panadero & Molino), Marina (Pescadera), Amelia (Equipamiento de Cocina), Lucas (Carpintero) y Sofía (Decoradora).
+6. Persistencia y simulación de Crafting offline:
+   - Añadidas marcas de tiempo UTC (`craftStartTimestampSeconds`, `craftFinishTimestampSeconds`) en `SaveData.cs`.
+   - `CraftingManager.cs` procesa el tiempo transcurrido con el juego cerrado y sincroniza el estado de las estaciones al arrancar.
+   - Eliminado `Update()` individual por frame en `CraftingStation.cs`, reemplazado por `CentralizedCraftingTickRoutine()` (tick cada 0.5s) en `CraftingManager.cs`.
+7. Construcción y validación de caminos segura:
+   - `BuildManager.ValidateNavigationSafety()` ahora almacena el estado previo en `Dictionary<GridCell, bool> previousWalkability` y restaura cada celda exactamente a su valor original.
+   - Validación de 3 rutas críticas: DeliveryCounter a mesas, Entrada a mesas y Worker a DeliveryCounter.
+8. Optimización de Input:
+   - Eliminada la captura de excepciones por frame en `TouchInputManager.Update()`. Cacheo seguro en `Awake()` y soporte completo para modo construcción con New Input System.
+9. PlayerSettings y Portada:
+   - `ProjectSettings.asset`: Product Name configurado como "Villa del Chef" y orientación forzada en Landscape (desactivado Portrait).
+   - `MainMenuController.cs`: soporte para botón Continuar (`SaveManager.HasSaveFile()`), Créditos, Salir (solo en desktop) y slot para `mainmenu_background.png`.
+10. Documentación sincronizada:
+    - Actualizados `KNOWN_ISSUES.md` (Issues 007 a 012 resueltos), `TECHNICAL_DECISIONS.md` (Decisiones 011 y 012), `ROADMAP.md` (Fase 6.1 completada), `PROJECT_HISTORY.md` e `IDEAS_BACKLOG.md` (Ideas 004, 005, 006).
+11. Compilación verificada: 0 errores y 0 advertencias en runtime y editor.
+
+Estado de la sesión:
+COMPLETADA CON ÉXITO (FASE 6.1 CONSOLIDADA).
+
+Siguiente recomendación:
+Proceder con la FASE 7 — CONTENIDO Y VARIEDAD (recetas autóctonas del Valle del Elqui, variaciones de clientes, mobiliario temático y eventos climáticos/temporales).
 ============================================================
 
 

@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af3860d56470ea540997303c5c01c829, type: 3}
+  m_Name: craft_dough
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CraftingRecipeSO
+  craftID: craft_dough
+  recipeName: Amasado Tradicional
+  description: Mezcla harina con huevo de granja para amasar bases de pizza y panes dorados.
+  requiredStation: 1
+  icon: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  craftTimeSeconds: 10
+  requiredIngredients:
+  - ingredient: {fileID: 11400000, guid: b2fecfe40738b9c4782644710079abff, type: 2}
+    amount: 1
+  - ingredient: {fileID: 11400000, guid: 010a2bfdade38194bb55ff1f9c7fb26d, type: 2}
+    amount: 1
+  resultIngredient: {fileID: 11400000, guid: 651fe85c5bf9b68459663649a050a0d9, type: 2}
+  resultAmount: 2
+  experienceReward: 20
+  requiredPlayerLevel: 1

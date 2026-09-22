@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0a7f8ebd28e1cb408fc4719ed92396a, type: 3}
+  m_Name: npc_sofia
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.NPCSO
+  npcID: npc_sofia
+  npcName: "Sof\xEDa"
+  roleTitle: Decoradora & Paisajista
+  portrait: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
+  worldSprite: {fileID: 0}
+  greetingDialogue: "\xA1La est\xE9tica lo es todo! Plantas ornamentales, l\xE1mparas y faroles para enamorar a los clientes."
+  vendorData: {fileID: 11400000, guid: 36fc7665936685f4b8a6902260d80fe1, type: 2}
+  unlockLevel: 3

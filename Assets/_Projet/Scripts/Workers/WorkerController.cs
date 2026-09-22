@@ -80,6 +80,7 @@ namespace VillaDelChef.Workers
             {
                 if (FindMatchingOrderAndDish(out Table waitingTable, out DishInstance matchingDish))
                 {
+                    matchingDish.isReserved = true;
                     if (activeTaskRoutine != null) StopCoroutine(activeTaskRoutine);
                     activeTaskRoutine = StartCoroutine(DeliveryTaskRoutine(waitingTable, matchingDish));
                     return;
@@ -90,6 +91,7 @@ namespace VillaDelChef.Workers
             Table dirtyTable = FindDirtyTable();
             if (dirtyTable != null)
             {
+                dirtyTable.isCleaningReserved = true;
                 if (activeTaskRoutine != null) StopCoroutine(activeTaskRoutine);
                 activeTaskRoutine = StartCoroutine(CleaningTaskRoutine(dirtyTable));
                 return;
@@ -110,7 +112,7 @@ namespace VillaDelChef.Workers
                 if (table != null && table.currentOrder != null && table.servedDish == null && (table.tableState == TableState.WaitingFood || table.tableState == TableState.Occupied))
                 {
                     DishInstance readyDish = DeliveryCounter.Instance.FindMatchingDish(table.currentOrder);
-                    if (readyDish != null)
+                    if (readyDish != null && !readyDish.isReserved)
                     {
                         matchingTable = table;
                         matchingDish = readyDish;
@@ -129,7 +131,7 @@ namespace VillaDelChef.Workers
             foreach (var obj in BuildManager.Instance.activeFurniture)
             {
                 Table table = obj as Table;
-                if (table != null && (table.tableState == TableState.Dirty || table.needsCleaning))
+                if (table != null && (table.tableState == TableState.Dirty || table.needsCleaning) && !table.isCleaningReserved)
                 {
                     return table;
                 }
@@ -147,6 +149,7 @@ namespace VillaDelChef.Workers
 
             if (!reachedCounter)
             {
+                if (targetDish != null) targetDish.isReserved = false;
                 currentState = WorkerState.Idle;
                 yield break;
             }
@@ -156,15 +159,13 @@ namespace VillaDelChef.Workers
             carryingDish = DeliveryCounter.Instance.TakeSpecificDish(targetDish);
             if (carryingDish == null)
             {
-                // Fallback if another worker picked it up in between
-                carryingDish = DeliveryCounter.Instance.TakeNextDish();
-                if (carryingDish == null)
-                {
-                    currentState = WorkerState.Idle;
-                    yield break;
-                }
+                // If dish is no longer available, cleanly return to idle without picking wrong order
+                if (targetDish != null) targetDish.isReserved = false;
+                currentState = WorkerState.Idle;
+                yield break;
             }
 
+            carryingDish.isReserved = false;
             carryingDish.transform.SetParent(carrySocket != null ? carrySocket : transform);
             carryingDish.transform.localPosition = carrySocket != null ? Vector3.zero : new Vector3(0f, 0.4f, 0f);
 
@@ -205,7 +206,6 @@ namespace VillaDelChef.Workers
         private IEnumerator CleaningTaskRoutine(Table targetTable)
         {
             currentState = WorkerState.WalkingToDirtyTable;
-            targetTable.StartCleaning();
 
             bool reached = false;
             yield return StartCoroutine(WalkToRoutine(targetTable.gridPosition, success => reached = success));
@@ -213,12 +213,13 @@ namespace VillaDelChef.Workers
             if (!reached)
             {
                 // Abort cleaning if table unreachable
-                targetTable.tableState = TableState.Dirty;
+                targetTable.isCleaningReserved = false;
                 currentState = WorkerState.Idle;
                 yield break;
             }
 
-            // Cleaning in progress
+            // Cleaning in progress once reached
+            targetTable.StartCleaning();
             currentState = WorkerState.Cleaning;
             yield return new WaitForSeconds(cleanDuration);
 

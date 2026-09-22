@@ -16,6 +16,12 @@ namespace VillaDelChef.Save
         public SaveData CurrentSave => currentSaveData;
         public long OfflineSecondsElapsed { get; private set; }
 
+        public static bool HasSaveFile()
+        {
+            string path = Path.Combine(Application.persistentDataPath, SAVE_FILE_NAME);
+            return File.Exists(path);
+        }
+
         private void Awake()
         {
             if (Instance == null)

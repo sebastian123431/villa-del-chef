@@ -32,5 +32,36 @@ Registro de ideas, propuestas y posibles mejoras que surgen durante el desarroll
 - **Beneficio**: Añade dinamismo táctil muy satisfactorio para sesiones activas sin perjudicar a los jugadores casuales.
 - **Complejidad**: MEDIA.
 - **Prioridad**: MEJORA / UX.
-- **Dependencias**: `CookingStation`, `CookStationUI`, `DishInstance`.
+---
+
+### IDEA #004
+- **Nombre**: Pool de Tarjetas Reutilizables en VendorUI
+- **Descripción**: En lugar de destruir e instanciar tarjetas UI para cada producto al abrir la tienda de un comerciante, implementar un pool o reciclador de 6 a 8 tarjetas UI fijas para minimizar asignaciones de memoria en móviles.
+- **Beneficio**: Garantiza 0 bytes de recolección de basura (GC) al abrir y navegar los menús comerciales.
+- **Complejidad**: BAJA.
+- **Clasificación**: OPTIMIZACIÓN.
+- **Dependencias**: `VendorUI.cs`.
 - **Estado**: BACKLOG.
+
+---
+
+### IDEA #005
+- **Nombre**: Animaciones de Respiración e Interacción para Especialistas
+- **Descripción**: Incorporar animaciones sutiles de respiración ("idle breathe") y reacción de saludo visual cuando el jugador toca a un comerciante antes de desplegar el modal.
+- **Beneficio**: Aumenta enormemente la calidez y el estilo cozy de la villa chilena en el Valle del Elqui.
+- **Complejidad**: MEDIA.
+- **Clasificación**: CONTENIDO / UX.
+- **Dependencias**: `NPCSO.cs`, `VendorBuilding.cs`, `NPCController.cs`.
+- **Estado**: BACKLOG.
+
+---
+
+### IDEA #006
+- **Nombre**: Destello Sutil en Mesa Reservada al Ingreso del Comensal
+- **Descripción**: Cuando un cliente entra al restaurante y reserva una mesa disponible, proyectar un destello sutil de color dorado o contorno blanco sobre la mesa durante 1 segundo.
+- **Beneficio**: Claridad visual instantánea para el jugador al monitorear el flujo del salón.
+- **Complejidad**: BAJA.
+- **Clasificación**: UX.
+- **Dependencias**: `CustomerController.cs`, `Table.cs`.
+- **Estado**: BACKLOG.
+

@@ -9,6 +9,7 @@ namespace VillaDelChef.Cooking
         public RecipeSO recipeData;
         [System.NonSerialized] public object targetCustomer;
         [System.NonSerialized] public object targetTable;
+        [System.NonSerialized] public bool isReserved = false;
 
         [Header("Visuals")]
         public SpriteRenderer dishRenderer;

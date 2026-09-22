@@ -342,6 +342,55 @@ PRÓXIMO PASO:
 Verificación en PlayMode, pruebas funcionales de la suite completa y entrega consolidada de la arquitectura de Villa del Chef.
 ------------------------------------------------------------
 
+FECHA: 2026-09-22
+VERSIÓN / TAG: 0.6.1 (Fase 6.1: Consolidación General & Integración Real Fases 1–6)
+FASE: FASE 6.1 — Consolidación General
 
+OBJETIVO:
+Revisar, auditar y corregir la integración real de las Fases 1 a 6 antes de comenzar la Fase 7. Resolver el bug crítico de ObjectPool con mesas sucias, desacoplar Bootstrap de datos procedurales runtime, materializar y versionar en Git los ScriptableObjects y Sprites reales, implementar los locales físicos modulares de los 7 especialistas, centralizar el tick de crafteo con cálculo exacto de tiempo offline UTC, asegurar la restauración precisa de transitabilidad en construcción y limpiar el subsistema de input y PlayerSettings.
 
+CAMBIOS REALIZADOS:
+- Corregido bug crítico de mesas sucias en `CustomerController.cs` y `Table.cs`: implementación de `ReleaseTableReference()` que desacopla la partida del comensal de la limpieza de la mesa. `Table.ClearTable()` ya no limpia mesas en estado `Dirty` o `Cleaning`.
+- Implementada reserva atómica de tareas en mozos (`Table.isCleaningReserved`, `DishInstance.isReserved` en `DeliveryCounter.cs` y `WorkerController.cs`), previniendo carreras de múltiples trabajadores y eliminando fallbacks aleatorios en entrega de platos.
+- Refactorizado `RestaurantBootstrap.cs`: incorporada bandera `useDevelopmentFallbackData = false;`. En modo producción, no sobrescribe `allRecipes`, `allCrops`, `availableCustomerTypes` ni inventario, respetando las bases de datos de `Resources/`.
+- Creado componente modular `VendorBuilding.cs` (`IInteractable`) para ubicar físicamente en el mapa exterior a los 7 especialistas de la villa (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) con sus puestos, letreros flotantes y vinculación con `NPCController`.
+- Materializados y versionados permanentemente en Git todos los ScriptableObjects en `Assets/_Projet/Resources/` (`NPC/`, `Vendors/`, `CraftingRecipes/`, `Expansions/`, `Customers/`, `Quests/`, `Ingredients/`, `Recipes/`, `Stations/`).
+- Optimizado el sistema de Crafting: añadidas marcas de tiempo UTC (`craftStartTimestampSeconds`, `craftFinishTimestampSeconds`) en `SaveData.cs`, procesado de tiempo offline en `CraftingManager.cs`, y centralización del tick de crafteo (0.5s) eliminando el `Update()` por frame en `CraftingStation.cs`.
+- Corregida la restauración de transitabilidad en `BuildManager.ValidateNavigationSafety()` mediante `Dictionary<GridCell, bool> previousWalkability`, evitando volver transitables celdas perimetrales o de diseño, con validación de 3 rutas críticas.
+- Optimizado `TouchInputManager.cs`: eliminada la captura de excepciones por frame en `Update()`, detección única en `Awake()` y soporte completo de Build Mode para New Input System.
+- Actualizado `ProjectSettings.asset`: Product Name establecido en "Villa del Chef" y rotación configurada estrictamente para Landscape.
+- Actualizado `MainMenuController.cs`: soporte para botón Continuar (`SaveManager.HasSaveFile()`), Créditos, Salir (solo en desktop) y slot para `mainmenu_background.png`.
 
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Scripts/NPC/VendorBuilding.cs`
+- `Assets/_Projet/Scripts/NPC/VendorBuilding.cs.meta`
+- Todos los assets `.asset` y `.meta` en `Assets/_Projet/Resources/` (`CraftingRecipes/`, `Customers/`, `Expansions/`, `NPC/`, `Vendors/`, `Quests/`).
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/Restaurant/Table.cs`
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`
+- `Assets/_Projet/Scripts/Cooking/DishInstance.cs`
+- `Assets/_Projet/Scripts/Restaurant/DeliveryCounter.cs`
+- `Assets/_Projet/Scripts/Workers/WorkerController.cs`
+- `Assets/_Projet/Scripts/Save/SaveData.cs`
+- `Assets/_Projet/Scripts/Crafting/CraftingStation.cs`
+- `Assets/_Projet/Scripts/Managers/CraftingManager.cs`
+- `Assets/_Projet/Scripts/Managers/FarmingManager.cs`
+- `Assets/_Projet/Scripts/Inventory/InventoryManager.cs`
+- `Assets/_Projet/Scripts/Building/BuildManager.cs`
+- `Assets/_Projet/Scripts/UI/BuildUI.cs`
+- `Assets/_Projet/Scripts/Input/TouchInputManager.cs`
+- `Assets/_Projet/Scripts/Save/SaveManager.cs`
+- `Assets/_Projet/Scripts/UI/MainMenuController.cs`
+- `Assets/_Projet/Scripts/Core/RestaurantBootstrap.cs`
+- `ProjectSettings/ProjectSettings.asset`
+- `Assets/_Projet/Documentation/KNOWN_ISSUES.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+
+ESTADO:
+COMPLETADO — Compilación con 0 errores y 0 advertencias en runtime y editor.
+
+PRÓXIMO PASO:
+Fase 7: Contenido y Variedad (expansión de recetas del Valle del Elqui, personalización estética, nuevos muebles y progresión avanzada).
+------------------------------------------------------------

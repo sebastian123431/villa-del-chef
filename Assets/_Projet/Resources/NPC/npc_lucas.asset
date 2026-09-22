@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0a7f8ebd28e1cb408fc4719ed92396a, type: 3}
+  m_Name: npc_lucas
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.NPCSO
+  npcID: npc_lucas
+  npcName: Lucas
+  roleTitle: Carpintero & Constructor
+  portrait: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  worldSprite: {fileID: 0}
+  greetingDialogue: "Mesas de roble, sillas c\xF3modas y mostradores resistentes. \xA1Hagamos tu restaurante acogedor!"
+  vendorData: {fileID: 11400000, guid: f87ec2dfc980f10499bafc8b7f1fbd48, type: 2}
+  unlockLevel: 1

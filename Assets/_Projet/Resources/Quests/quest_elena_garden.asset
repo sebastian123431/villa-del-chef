@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8f6fc367763c88409678cdcc8338cf9, type: 3}
+  m_Name: quest_elena_garden
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.QuestSO
+  questID: quest_elena_garden
+  title: Huerto en Flor
+  description: Cosecha 6 frutillas dulces de la huerta para los postres de la villa.
+  questType: 1
+  icon: {fileID: 21300000, guid: 5541c28aa3e6dd54f9f728b8935b3687, type: 3}
+  targetID: crop_strawberry
+  requiredAmount: 6
+  rewardCoins: 180
+  rewardXP: 40
+  rewardReputation: 5
+  storySpeakerName: Elena
+  unlockedRecipeReward: {fileID: 0}
+  unlockedFurnitureReward: {fileID: 0}

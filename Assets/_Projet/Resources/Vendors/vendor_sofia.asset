@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd0d976e5037647b8085ae43241cb9, type: 3}
+  m_Name: vendor_sofia
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.VendorSO
+  vendorID: vendor_sofia
+  vendorTitle: "Decoraciones & Estilo Sof\xEDa"
+  restockIntervalSeconds: 300
+  catalog:
+  - itemID: crop_plot
+    displayName: Parcela de Cultivo Decorada
+    icon: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
+    buyPrice: 50
+    maxStock: 5
+    requiredPlayerLevel: 1
+    isInventoryItem: 0

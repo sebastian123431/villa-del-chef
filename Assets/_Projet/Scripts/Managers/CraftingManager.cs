@@ -43,6 +43,29 @@ namespace VillaDelChef.Managers
             LoadRecipesDatabase();
         }
 
+        private void Start()
+        {
+            LoadFromSave();
+            StartCoroutine(CentralizedCraftingTickRoutine());
+        }
+
+        private System.Collections.IEnumerator CentralizedCraftingTickRoutine()
+        {
+            var wait = new WaitForSeconds(0.5f);
+            while (true)
+            {
+                yield return wait;
+                long now = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                for (int i = 0; i < activeStations.Count; i++)
+                {
+                    if (activeStations[i] != null && activeStations[i].currentState == CraftingState.Crafting)
+                    {
+                        activeStations[i].TickCrafting(0.5f, now);
+                    }
+                }
+            }
+        }
+
         public void LoadRecipesDatabase()
         {
             var loaded = Resources.LoadAll<CraftingRecipeSO>("CraftingRecipes");
@@ -57,6 +80,7 @@ namespace VillaDelChef.Managers
             if (station != null && !activeStations.Contains(station))
             {
                 activeStations.Add(station);
+                RestoreStationFromSave(station);
             }
         }
 
@@ -109,7 +133,9 @@ namespace VillaDelChef.Managers
                     gridY = s.gridPosition.y,
                     currentCraftID = s.currentRecipe != null ? s.currentRecipe.craftID : "",
                     remainingTime = s.GetRemainingSeconds(),
-                    isReadyToCollect = (s.currentState == CraftingState.ReadyToCollect)
+                    isReadyToCollect = (s.currentState == CraftingState.ReadyToCollect),
+                    craftStartTimestampSeconds = s.craftStartTimestampUTC,
+                    craftFinishTimestampSeconds = s.craftFinishTimestampUTC
                 };
                 data.craftingStations.Add(entry);
             }
@@ -128,33 +154,54 @@ namespace VillaDelChef.Managers
             var list = SaveManager.Instance.CurrentSave.craftingStations;
             if (list == null || list.Count == 0) return;
 
-            foreach (var entry in list)
+            foreach (var station in activeStations)
             {
-                if (entry == null) continue;
-
-                var station = activeStations.Find(s => s != null && s.gridPosition.x == entry.gridX && s.gridPosition.y == entry.gridY);
-                if (station != null && !string.IsNullOrEmpty(entry.currentCraftID))
-                {
-                    var recipe = GetRecipeByID(entry.currentCraftID);
-                    if (recipe != null)
-                    {
-                        station.currentRecipe = recipe;
-                        station.totalCraftTime = recipe.craftTimeSeconds;
-
-                        if (entry.isReadyToCollect || entry.remainingTime <= 0f)
-                        {
-                            station.currentState = CraftingState.ReadyToCollect;
-                            station.currentCraftTimer = recipe.craftTimeSeconds;
-                        }
-                        else
-                        {
-                            station.currentState = CraftingState.Crafting;
-                            station.currentCraftTimer = Mathf.Max(0f, recipe.craftTimeSeconds - entry.remainingTime);
-                        }
-                        station.UpdateVisuals();
-                    }
-                }
+                RestoreStationFromSave(station);
             }
+        }
+
+        private void RestoreStationFromSave(CraftingStation station)
+        {
+            if (station == null || SaveManager.Instance == null || SaveManager.Instance.CurrentSave == null) return;
+            var list = SaveManager.Instance.CurrentSave.craftingStations;
+            if (list == null || list.Count == 0) return;
+
+            var entry = list.Find(e => e != null && e.gridX == station.gridPosition.x && e.gridY == station.gridPosition.y);
+            if (entry == null || string.IsNullOrEmpty(entry.currentCraftID)) return;
+
+            var recipe = GetRecipeByID(entry.currentCraftID);
+            if (recipe == null) return;
+
+            station.currentRecipe = recipe;
+            station.totalCraftTime = recipe.craftTimeSeconds;
+
+            long now = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            float remaining;
+            if (entry.craftFinishTimestampSeconds > 0)
+            {
+                remaining = (float)(entry.craftFinishTimestampSeconds - now);
+            }
+            else
+            {
+                long offlineSecs = SaveManager.Instance.OfflineSecondsElapsed;
+                remaining = entry.remainingTime - offlineSecs;
+            }
+
+            if (entry.isReadyToCollect || remaining <= 0f)
+            {
+                station.currentState = CraftingState.ReadyToCollect;
+                station.currentCraftTimer = recipe.craftTimeSeconds;
+                station.craftStartTimestampUTC = 0;
+                station.craftFinishTimestampUTC = 0;
+            }
+            else
+            {
+                station.currentState = CraftingState.Crafting;
+                station.currentCraftTimer = Mathf.Max(0f, recipe.craftTimeSeconds - remaining);
+                station.craftFinishTimestampUTC = now + (long)Mathf.Ceil(remaining);
+                station.craftStartTimestampUTC = now - (long)Mathf.Floor(station.currentCraftTimer);
+            }
+            station.UpdateVisuals();
         }
     }
 }

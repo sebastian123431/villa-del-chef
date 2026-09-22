@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: af3860d56470ea540997303c5c01c829, type: 3}
+  m_Name: craft_strawberry_jam
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CraftingRecipeSO
+  craftID: craft_strawberry_jam
+  recipeName: Mermelada de Frutilla
+  description: "Cocci\xF3n lenta de frutillas cosechadas a fuego lento hasta espesar."
+  requiredStation: 4
+  icon: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  craftTimeSeconds: 15
+  requiredIngredients:
+  - ingredient: {fileID: 11400000, guid: 44856a8f63678104488a382205b6ed07, type: 2}
+    amount: 2
+  resultIngredient: {fileID: 11400000, guid: d6bd23cff7e469f4084c23508768554b, type: 2}
+  resultAmount: 1
+  experienceReward: 25
+  requiredPlayerLevel: 1

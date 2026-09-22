@@ -22,6 +22,7 @@ namespace VillaDelChef.PlayerInput
         private bool isLongPressTriggered = false;
 
         private Camera mainCamera;
+        private bool isLegacyInputAvailable = true;
 
         private void Awake()
         {
@@ -32,8 +33,19 @@ namespace VillaDelChef.PlayerInput
             else
             {
                 Destroy(gameObject);
+                return;
             }
             mainCamera = Camera.main;
+
+            try
+            {
+                int _ = Input.touchCount;
+                isLegacyInputAvailable = true;
+            }
+            catch (System.InvalidOperationException)
+            {
+                isLegacyInputAvailable = false;
+            }
         }
 
         private void Update()
@@ -41,24 +53,23 @@ namespace VillaDelChef.PlayerInput
             if (mainCamera == null) mainCamera = Camera.main;
             if (mainCamera == null) return;
 
-            try
-            {
-                // Handle touch on mobile
-                if (Input.touchCount > 0)
-                {
-                    HandleTouches();
-                }
-                // Handle mouse on desktop / editor
-                else
-                {
-                    HandleMouseInput();
-                }
-            }
-            catch (System.InvalidOperationException)
-            {
 #if ENABLE_INPUT_SYSTEM
+            if (!isLegacyInputAvailable)
+            {
                 HandleNewInputSystem();
+                return;
+            }
 #endif
+
+            // Handle touch on mobile
+            if (Input.touchCount > 0)
+            {
+                HandleTouches();
+            }
+            // Handle mouse on desktop / editor
+            else
+            {
+                HandleMouseInput();
             }
         }
 
@@ -72,6 +83,12 @@ namespace VillaDelChef.PlayerInput
             {
                 var t0 = touch.touches[0];
                 Vector2 pos = t0.position.ReadValue();
+
+                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+
                 if (t0.press.wasPressedThisFrame)
                 {
                     touchStartPos = pos;
@@ -85,10 +102,19 @@ namespace VillaDelChef.PlayerInput
                     if (dist > dragThreshold)
                     {
                         isDragging = true;
-                        Vector3 delta = mainCamera.ScreenToViewportPoint(pos - touchStartPos);
-                        Vector3 move = new Vector3(delta.x * 12f, delta.y * 12f, 0f);
-                        CameraController2D.Instance?.Pan(move);
-                        touchStartPos = pos;
+                        if (BuildManager.Instance != null && BuildManager.Instance.isBuildMode && BuildManager.Instance.selectedFurniture != null)
+                        {
+                            Vector3 worldPos = mainCamera.ScreenToWorldPoint(pos);
+                            worldPos.z = 0f;
+                            BuildManager.Instance.UpdateHoverPosition(worldPos);
+                        }
+                        else
+                        {
+                            Vector3 delta = mainCamera.ScreenToViewportPoint(pos - touchStartPos);
+                            Vector3 move = new Vector3(delta.x * 12f, delta.y * 12f, 0f);
+                            CameraController2D.Instance?.Pan(move);
+                            touchStartPos = pos;
+                        }
                     }
                 }
                 else if (t0.press.wasReleasedThisFrame)
@@ -108,6 +134,30 @@ namespace VillaDelChef.PlayerInput
                 }
 
                 Vector2 mousePos = mouse.position.ReadValue();
+
+                if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+
+                if (BuildManager.Instance != null && BuildManager.Instance.isBuildMode && BuildManager.Instance.selectedFurniture != null)
+                {
+                    Vector3 mouseWorld = mainCamera.ScreenToWorldPoint(mousePos);
+                    mouseWorld.z = 0f;
+                    BuildManager.Instance.UpdateHoverPosition(mouseWorld);
+
+                    if (mouse.leftButton.wasPressedThisFrame)
+                    {
+                        BuildManager.Instance.TryPlaceObject();
+                        return;
+                    }
+                    if (mouse.rightButton.wasPressedThisFrame)
+                    {
+                        BuildManager.Instance.RotateSelection();
+                        return;
+                    }
+                }
+
                 if (mouse.leftButton.wasPressedThisFrame)
                 {
                     touchStartPos = mousePos;

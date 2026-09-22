@@ -70,7 +70,7 @@ namespace VillaDelChef.Restaurant
 
             for (int i = 0; i < readyDishes.Count; i++)
             {
-                if (readyDishes[i] != null && readyDishes[i].recipeData != null && readyDishes[i].recipeData.recipeID == recipe.recipeID)
+                if (readyDishes[i] != null && !readyDishes[i].isReserved && readyDishes[i].recipeData != null && readyDishes[i].recipeData.recipeID == recipe.recipeID)
                 {
                     return readyDishes[i];
                 }
@@ -82,6 +82,7 @@ namespace VillaDelChef.Restaurant
         {
             if (targetDish == null || !readyDishes.Contains(targetDish)) return null;
 
+            targetDish.isReserved = false;
             readyDishes.Remove(targetDish);
             RealignDishes();
             return targetDish;

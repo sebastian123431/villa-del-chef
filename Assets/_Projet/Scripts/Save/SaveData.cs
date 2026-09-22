@@ -62,6 +62,8 @@ namespace VillaDelChef.Save
         public string currentCraftID;
         public float remainingTime;
         public bool isReadyToCollect;
+        public long craftFinishTimestampSeconds;
+        public long craftStartTimestampSeconds;
     }
 
     [Serializable]

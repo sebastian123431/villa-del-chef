@@ -156,3 +156,41 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
   3. Object Pooling desacoplado + Sprite Atlases V2 estructurados por categorías + Manejador de Input Híbrido resiliente.
 - **Elegida**: 3 (Arquitectura integral de alto rendimiento móvil con 0 GC allocations durante la simulación y draw calls consolidados).
 - **Estado**: IMPLEMENTADA Y ACTIVA.
+
+---
+
+### DECISIÓN 011
+- **Título**: Desacoplamiento de Desvinculación de Comensales vs. Limpieza de Mesa y Reserva Atómica de Camarero.
+- **Problema**: Al terminar de comer, los clientes marcaban la mesa en `TableState.Dirty` y se retiraban. Sin embargo, cuando el GameObject del cliente retornaba al `ObjectPoolManager`, el callback `OnReturnToPool()` invocaba `assignedTable?.ClearTable()`, reseteando la mesa a `Available` de inmediato. Esto causaba una grave regresión en el ciclo de trabajo de los mozos/camareros. Además, en escenarios con múltiples camareros, varios podían competir por el mismo plato o la misma mesa sucia, y ante la falta de reservas recurrir a fallbacks no deterministas.
+- **Decisión**:
+  1. Se desacopla la desvinculación de referencias del comensal (`CustomerController.ReleaseTableReference()`) de la limpieza de la mesa (`Table.ClearTable()`).
+  2. `Table.ClearTable()` solo limpia platos y comensales en mesas ocupadas normales, pero ignora y protege de forma estricta las mesas en estado `Dirty` o `Cleaning`.
+  3. Se añade la propiedad `isCleaningReserved` en `Table` y `isReserved` en `DishInstance` para que los camareros reserven atómicamente la mesa sucia y el plato específico desde el momento en que inician su caminata, eliminando carreras entre trabajadores.
+  4. Si un camarero no encuentra el plato específico asignado al llegar al mostrador, cancela la acción limpiamente a estado Idle sin recurrir a fallbacks aleatorios (`TakeNextDish`).
+- **Alternativas consideradas**:
+  1. No usar ObjectPool para comensales (inviable para rendimiento móvil a 60 FPS).
+  2. Dejar que `OnReturnToPool()` limpie todo ciegamente (destruye el ciclo de mesas sucias).
+  3. Desacoplamiento formal de métodos: el cliente desvincula su referencia sin tocar el estado físico del restaurante, el mozo limpia y finaliza el ciclo a `Available`.
+- **Elegida**: 3 (Desacoplamiento formal con reservas atómicas).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.1).
+
+---
+
+### DECISIÓN 012
+- **Título**: Consolidación Data-Driven en RestaurantBootstrap, Puestos Físicos Modulares (`VendorBuilding`) y Crafting Offline con Timestamps UTC.
+- **Problema**: 
+  1. `RestaurantBootstrap.cs` continuaba instanciando ScriptableObjects temporales procedurales y sobreescribiendo los catálogos reales de `RecipeManager`, `CustomerManager` y `FarmingManager`, anulando la base de datos real versionada en `Assets/_Projet/Resources/`.
+  2. Los 7 especialistas comerciales de la villa (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) no poseían locales físicos homogéneos en el mapa exterior.
+  3. `CraftingStation` ejecutaba un `Update()` por frame y no procesaba el tiempo transcurrido con el juego cerrado (offline time).
+- **Decisión**:
+  1. Se añade la propiedad `useDevelopmentFallbackData = false` en `RestaurantBootstrap.cs`. En modo estándar, Bootstrap no sobrescribe ninguna base de datos, dejando que los managers carguen el catálogo completo desde `Resources/`.
+  2. Se crea el componente modular `VendorBuilding.cs` (`IInteractable`) que configura puesto físico, sprite, colisionador, letrero flotante y vinculación al `NPCController` y `NPCSO` correspondiente para los 7 especialistas, colocados a lo largo del paseo comercial exterior.
+  3. `CraftingStation` adopta timestamps UTC (`craftStartTimestampSeconds`, `craftFinishTimestampSeconds`) guardados en `SaveData`. `CraftingManager` centraliza el tick de actualización cada 0.5s y calcula el avance offline exacto al cargar el juego.
+  4. `TouchInputManager.cs` elimina la captura de excepciones por frame en `Update()`, cacheando la disponibilidad del subsistema en `Awake()`.
+- **Alternativas consideradas**:
+  1. Crear scripts mono-comportamiento específicos para cada uno de los 7 especialistas (`BrunoController`, `MarinaController`, etc.) -> Rechazada por redundancia y deuda técnica.
+  2. Mantener la generación procedural de ScriptableObjects en runtime -> Rechazada; el proyecto cuenta con bases de datos completas versionadas.
+  3. Arquitectura modular (`VendorBuilding`), preservación estricta de Resources y temporizadores centralizados con UTC.
+- **Elegida**: 3 (Arquitectura modular data-driven de alta fidelidad).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.1).
+

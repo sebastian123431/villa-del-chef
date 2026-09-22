@@ -35,6 +35,8 @@ namespace VillaDelChef.Crafting
         public CraftingRecipeSO currentRecipe;
         public float currentCraftTimer = 0f;
         public float totalCraftTime = 0f;
+        public long craftStartTimestampUTC = 0;
+        public long craftFinishTimestampUTC = 0;
 
         [Header("Visual Feedback")]
         public SpriteRenderer stationRenderer;
@@ -51,14 +53,21 @@ namespace VillaDelChef.Crafting
             UpdateVisuals();
         }
 
-        private void Update()
+        public void TickCrafting(float deltaSeconds, long nowUtc)
         {
             if (currentState == CraftingState.Crafting)
             {
-                currentCraftTimer += Time.deltaTime;
-                if (currentCraftTimer >= totalCraftTime)
+                if (craftFinishTimestampUTC > 0 && nowUtc >= craftFinishTimestampUTC)
                 {
                     OnCraftFinished();
+                }
+                else
+                {
+                    currentCraftTimer += deltaSeconds;
+                    if (currentCraftTimer >= totalCraftTime)
+                    {
+                        OnCraftFinished();
+                    }
                 }
             }
         }
@@ -106,8 +115,13 @@ namespace VillaDelChef.Crafting
             currentCraftTimer = 0f;
             currentState = CraftingState.Crafting;
 
+            long now = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            craftStartTimestampUTC = now;
+            craftFinishTimestampUTC = now + (long)Mathf.Ceil(recipe.craftTimeSeconds);
+
             GameEvents.TriggerCraftStarted(this, recipe);
             UpdateVisuals();
+            CraftingManager.Instance?.SaveToCurrentSave();
             Debug.Log($"[CraftingStation] Iniciada elaboración de {recipe.recipeName} ({recipe.craftTimeSeconds}s).");
             return true;
         }
@@ -123,6 +137,7 @@ namespace VillaDelChef.Crafting
             }
 
             UpdateVisuals();
+            CraftingManager.Instance?.SaveToCurrentSave();
             Debug.Log($"[CraftingStation] ¡{currentRecipe?.recipeName} completado! Listo para recolectar.");
         }
 
@@ -158,8 +173,11 @@ namespace VillaDelChef.Crafting
             currentState = CraftingState.Idle;
             currentCraftTimer = 0f;
             totalCraftTime = 0f;
+            craftStartTimestampUTC = 0;
+            craftFinishTimestampUTC = 0;
 
             UpdateVisuals();
+            CraftingManager.Instance?.SaveToCurrentSave();
             return true;
         }
 
@@ -168,6 +186,7 @@ namespace VillaDelChef.Crafting
             if (currentState == CraftingState.Crafting)
             {
                 currentCraftTimer = totalCraftTime;
+                craftFinishTimestampUTC = System.DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 OnCraftFinished();
             }
         }

@@ -21,5 +21,7 @@ MonoBehaviour:
   requiredAmount: 8
   rewardCoins: 160
   rewardXP: 35
+  rewardReputation: 0
+  storySpeakerName: 
   unlockedRecipeReward: {fileID: 0}
   unlockedFurnitureReward: {fileID: 0}

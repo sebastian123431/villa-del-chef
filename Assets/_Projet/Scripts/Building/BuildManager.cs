@@ -134,6 +134,11 @@ namespace VillaDelChef.Building
             if (!ValidateNavigationSafety(currentHoverGrid.x, currentHoverGrid.y, sizeX, sizeY))
             {
                 Debug.LogWarning("[BuildManager] Este objeto bloquearía el paso.");
+                if (GridManager.Instance != null)
+                {
+                    Vector3 worldPos = GridManager.Instance.GridToWorld(currentHoverGrid, sizeX, sizeY);
+                    VillaDelChef.UI.FloatingTextManager.Instance?.ShowWarning("Este objeto bloquearía el paso.", worldPos + Vector3.up * 0.8f);
+                }
                 return false;
             }
 
@@ -245,19 +250,25 @@ namespace VillaDelChef.Building
         {
             if (GridManager.Instance == null) return true;
 
-            // Temporarily mark candidate cells as unwalkable
+            var previousWalkability = new Dictionary<GridCell, bool>();
+
+            // Temporarily mark candidate cells as unwalkable and save EXACT prior state
             for (int x = startX; x < startX + sizeX; x++)
             {
                 for (int y = startY; y < startY + sizeY; y++)
                 {
                     var cell = GridManager.Instance.GetCell(x, y);
-                    if (cell != null) cell.isWalkable = false;
+                    if (cell != null && !previousWalkability.ContainsKey(cell))
+                    {
+                        previousWalkability[cell] = cell.isWalkable;
+                        cell.isWalkable = false;
+                    }
                 }
             }
 
             bool isSafe = true;
 
-            // If DeliveryCounter exists, ensure it can still reach all active tables
+            // 1. DeliveryCounter -> Table
             if (VillaDelChef.Restaurant.DeliveryCounter.Instance != null)
             {
                 Vector2Int counterPos = VillaDelChef.Restaurant.DeliveryCounter.Instance.gridPosition;
@@ -275,13 +286,52 @@ namespace VillaDelChef.Building
                 }
             }
 
-            // Restore candidate cells
-            for (int x = startX; x < startX + sizeX; x++)
+            // 2. Entrance -> Tables
+            if (isSafe && VillaDelChef.Managers.CustomerManager.Instance != null)
             {
-                for (int y = startY; y < startY + sizeY; y++)
+                Vector2Int entrancePos = VillaDelChef.Managers.CustomerManager.Instance.entranceGridPos;
+                foreach (var obj in activeFurniture)
                 {
-                    var cell = GridManager.Instance.GetCell(x, y);
-                    if (cell != null) cell.isWalkable = true;
+                    if (obj is VillaDelChef.Restaurant.Table table && obj.gameObject.activeInHierarchy)
+                    {
+                        var path = Utilities.GridPathfinding.FindPath(entrancePos, table.gridPosition);
+                        if (path == null || path.Count == 0)
+                        {
+                            isSafe = false;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            // 3. Worker -> DeliveryCounter
+            if (isSafe && VillaDelChef.Restaurant.DeliveryCounter.Instance != null)
+            {
+                Vector2Int counterPos = VillaDelChef.Restaurant.DeliveryCounter.Instance.gridPosition;
+                var workers = UnityEngine.Object.FindObjectsByType<VillaDelChef.Workers.WorkerController>(FindObjectsInactive.Exclude);
+                if (workers != null && workers.Length > 0)
+                {
+                    foreach (var w in workers)
+                    {
+                        if (w != null)
+                        {
+                            var path = Utilities.GridPathfinding.FindPath(w.idleGridPos, counterPos);
+                            if (path == null || path.Count == 0)
+                            {
+                                isSafe = false;
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Restore candidate cells to their EXACT original values (never assume true)
+            foreach (var kvp in previousWalkability)
+            {
+                if (kvp.Key != null)
+                {
+                    kvp.Key.isWalkable = kvp.Value;
                 }
             }
 

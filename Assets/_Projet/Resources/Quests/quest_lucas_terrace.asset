@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8f6fc367763c88409678cdcc8338cf9, type: 3}
+  m_Name: quest_lucas_terrace
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.QuestSO
+  questID: quest_lucas_terrace
+  title: Brisa en la Terraza
+  description: "Adquiere la expansi\xF3n de la terraza del jard\xEDn para ofrecer mesas al aire libre."
+  questType: 7
+  icon: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
+  targetID: exp_terrace
+  requiredAmount: 1
+  rewardCoins: 350
+  rewardXP: 80
+  rewardReputation: 10
+  storySpeakerName: Lucas
+  unlockedRecipeReward: {fileID: 0}
+  unlockedFurnitureReward: {fileID: 0}

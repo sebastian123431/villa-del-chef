@@ -38,13 +38,14 @@ namespace VillaDelChef.Restaurant
         public TableState tableState = TableState.Available;
         public CustomerController currentCustomer;
         public bool isReserved = false;
+        public bool isCleaningReserved = false;
         public RecipeSO currentOrder;
         public DishInstance servedDish;
         public bool needsCleaning = false;
 
         public bool HasAvailableChair()
         {
-            if (isReserved || needsCleaning || tableState != TableState.Available) return false;
+            if (isReserved || needsCleaning || isCleaningReserved || tableState != TableState.Available) return false;
 
             foreach (var chair in chairs)
             {
@@ -104,6 +105,7 @@ namespace VillaDelChef.Restaurant
         {
             tableState = TableState.Dirty;
             needsCleaning = true;
+            isCleaningReserved = false;
             currentCustomer = null;
 
             if (dirtyIndicator != null)
@@ -125,6 +127,7 @@ namespace VillaDelChef.Restaurant
         public void StartCleaning()
         {
             tableState = TableState.Cleaning;
+            isCleaningReserved = true;
         }
 
         public void FinishCleaning()
@@ -143,12 +146,19 @@ namespace VillaDelChef.Restaurant
             currentOrder = null;
             currentCustomer = null;
             isReserved = false;
+            isCleaningReserved = false;
             needsCleaning = false;
             tableState = TableState.Available;
         }
 
         public void ClearTable()
         {
+            // If the table is dirty or being cleaned, do NOT reset it to Available!
+            if (tableState == TableState.Dirty || tableState == TableState.Cleaning || needsCleaning)
+            {
+                currentCustomer = null;
+                return;
+            }
             FinishCleaning();
         }
 

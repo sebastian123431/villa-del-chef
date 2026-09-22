@@ -74,12 +74,40 @@ namespace VillaDelChef.Customers
             }
             if (assignedTable != null)
             {
-                assignedTable.ClearTable();
+                if (assignedTable.tableState == TableState.Dirty || assignedTable.tableState == TableState.Cleaning || assignedTable.needsCleaning)
+                {
+                    if (assignedTable.currentCustomer == this)
+                    {
+                        assignedTable.currentCustomer = null;
+                    }
+                }
+                else
+                {
+                    assignedTable.ClearTable();
+                }
                 assignedTable = null;
             }
             orderedDish = null;
             currentPath = null;
             if (orderBubble != null) orderBubble.SetActive(false);
+            if (patienceBar != null) patienceBar.SetActive(false);
+        }
+
+        public void ReleaseTableReference()
+        {
+            if (assignedChair != null)
+            {
+                assignedChair.SetOccupied(false);
+                assignedChair = null;
+            }
+            if (assignedTable != null)
+            {
+                if (assignedTable.currentCustomer == this)
+                {
+                    assignedTable.currentCustomer = null;
+                }
+                assignedTable = null;
+            }
         }
 
         public void Setup(CustomerSO data, Vector2Int spawnGrid, Vector2Int exitGrid)
@@ -267,6 +295,7 @@ namespace VillaDelChef.Customers
                 {
                     assignedTable.ClearTable();
                 }
+                ReleaseTableReference();
             }
             yield return StartCoroutine(WalkToRoutine(exitGridPos));
             GameEvents.TriggerCustomerLeft(this);

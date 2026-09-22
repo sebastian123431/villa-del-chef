@@ -25,6 +25,10 @@ namespace VillaDelChef.Core
         [Header("Auto-Setup Configuration")]
         public bool buildMVPLayoutOnStart = true;
 
+        [Header("Development & Fallback Settings")]
+        [Tooltip("If TRUE, will override loaded Resources with procedural MVP test data (DEVELOPMENT ONLY). Keep FALSE in production builds.")]
+        public bool useDevelopmentFallbackData = false;
+
         private void Start()
         {
             if (buildMVPLayoutOnStart)
@@ -244,80 +248,105 @@ namespace VillaDelChef.Core
                 new IngredientRequirement { ingredient = meatSO, amount = 2 }
             };
 
-            // Register recipes
-            if (RecipeManager.Instance != null)
+            CropSO initialPlotCrop1 = null;
+            CropSO initialPlotCrop2 = null;
+
+            if (useDevelopmentFallbackData)
             {
-                RecipeManager.Instance.allRecipes = new List<RecipeSO> { burgerRecipe, saladRecipe, steakRecipe };
+                // Register recipes fallback
+                if (RecipeManager.Instance != null)
+                {
+                    RecipeManager.Instance.allRecipes = new List<RecipeSO> { burgerRecipe, saladRecipe, steakRecipe };
+                }
+
+                // 4. Initial Inventory fallback
+                if (InventoryManager.Instance != null)
+                {
+                    InventoryManager.Instance.AddItem("meat", 10);
+                    InventoryManager.Instance.AddItem("bread", 10);
+                    InventoryManager.Instance.AddItem("cheese", 10);
+                    InventoryManager.Instance.AddItem("tomato", 10);
+                    InventoryManager.Instance.AddItem("lettuce", 10);
+                }
+
+                // 5. Setup Crops fallback
+                var tomatoCrop = ScriptableObject.CreateInstance<CropSO>();
+                tomatoCrop.cropID = "crop_tomato";
+                tomatoCrop.cropName = "Planta de Tomate";
+                tomatoCrop.totalGrowthTimeSeconds = 15f; // Fast for cozy mobile testing
+                tomatoCrop.harvestIngredient = tomatoSO;
+                tomatoCrop.harvestAmount = 3;
+                tomatoCrop.seedStageSprite = CreatePixelSprite(16, 16, new Color(0.4f, 0.6f, 0.2f), false);
+                tomatoCrop.stage01Sprite = CreatePixelSprite(20, 20, new Color(0.3f, 0.7f, 0.2f), false);
+                tomatoCrop.stage02Sprite = CreatePixelSprite(24, 24, new Color(0.2f, 0.8f, 0.2f), false);
+                tomatoCrop.readyStageSprite = CreatePixelSprite(28, 28, new Color(0.9f, 0.25f, 0.2f), false);
+
+                var lettuceCrop = ScriptableObject.CreateInstance<CropSO>();
+                lettuceCrop.cropID = "crop_lettuce";
+                lettuceCrop.cropName = "Lechuga";
+                lettuceCrop.totalGrowthTimeSeconds = 12f;
+                lettuceCrop.harvestIngredient = lettuceSO;
+                lettuceCrop.harvestAmount = 2;
+                lettuceCrop.seedStageSprite = tomatoCrop.seedStageSprite;
+                lettuceCrop.readyStageSprite = CreatePixelSprite(26, 26, new Color(0.2f, 0.85f, 0.25f), false);
+
+                if (FarmingManager.Instance != null)
+                {
+                    FarmingManager.Instance.allCrops = new List<CropSO> { tomatoCrop, lettuceCrop };
+                    FarmingManager.Instance.selectedCrop = tomatoCrop;
+                }
+
+                // 6. Setup Customer archetype & Worker archetype fallback
+                var normalCustomer = ScriptableObject.CreateInstance<CustomerSO>();
+                normalCustomer.customerID = "cust_normal";
+                normalCustomer.customerTitle = "Comensal Alegre";
+                normalCustomer.characterSprite = customerSprite;
+                normalCustomer.movementSpeed = 2.8f;
+                normalCustomer.basePatienceSeconds = 50f;
+                normalCustomer.preferredFoods = new List<RecipeSO> { burgerRecipe, saladRecipe, steakRecipe };
+
+                var impatientCustomer = ScriptableObject.CreateInstance<CustomerSO>();
+                impatientCustomer.customerID = "cust_impatient";
+                impatientCustomer.customerTitle = "Cliente Apurado";
+                impatientCustomer.characterSprite = GetOrFallbackSprite("Characters/Customers/customer_impatient.png", customerSprite);
+                impatientCustomer.movementSpeed = 3.5f;
+                impatientCustomer.basePatienceSeconds = 30f;
+                impatientCustomer.tipProbability = 0.3f;
+                impatientCustomer.preferredFoods = new List<RecipeSO> { burgerRecipe, saladRecipe };
+
+                var vipCustomer = ScriptableObject.CreateInstance<CustomerSO>();
+                vipCustomer.customerID = "cust_vip";
+                vipCustomer.customerTitle = "Crítico VIP";
+                vipCustomer.characterSprite = GetOrFallbackSprite("Characters/Customers/customer_vip.png", customerSprite);
+                vipCustomer.movementSpeed = 2.4f;
+                vipCustomer.basePatienceSeconds = 70f;
+                vipCustomer.tipProbability = 0.9f;
+                vipCustomer.tipMultiplier = 2.5f;
+                vipCustomer.preferredFoods = new List<RecipeSO> { steakRecipe, burgerRecipe };
+
+                if (CustomerManager.Instance != null)
+                {
+                    CustomerManager.Instance.availableCustomerTypes = new List<CustomerSO> { normalCustomer, impatientCustomer, vipCustomer };
+                }
+
+                initialPlotCrop1 = tomatoCrop;
+                initialPlotCrop2 = lettuceCrop;
             }
-
-            // 4. Initial Inventory
-            if (InventoryManager.Instance != null)
+            else
             {
-                InventoryManager.Instance.AddItem("meat", 10);
-                InventoryManager.Instance.AddItem("bread", 10);
-                InventoryManager.Instance.AddItem("cheese", 10);
-                InventoryManager.Instance.AddItem("tomato", 10);
-                InventoryManager.Instance.AddItem("lettuce", 10);
-            }
+                // In Production / Data-Driven Mode:
+                // Only provide starter ingredients if inventory is completely empty (fresh start)
+                if (InventoryManager.Instance != null && InventoryManager.Instance.GetAllItems().Count == 0)
+                {
+                    InventoryManager.Instance.AddItem("ing_meat", 5);
+                    InventoryManager.Instance.AddItem("ing_bread", 5);
+                    InventoryManager.Instance.AddItem("ing_cheese", 5);
+                    InventoryManager.Instance.AddItem("ing_strawberry", 5);
+                    InventoryManager.Instance.AddItem("ing_potato", 5);
+                }
 
-            // 5. Setup Crops
-            var tomatoCrop = ScriptableObject.CreateInstance<CropSO>();
-            tomatoCrop.cropID = "crop_tomato";
-            tomatoCrop.cropName = "Planta de Tomate";
-            tomatoCrop.totalGrowthTimeSeconds = 15f; // Fast for cozy mobile testing
-            tomatoCrop.harvestIngredient = tomatoSO;
-            tomatoCrop.harvestAmount = 3;
-            tomatoCrop.seedStageSprite = CreatePixelSprite(16, 16, new Color(0.4f, 0.6f, 0.2f), false);
-            tomatoCrop.stage01Sprite = CreatePixelSprite(20, 20, new Color(0.3f, 0.7f, 0.2f), false);
-            tomatoCrop.stage02Sprite = CreatePixelSprite(24, 24, new Color(0.2f, 0.8f, 0.2f), false);
-            tomatoCrop.readyStageSprite = CreatePixelSprite(28, 28, new Color(0.9f, 0.25f, 0.2f), false);
-
-            var lettuceCrop = ScriptableObject.CreateInstance<CropSO>();
-            lettuceCrop.cropID = "crop_lettuce";
-            lettuceCrop.cropName = "Lechuga";
-            lettuceCrop.totalGrowthTimeSeconds = 12f;
-            lettuceCrop.harvestIngredient = lettuceSO;
-            lettuceCrop.harvestAmount = 2;
-            lettuceCrop.seedStageSprite = tomatoCrop.seedStageSprite;
-            lettuceCrop.readyStageSprite = CreatePixelSprite(26, 26, new Color(0.2f, 0.85f, 0.25f), false);
-
-            if (FarmingManager.Instance != null)
-            {
-                FarmingManager.Instance.allCrops = new List<CropSO> { tomatoCrop, lettuceCrop };
-                FarmingManager.Instance.selectedCrop = tomatoCrop;
-            }
-
-            // 6. Setup Customer archetype & Worker archetype
-            var normalCustomer = ScriptableObject.CreateInstance<CustomerSO>();
-            normalCustomer.customerID = "cust_normal";
-            normalCustomer.customerTitle = "Comensal Alegre";
-            normalCustomer.characterSprite = customerSprite;
-            normalCustomer.movementSpeed = 2.8f;
-            normalCustomer.basePatienceSeconds = 50f;
-            normalCustomer.preferredFoods = new List<RecipeSO> { burgerRecipe, saladRecipe, steakRecipe };
-
-            var impatientCustomer = ScriptableObject.CreateInstance<CustomerSO>();
-            impatientCustomer.customerID = "cust_impatient";
-            impatientCustomer.customerTitle = "Cliente Apurado";
-            impatientCustomer.characterSprite = GetOrFallbackSprite("Characters/Customers/customer_impatient.png", customerSprite);
-            impatientCustomer.movementSpeed = 3.5f;
-            impatientCustomer.basePatienceSeconds = 30f;
-            impatientCustomer.tipProbability = 0.3f;
-            impatientCustomer.preferredFoods = new List<RecipeSO> { burgerRecipe, saladRecipe };
-
-            var vipCustomer = ScriptableObject.CreateInstance<CustomerSO>();
-            vipCustomer.customerID = "cust_vip";
-            vipCustomer.customerTitle = "Crítico VIP";
-            vipCustomer.characterSprite = GetOrFallbackSprite("Characters/Customers/customer_vip.png", customerSprite);
-            vipCustomer.movementSpeed = 2.4f;
-            vipCustomer.basePatienceSeconds = 70f;
-            vipCustomer.tipProbability = 0.9f;
-            vipCustomer.tipMultiplier = 2.5f;
-            vipCustomer.preferredFoods = new List<RecipeSO> { steakRecipe, burgerRecipe };
-
-            if (CustomerManager.Instance != null)
-            {
-                CustomerManager.Instance.availableCustomerTypes = new List<CustomerSO> { normalCustomer, impatientCustomer, vipCustomer };
+                initialPlotCrop1 = Resources.Load<CropSO>("Crops/crop_strawberry") ?? (FarmingManager.Instance != null && FarmingManager.Instance.allCrops.Count > 0 ? FarmingManager.Instance.allCrops[0] : null);
+                initialPlotCrop2 = Resources.Load<CropSO>("Crops/crop_potato") ?? (FarmingManager.Instance != null && FarmingManager.Instance.allCrops.Count > 1 ? FarmingManager.Instance.allCrops[1] : initialPlotCrop1);
             }
 
             var workerSO = ScriptableObject.CreateInstance<WorkerSO>();
@@ -414,12 +443,12 @@ namespace VillaDelChef.Core
             SpawnTableWithChairs(tableSO, chairSO, new Vector2Int(18, 12), tableSprite, chairSprite);
 
             // Exterior Garden Area: 3 Crop Plots in garden
-            SpawnCropPlot(plotSO, new Vector2Int(16, 18), cropPlotSprite, tomatoCrop);
-            SpawnCropPlot(plotSO, new Vector2Int(20, 18), cropPlotSprite, lettuceCrop);
+            SpawnCropPlot(plotSO, new Vector2Int(16, 18), cropPlotSprite, initialPlotCrop1);
+            SpawnCropPlot(plotSO, new Vector2Int(20, 18), cropPlotSprite, initialPlotCrop2);
             SpawnCropPlot(plotSO, new Vector2Int(24, 18), cropPlotSprite, null);
 
-            // Physical Merchant Shop Stall ("Tienda del Proveedor") in garden exterior
-            SpawnMerchantStall(new Vector2Int(9, 18), shopStallSprite);
+            // Physical Specialist Vendor Buildings in garden exterior
+            SpawnSpecialistVendorBuildings(shopStallSprite);
 
             // Crafting Station: Molino de Grano next to the garden
             SpawnCraftingStation(CraftingStationType.Molino, "Molino de Grano", new Vector2Int(13, 18), millSprite);
@@ -655,6 +684,44 @@ namespace VillaDelChef.Core
                 tWRSR.drawMode = SpriteDrawMode.Tiled;
                 tWRSR.size = new Vector2(7f, 1f);
                 tWRSR.sortingOrder = -40;
+            }
+        }
+
+        private void SpawnSpecialistVendorBuildings(Sprite stallSprite)
+        {
+            var allNPCs = Resources.LoadAll<NPCSO>("NPC");
+            var npcMap = new Dictionary<string, NPCSO>();
+            if (allNPCs != null)
+            {
+                foreach (var npc in allNPCs)
+                {
+                    if (npc != null && !string.IsNullOrEmpty(npc.npcID))
+                        npcMap[npc.npcID] = npc;
+                }
+            }
+
+            var shops = new[]
+            {
+                new { id = "shop_marina", name = "Pescadería de Marina", npcId = "npc_marina", pos = new Vector2Int(0, 18), minLevel = 2 },
+                new { id = "shop_bruno", name = "Carnicería Criolla de Bruno", npcId = "npc_bruno", pos = new Vector2Int(4, 18), minLevel = 1 },
+                new { id = "shop_elena", name = "Puesto Agrícola de Elena", npcId = "npc_elena", pos = new Vector2Int(8, 18), minLevel = 1 },
+                new { id = "shop_tomas", name = "Panadería y Molino de Tomás", npcId = "npc_tomas", pos = new Vector2Int(12, 18), minLevel = 1 },
+                new { id = "shop_amelia", name = "Equipamiento Gourmet de Amelia", npcId = "npc_amelia", pos = new Vector2Int(28, 18), minLevel = 3 },
+                new { id = "shop_lucas", name = "Carpintería de Lucas", npcId = "npc_lucas", pos = new Vector2Int(32, 18), minLevel = 2 },
+                new { id = "shop_sofia", name = "Decoraciones y Paisajismo de Sofía", npcId = "npc_sofia", pos = new Vector2Int(36, 18), minLevel = 2 }
+            };
+
+            foreach (var s in shops)
+            {
+                npcMap.TryGetValue(s.npcId, out NPCSO npc);
+                GameObject shopGO = new GameObject(s.name);
+                Vector3 worldPos = GridManager.Instance != null 
+                    ? GridManager.Instance.GridToWorld(s.pos, 3, 2) 
+                    : new Vector3(s.pos.x, s.pos.y, 0f);
+                shopGO.transform.position = worldPos;
+
+                VendorBuilding vb = shopGO.AddComponent<VendorBuilding>();
+                vb.Setup(s.id, s.name, npc, s.pos, stallSprite, s.minLevel);
             }
         }
 

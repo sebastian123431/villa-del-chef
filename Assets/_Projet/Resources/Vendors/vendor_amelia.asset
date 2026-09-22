@@ -1,0 +1,46 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7fd0d976e5037647b8085ae43241cb9, type: 3}
+  m_Name: vendor_amelia
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.VendorSO
+  vendorID: vendor_amelia
+  vendorTitle: Equipamiento de Cocina Amelia
+  restockIntervalSeconds: 300
+  catalog:
+  - itemID: station_cocina
+    displayName: Cocina a Gas Profesional
+    icon: {fileID: 21300000, guid: a9466e092fb6a0b499a4bdeb12f1efe3, type: 3}
+    buyPrice: 150
+    maxStock: 2
+    requiredPlayerLevel: 1
+    isInventoryItem: 0
+  - itemID: station_parrilla
+    displayName: Parrilla de Hierro Industrial
+    icon: {fileID: 21300000, guid: 0101ce26996fdd648ade412dd4f0ad6c, type: 3}
+    buyPrice: 200
+    maxStock: 2
+    requiredPlayerLevel: 1
+    isInventoryItem: 0
+  - itemID: station_horno
+    displayName: Horno de Piedra y Acero
+    icon: {fileID: 21300000, guid: 8398aa373b52c63428c0b4b9ea080ac5, type: 3}
+    buyPrice: 250
+    maxStock: 1
+    requiredPlayerLevel: 1
+    isInventoryItem: 0
+  - itemID: station_freidora
+    displayName: Freidora Profesional
+    icon: {fileID: 21300000, guid: 7d47a2b6de305c642bc4f2a4b3bd6a7a, type: 3}
+    buyPrice: 180
+    maxStock: 2
+    requiredPlayerLevel: 1
+    isInventoryItem: 0

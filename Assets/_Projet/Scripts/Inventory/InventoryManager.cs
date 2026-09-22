@@ -61,6 +61,11 @@ namespace VillaDelChef.Inventory
             return inventory.TryGetValue(itemID, out int count) ? count : 0;
         }
 
+        public IReadOnlyDictionary<string, int> GetAllItems()
+        {
+            return inventory;
+        }
+
         public void AddItem(string itemID, int amount)
         {
             if (string.IsNullOrEmpty(itemID) || amount <= 0) return;
