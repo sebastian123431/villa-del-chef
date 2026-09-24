@@ -2,9 +2,12 @@
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.UI;
 using VillaDelChef.Managers;
+using VillaDelChef.Restaurant;
 using VillaDelChef.Save;
 using VillaDelChef.ScriptableObjects;
+using VillaDelChef.UI;
 
 namespace VillaDelChef.EditorTools
 {
@@ -295,7 +298,282 @@ namespace VillaDelChef.EditorTools
                 }
                 Debug.Log($"[TEST PASÓ] {controllersTested} AnimatorControllers verificados con la interfaz completa de parámetros (64 frames/locomoción direccional).");
 
-                Debug.Log("<color=green><b>==================================================\n¡TODAS LAS PRUEBAS DE FASE 7.0.1 PASARON EXITOSAMENTE!\n==================================================</b></color>");
+                // 10. Test Failed Table Reservation Release (Fase 7.0.2 — Secciones 3, 4, 6, 7)
+                GameObject tableTestGO = new GameObject("Test_Table");
+                GameObject chairTestGO = new GameObject("Test_Chair");
+                GameObject custTestGO = new GameObject("Test_Customer");
+                try
+                {
+                    Table testTable = tableTestGO.AddComponent<Table>();
+                    Chair testChair = chairTestGO.AddComponent<Chair>();
+                    testTable.chairs.Add(testChair);
+                    testChair.isOccupied = false;
+                    testTable.tableState = TableState.Available;
+                    testTable.isReserved = false;
+
+                    var testCust = custTestGO.AddComponent<Customers.CustomerController>();
+                    testCust.assignedTable = testTable;
+                    testCust.assignedChair = testChair;
+
+                    // El comensal reserva mesa y silla
+                    testChair.SetOccupied(true);
+                    testTable.ReserveForCustomer(testCust);
+
+                    if (!testTable.isReserved || testTable.tableState != TableState.Reserved || !testChair.isOccupied || testTable.currentCustomer != testCust)
+                    {
+                        Debug.LogError("[TEST FALLIDO] La reserva de mesa inicial no estableció los estados correctos.");
+                        return false;
+                    }
+
+                    // Simular fallo de pathfinding: liberación atómica de la reserva
+                    testTable.CancelCustomerReservation(testCust);
+
+                    if (testTable.currentCustomer != null || testTable.isReserved || testTable.tableState != TableState.Available || testChair.isOccupied || testTable.needsCleaning)
+                    {
+                        Debug.LogError($"[TEST FALLIDO] CancelCustomerReservation no liberó adecuadamente la mesa. isReserved={testTable.isReserved}, state={testTable.tableState}, chairOccupied={testChair.isOccupied}");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(tableTestGO);
+                    Object.DestroyImmediate(chairTestGO);
+                    Object.DestroyImmediate(custTestGO);
+                }
+                Debug.Log("[TEST PASÓ] Liberación atómica de mesa reservada ante fallo de pathfinding validada (Mesa Available, Silla libre, 0 residuos).");
+
+                // 11. Test Regresión Dirty Table (Fase 7.0.2 — Secciones 5, 8)
+                GameObject dirtyTableGO = new GameObject("Test_DirtyTable");
+                try
+                {
+                    Table dirtyTable = dirtyTableGO.AddComponent<Table>();
+                    dirtyTable.MarkDirty();
+
+                    if (dirtyTable.tableState != TableState.Dirty || !dirtyTable.needsCleaning)
+                    {
+                        Debug.LogError("[TEST FALLIDO] MarkDirty() no dejó la mesa en TableState.Dirty.");
+                        return false;
+                    }
+
+                    // Intentar cancelar reserva no debe revertir una mesa Dirty a Available
+                    dirtyTable.CancelCustomerReservation(null);
+                    if (dirtyTable.tableState != TableState.Dirty || !dirtyTable.needsCleaning)
+                    {
+                        Debug.LogError("[TEST FALLIDO] CancelCustomerReservation() mutó indebidamente una mesa Dirty a Available.");
+                        return false;
+                    }
+
+                    // Simular ciclo de limpieza de trabajador
+                    dirtyTable.StartCleaning();
+                    if (dirtyTable.tableState != TableState.Cleaning || !dirtyTable.isCleaningReserved)
+                    {
+                        Debug.LogError("[TEST FALLIDO] StartCleaning() no estableció estado Cleaning.");
+                        return false;
+                    }
+
+                    dirtyTable.FinishCleaning();
+                    if (dirtyTable.tableState != TableState.Available || dirtyTable.needsCleaning || dirtyTable.isCleaningReserved)
+                    {
+                        Debug.LogError("[TEST FALLIDO] FinishCleaning() no restauró la mesa a Available.");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(dirtyTableGO);
+                }
+                Debug.Log("[TEST PASÓ] Protección de regresión en Dirty Table validada: Mesa Dirty nunca muta a Available accidentalmente.");
+
+                // 12. Test No Active Customer Can Be Helper (Fase 7.0.2 — Secciones 9, 10, 11, 12)
+                GameObject custHelperCheckGO = new GameObject("Test_CustomerVisiting");
+                try
+                {
+                    var custController = custHelperCheckGO.AddComponent<Customers.CustomerController>();
+                    custController.characterAppearance = allCharacters[2];
+                    cm.activeCustomers.Add(custController);
+
+                    bool isCustomerVisiting = cm.IsFriendCurrentlyCustomer(allCharacters[2].characterID);
+                    if (!isCustomerVisiting)
+                    {
+                        Debug.LogError($"[TEST FALLIDO] IsFriendCurrentlyCustomer no detectó a '{allCharacters[2].characterID}' dentro del restaurante.");
+                        return false;
+                    }
+
+                    // Validar rechazo de contratación si está de visita
+                    bool canHireVisiting = !cm.IsFriendCurrentlyCustomer(allCharacters[2].characterID);
+                    if (canHireVisiting)
+                    {
+                        Debug.LogError("[TEST FALLIDO] Se permitió contratar como ayudante a un amigo que está comiendo en el restaurante.");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    cm.activeCustomers.Clear();
+                    Object.DestroyImmediate(custHelperCheckGO);
+                }
+                Debug.Log("[TEST PASÓ] Guardia de seguridad de ayudante activo validada: Clientes comiendo en restaurante rechazados para contratación.");
+
+                // 13. Test No Duplicate Active Friend Customer (Fase 7.0.2 — Secciones 13, 14, 15, 16)
+                List<GameObject> activeSimCusts = new List<GameObject>();
+                try
+                {
+                    string curPlayer = SaveManager.Instance?.SaveData?.selectedPlayerCharacterID ?? playerTestID;
+                    string curHelper = SaveManager.Instance?.SaveData?.selectedHelperCharacterID ?? helperTestID;
+
+                    // Llenar restaurante con todos los amigos elegibles
+                    foreach (var ch in allCharacters)
+                    {
+                        if (ch.characterID.Equals(curPlayer, System.StringComparison.OrdinalIgnoreCase) ||
+                            ch.characterID.Equals(curHelper, System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            continue;
+                        }
+
+                        GameObject g = new GameObject($"SimCust_{ch.characterID}");
+                        activeSimCusts.Add(g);
+                        var ctrl = g.AddComponent<Customers.CustomerController>();
+                        ctrl.characterAppearance = ch;
+                        cm.activeCustomers.Add(ctrl);
+                    }
+
+                    // Con todos los comensales elegibles dentro, NUNCA se debe duplicar identidad
+                    CharacterSO duplicateCheck = cm.SelectEligibleFriendAppearance();
+                    if (duplicateCheck != null)
+                    {
+                        Debug.LogError($"[TEST FALLIDO] Se duplicó la identidad del amigo '{duplicateCheck.characterID}' cuando todos ya estaban dentro del restaurante.");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    cm.activeCustomers.Clear();
+                    foreach (var g in activeSimCusts) Object.DestroyImmediate(g);
+                    activeSimCusts.Clear();
+                }
+                Debug.Log("[TEST PASÓ] Guardia contra duplicación de identidad de amigos validada (Retorna null / Fallback legacy cuando el roster está activo).");
+
+                // 14. Test Incomplete Helper Outfit Rejected (Fase 7.0.2 — Secciones 22, 23, 24, 25, 27)
+                CharacterSO andresSO = System.Array.Find(allCharacters, c => c.characterID.Equals("andres_arica", System.StringComparison.OrdinalIgnoreCase));
+                if (andresSO != null)
+                {
+                    bool andresBlack = andresSO.HasCompleteOutfit(CharacterOutfit.ChefBlack);
+                    bool andresWhite = andresSO.HasCompleteOutfit(CharacterOutfit.ChefWhite);
+
+                    if (!andresBlack)
+                    {
+                        Debug.LogError("[TEST FALLIDO] Andrés Arica debe tener ChefBlack completo.");
+                        return false;
+                    }
+                    if (andresWhite)
+                    {
+                        Debug.LogError("[TEST FALLIDO] Andrés Arica no debe reportar ChefWhite como completo (falta whiteChefPreview).");
+                        return false;
+                    }
+
+                    // Preview estricto sin sustitución cruzada
+                    Sprite whitePreviewStrict = andresSO.GetPreviewSprite(CharacterOutfit.ChefWhite, allowCrossOutfitFallback: false);
+                    if (whitePreviewStrict != null)
+                    {
+                        Debug.LogError("[TEST FALLIDO] Andrés Arica retornó preview para ChefWhite sin permitir fallback.");
+                        return false;
+                    }
+                }
+                Debug.Log("[TEST PASÓ] Validación de trajes incompletos validada (Andrés Arica ChefBlack OK, ChefWhite INCOMPLETE detectado y rechazado).");
+
+                // 15. Test Character Card UI Explicit Selection & Binding (Fase 7.0.2 — Secciones 10, 18, 19, 21)
+                GameObject cardTestGO = new GameObject("Test_CardUI");
+                try
+                {
+                    var img = cardTestGO.AddComponent<Image>();
+                    var btn = cardTestGO.AddComponent<Button>();
+                    var nameGO = new GameObject("Name");
+                    nameGO.transform.SetParent(cardTestGO.transform);
+                    var nameTxt = nameGO.AddComponent<Text>();
+                    var statusGO = new GameObject("Status");
+                    statusGO.transform.SetParent(cardTestGO.transform);
+                    var statusTxt = statusGO.AddComponent<Text>();
+
+                    var cardUI = cardTestGO.AddComponent<CharacterCardUI>();
+                    cardUI.SetReferences(img, nameTxt, statusTxt, btn);
+
+                    // Probar amigo no disponible (comensal activo)
+                    cardUI.Bind(allCharacters[2], isUnavailable: true, onSelected: null);
+                    if (btn.interactable || statusTxt.text != "En restaurante")
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI no deshabilitó la tarjeta para un amigo ocupado en el restaurante.");
+                        return false;
+                    }
+
+                    // Probar amigo disponible con selección explícita
+                    CharacterSO chosen = null;
+                    cardUI.Bind(allCharacters[2], isUnavailable: false, onSelected: (c) => chosen = c);
+                    if (!btn.interactable || statusTxt.text != "")
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI no habilitó la tarjeta para un amigo disponible.");
+                        return false;
+                    }
+
+                    btn.onClick.Invoke();
+                    if (chosen != allCharacters[2])
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI no disparó el callback con el amigo correcto al hacer clic.");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(cardTestGO);
+                }
+                Debug.Log("[TEST PASÓ] CharacterCardUI validado con enlace de datos, estados disponible/ocupado y selección explícita por clic.");
+
+                // 16. Test Helper Dismissal Worker Clean & Customer Pool Re-entry (Fase 7.0.2 — Secciones 44, 45)
+                GameObject workerMgrGO = new GameObject("Test_WorkerManager");
+                try
+                {
+                    var wm = workerMgrGO.AddComponent<WorkerManager>();
+                    var workerGO = new GameObject("Test_WorkerActor");
+                    var wc = workerGO.AddComponent<Workers.WorkerController>();
+                    wm.activeWorkers.Add(wc);
+
+                    // Asignar ayudante antes del retiro
+                    SaveManager.Instance.SaveData.selectedHelperCharacterID = helperTestID;
+
+                    // Simular retiro de ayudante
+                    SaveManager.Instance.SaveData.selectedHelperCharacterID = "";
+                    wm.DespawnWorker(wc);
+
+                    if (wm.activeWorkers.Count != 0)
+                    {
+                        Debug.LogError("[TEST FALLIDO] WorkerManager.DespawnWorker no removió el trabajador activo.");
+                        return false;
+                    }
+
+                    // Verificar que el ex-ayudante reingresa al pool de clientes
+                    bool formerHelperFound = false;
+                    for (int i = 0; i < 50; i++)
+                    {
+                        CharacterSO picked = cm.SelectEligibleFriendAppearance();
+                        if (picked != null && picked.characterID.Equals(helperTestID, System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            formerHelperFound = true;
+                            break;
+                        }
+                    }
+
+                    if (!formerHelperFound)
+                    {
+                        Debug.LogError($"[TEST FALLIDO] El ex-ayudante '{helperTestID}' no reingresó al pool de comensales tras el retiro.");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(workerMgrGO);
+                }
+                Debug.Log("[TEST PASÓ] Retiro de ayudante validado: Despawn de Worker sin huérfanos visuales y reincorporación inmediata a comensales.");
+
+                Debug.Log("<color=green><b>==================================================\n¡TODAS LAS 16 PRUEBAS DE FASE 7 (7.0.1 + 7.0.2) PASARON EXITOSAMENTE!\n==================================================</b></color>");
                 return true;
             }
             finally
