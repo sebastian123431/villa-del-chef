@@ -74,7 +74,40 @@ namespace VillaDelChef.UI
         {
             LoadAvailableCharacters();
             HookUIEvents();
-            ShowStep(1);
+
+            int targetStep = 1;
+            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            {
+                var save = SaveManager.Instance.SaveData;
+                if (!string.IsNullOrEmpty(save.playerName))
+                {
+                    validatedPlayerName = save.playerName;
+                    if (nameInputField != null) nameInputField.text = save.playerName;
+                }
+
+                if (!string.IsNullOrEmpty(save.selectedPlayerCharacterID))
+                {
+                    for (int i = 0; i < availableCharacters.Count; i++)
+                    {
+                        if (availableCharacters[i].characterID.Equals(save.selectedPlayerCharacterID, System.StringComparison.OrdinalIgnoreCase))
+                        {
+                            currentCharacterIndex = i;
+                            selectedCharacter = availableCharacters[i];
+                            break;
+                        }
+                    }
+                }
+
+                selectedOutfit = save.selectedChefOutfit;
+
+                if (!save.prologueCompleted && save.prologueStep > 1)
+                {
+                    targetStep = Mathf.Clamp(save.prologueStep, 1, 5);
+                    Debug.Log($"[PrologueController] Reanudando prólogo en paso guardado: {targetStep}.");
+                }
+            }
+
+            ShowStep(targetStep);
         }
 
         private void LoadAvailableCharacters()
@@ -129,6 +162,10 @@ namespace VillaDelChef.UI
             {
                 UpdateOutfitDisplay();
             }
+            else if (step == 5)
+            {
+                UpdateWelcomeStoryDisplay();
+            }
         }
 
         // ==========================================
@@ -149,6 +186,15 @@ namespace VillaDelChef.UI
             }
 
             validatedPlayerName = entered;
+
+            // Persistencia inmediata del hito
+            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            {
+                SaveManager.Instance.SaveData.playerName = validatedPlayerName;
+                SaveManager.Instance.SaveData.prologueStep = 2;
+                SaveManager.Instance.SaveGame();
+            }
+
             ShowStep(2);
         }
 
@@ -176,10 +222,10 @@ namespace VillaDelChef.UI
             if (characterNameText != null) characterNameText.text = ch.displayName;
             if (characterLoreText != null) characterLoreText.text = string.IsNullOrEmpty(ch.description) ? "Un entusiasta cocinero listo para hacer historia." : ch.description;
 
-            // Regla oficial: En el selector se muestra la ropa normal (rnormal)
+            // Regla oficial: En el selector se muestra la ropa normal (rnormal) sin fallback a chef
             if (characterPreviewImage != null)
             {
-                characterPreviewImage.sprite = ch.GetPreviewSprite(CharacterOutfit.Normal);
+                characterPreviewImage.sprite = ch.GetPreviewSprite(CharacterOutfit.Normal, allowCrossOutfitFallback: false);
             }
         }
 
@@ -201,6 +247,14 @@ namespace VillaDelChef.UI
         // ==========================================
         private void OnConfirmCharacter()
         {
+            if (selectedCharacter != null && SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            {
+                SaveManager.Instance.SaveData.selectedPlayerCharacterID = selectedCharacter.characterID;
+                SaveManager.Instance.SaveData.playerCharacterLocked = true;
+                SaveManager.Instance.SaveData.prologueStep = 4;
+                SaveManager.Instance.SaveGame();
+            }
+
             ShowStep(4);
         }
 
@@ -233,13 +287,24 @@ namespace VillaDelChef.UI
         {
             selectedOutfit = outfit;
 
-            if (welcomeStoryText != null)
+            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
             {
-                string outfitDesc = (outfit == CharacterOutfit.ChefBlack) ? "elegante uniforme negro" : "inmaculado uniforme blanco";
-                welcomeStoryText.text = $"¡Bienvenido a Villa del Chef, <b>{validatedPlayerName}</b>!\n\nCon tu {outfitDesc}, las puertas del restaurante están listas para abrirse al pueblo.\n\nPrepara tus fogones y comencemos.";
+                SaveManager.Instance.SaveData.selectedChefOutfit = selectedOutfit;
+                SaveManager.Instance.SaveData.prologueStep = 5;
+                SaveManager.Instance.SaveGame();
             }
 
+            UpdateWelcomeStoryDisplay();
             ShowStep(5);
+        }
+
+        private void UpdateWelcomeStoryDisplay()
+        {
+            if (welcomeStoryText != null)
+            {
+                string outfitDesc = (selectedOutfit == CharacterOutfit.ChefBlack) ? "elegante uniforme negro" : "inmaculado uniforme blanco";
+                welcomeStoryText.text = $"¡Bienvenido a Villa del Chef, <b>{validatedPlayerName}</b>!\n\nCon tu {outfitDesc}, el restaurante está listo para su preparación.\n\nRevisa la cocina, planifica tus compras y abre cuando lo decidas.";
+            }
         }
 
         // ==========================================
@@ -256,7 +321,7 @@ namespace VillaDelChef.UI
                 data.playerCharacterLocked = true;
                 data.prologueCompleted = true;
                 data.prologueStep = 5;
-                data.restaurantOpen = true; // Abre con la gran inauguración
+                data.restaurantOpen = false; // REGLA OFICIAL: El restaurante inicia CERRADO tras el prólogo
                 SaveManager.Instance.SaveGame();
             }
 

@@ -100,7 +100,11 @@ namespace VillaDelChef.Managers
                 float waitTime = Random.Range(minSpawnInterval, maxSpawnInterval) * repMultiplier;
                 yield return new WaitForSeconds(waitTime);
 
-                bool isOpen = RestaurantOperatingManager.Instance == null || RestaurantOperatingManager.Instance.IsOpen;
+                bool isOpen = RestaurantOperatingManager.Instance != null && RestaurantOperatingManager.Instance.IsOpen;
+                if (!isOpen && RestaurantOperatingManager.Instance == null)
+                {
+                    Debug.LogWarning("[CustomerManager] RestaurantOperatingManager.Instance no encontrado. El restaurante permanece cerrado por seguridad.");
+                }
                 if (isOpen && activeCustomers.Count < maxSimultaneousCustomers && HasAvailableTables())
                 {
                     SpawnCustomer();
