@@ -59,5 +59,19 @@ namespace VillaDelChef.Managers
 
             activeWorkers.Add(controller);
         }
+
+        public void DespawnWorker(WorkerController worker)
+        {
+            if (worker == null) return;
+            activeWorkers.Remove(worker);
+            if (Application.isPlaying)
+            {
+                Destroy(worker.gameObject);
+            }
+            else
+            {
+                DestroyImmediate(worker.gameObject);
+            }
+        }
     }
 }

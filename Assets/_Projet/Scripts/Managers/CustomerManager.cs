@@ -30,7 +30,7 @@ namespace VillaDelChef.Managers
         public float maxSpawnInterval = 18f;
         public int maxSimultaneousCustomers = 5;
 
-        private List<CustomerController> activeCustomers = new List<CustomerController>();
+        public List<CustomerController> activeCustomers = new List<CustomerController>();
         private Coroutine spawnRoutine;
 
         private void Awake()
@@ -178,7 +178,8 @@ namespace VillaDelChef.Managers
                 bool isInside = false;
                 foreach (var active in activeCustomers)
                 {
-                    if (active != null && active.characterAppearance == c)
+                    if (active != null && active.characterAppearance != null &&
+                        active.characterAppearance.characterID.Equals(c.characterID, System.StringComparison.OrdinalIgnoreCase))
                     {
                         isInside = true;
                         break;
@@ -187,8 +188,14 @@ namespace VillaDelChef.Managers
                 if (!isInside) notInRestaurant.Add(c);
             }
 
-            var pool = (notInRestaurant.Count > 0) ? notInRestaurant : eligible;
-            return pool[Random.Range(0, pool.Count)];
+            // REGLA CRÍTICA FASE 7.0.2: Si todos los amigos elegibles ya están dentro del restaurante,
+            // NUNCA duplicar la identidad de un amigo. Retornar null para usar fallback procedural legacy.
+            if (notInRestaurant.Count == 0)
+            {
+                return null;
+            }
+
+            return notInRestaurant[Random.Range(0, notInRestaurant.Count)];
         }
 
         public void SpawnCustomer()
