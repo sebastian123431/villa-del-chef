@@ -147,10 +147,18 @@ namespace VillaDelChef.UI
             {
                 if (currentHelperNameText != null) currentHelperNameText.text = helperSO.displayName;
                 if (currentHelperStatusText != null) currentHelperStatusText.text = "<b>Rol:</b> Ayudante de Cocina Activo";
-                if (currentHelperPreview != null) currentHelperPreview.sprite = helperSO.GetPreviewSprite(outfit, allowCrossOutfitFallback: true);
+                if (currentHelperPreview != null) currentHelperPreview.sprite = helperSO.GetPreviewSprite(outfit, allowCrossOutfitFallback: false);
 
-                if (changeOutfitBlackBtn != null) changeOutfitBlackBtn.gameObject.SetActive(true);
-                if (changeOutfitWhiteBtn != null) changeOutfitWhiteBtn.gameObject.SetActive(true);
+                if (changeOutfitBlackBtn != null)
+                {
+                    changeOutfitBlackBtn.gameObject.SetActive(true);
+                    changeOutfitBlackBtn.interactable = helperSO.HasCompleteOutfit(CharacterOutfit.ChefBlack);
+                }
+                if (changeOutfitWhiteBtn != null)
+                {
+                    changeOutfitWhiteBtn.gameObject.SetActive(true);
+                    changeOutfitWhiteBtn.interactable = helperSO.HasCompleteOutfit(CharacterOutfit.ChefWhite);
+                }
                 if (dismissHelperBtn != null) dismissHelperBtn.gameObject.SetActive(true);
                 if (changeHelperBtn != null)
                 {
@@ -180,18 +188,20 @@ namespace VillaDelChef.UI
             string helperID = SaveManager.Instance?.SaveData?.selectedHelperCharacterID ?? "";
             if (string.IsNullOrEmpty(helperID)) return;
 
+            CharacterSO helperSO = Resources.Load<CharacterSO>($"Characters/{helperID}");
+            if (helperSO == null || !helperSO.HasCompleteOutfit(outfit))
+            {
+                Debug.LogWarning($"[StaffMenuUI] No se puede cambiar al uniforme {outfit} porque no está completo para '{(helperSO != null ? helperSO.displayName : helperID)}'.");
+                return;
+            }
+
             if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
             {
                 SaveManager.Instance.SaveData.helperChefOutfit = outfit;
                 SaveManager.Instance.SaveGame();
             }
 
-            CharacterSO helperSO = Resources.Load<CharacterSO>($"Characters/{helperID}");
-            if (helperSO != null)
-            {
-                HelperIntroDialogUI.ApplyHelperToRestaurant(helperSO, outfit);
-            }
-
+            HelperIntroDialogUI.ApplyHelperToRestaurant(helperSO, outfit);
             RefreshOverviewDisplay();
         }
 
@@ -206,12 +216,11 @@ namespace VillaDelChef.UI
                 SaveManager.Instance.SaveGame();
             }
 
-            // Desactivar apariencia del worker en runtime
+            // Despawnear worker activo en runtime para no dejar huérfanos visuales
             if (WorkerManager.Instance != null && WorkerManager.Instance.activeWorkers.Count > 0)
             {
                 var worker = WorkerManager.Instance.activeWorkers[0];
-                var app = worker.GetComponent<CharacterAppearanceController>();
-                if (app != null) app.ResetAppearance();
+                WorkerManager.Instance.DespawnWorker(worker);
             }
 
             Debug.Log($"[StaffMenuUI] Ayudante '{oldHelperID}' retirado. Reingresa de inmediato al pool de comensales elegibles.");
@@ -246,7 +255,8 @@ namespace VillaDelChef.UI
                 availableFriends.Add(ch);
             }
 
-            pendingSelectedFriend = availableFriends.Count > 0 ? availableFriends[0] : null;
+            // REGLA CRÍTICA FASE 7.0.2: NO preseleccionar automáticamente al primer amigo (podría ser comensal activo)
+            pendingSelectedFriend = null;
             pendingSelectedOutfit = CharacterOutfit.ChefWhite;
 
             PopulateFriendsGrid();
@@ -277,14 +287,11 @@ namespace VillaDelChef.UI
                 bg.color = isCurrentlyCustomer ? new Color(0.25f, 0.25f, 0.25f, 0.7f) : new Color(0.18f, 0.22f, 0.30f, 0.95f);
 
                 Button btn = cardGO.AddComponent<Button>();
-                btn.interactable = !isCurrentlyCustomer;
 
                 // Preview normal del Friend
                 GameObject imgGO = new GameObject("Icon");
                 imgGO.transform.SetParent(cardGO.transform, false);
                 Image img = imgGO.AddComponent<Image>();
-                img.sprite = friend.GetPreviewSprite(CharacterOutfit.Normal, allowCrossOutfitFallback: false);
-                img.preserveAspect = true;
                 RectTransform imgRT = imgGO.GetComponent<RectTransform>();
                 imgRT.anchoredPosition = new Vector2(0f, 15f);
                 imgRT.sizeDelta = new Vector2(64, 64);
@@ -293,19 +300,30 @@ namespace VillaDelChef.UI
                 GameObject nameGO = new GameObject("Name");
                 nameGO.transform.SetParent(cardGO.transform, false);
                 Text nameTxt = nameGO.AddComponent<Text>();
-                nameTxt.text = isCurrentlyCustomer ? $"{friend.displayName}\n(En restaurante)" : friend.displayName;
                 nameTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
                 nameTxt.fontSize = 11;
                 nameTxt.alignment = TextAnchor.MiddleCenter;
-                nameTxt.color = isCurrentlyCustomer ? Color.gray : Color.white;
                 RectTransform nameRT = nameGO.GetComponent<RectTransform>();
                 nameRT.anchoredPosition = new Vector2(0f, -38f);
                 nameRT.sizeDelta = new Vector2(95, 30);
 
-                var captured = friend;
-                btn.onClick.AddListener(() =>
+                // Estado
+                GameObject statusGO = new GameObject("Status");
+                statusGO.transform.SetParent(cardGO.transform, false);
+                Text statusTxt = statusGO.AddComponent<Text>();
+                statusTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                statusTxt.fontSize = 9;
+                statusTxt.alignment = TextAnchor.MiddleCenter;
+                statusTxt.color = new Color(0.9f, 0.7f, 0.2f);
+                RectTransform statusRT = statusGO.GetComponent<RectTransform>();
+                statusRT.anchoredPosition = new Vector2(0f, -50f);
+                statusRT.sizeDelta = new Vector2(95, 15);
+
+                var cardUI = cardGO.AddComponent<CharacterCardUI>();
+                cardUI.SetReferences(img, nameTxt, statusTxt, btn);
+                cardUI.Bind(friend, isCurrentlyCustomer, (selected) =>
                 {
-                    pendingSelectedFriend = captured;
+                    pendingSelectedFriend = selected;
                     UpdateSelectionDisplay();
                 });
             }
@@ -322,16 +340,36 @@ namespace VillaDelChef.UI
             if (pendingSelectedFriend != null)
             {
                 if (selectionNameText != null) selectionNameText.text = pendingSelectedFriend.displayName;
+
+                bool blackAvailable = pendingSelectedFriend.HasCompleteOutfit(CharacterOutfit.ChefBlack);
+                bool whiteAvailable = pendingSelectedFriend.HasCompleteOutfit(CharacterOutfit.ChefWhite);
+
+                if (selectOutfitBlackBtn != null) selectOutfitBlackBtn.interactable = blackAvailable;
+                if (selectOutfitWhiteBtn != null) selectOutfitWhiteBtn.interactable = whiteAvailable;
+
+                // Si el traje seleccionado no está completo para este amigo, alternar al que sí esté disponible
+                if (!pendingSelectedFriend.HasCompleteOutfit(pendingSelectedOutfit))
+                {
+                    if (whiteAvailable) pendingSelectedOutfit = CharacterOutfit.ChefWhite;
+                    else if (blackAvailable) pendingSelectedOutfit = CharacterOutfit.ChefBlack;
+                }
+
                 if (selectionPreviewImage != null)
                 {
-                    selectionPreviewImage.sprite = pendingSelectedFriend.GetPreviewSprite(pendingSelectedOutfit, allowCrossOutfitFallback: true);
+                    selectionPreviewImage.sprite = pendingSelectedFriend.GetPreviewSprite(pendingSelectedOutfit, allowCrossOutfitFallback: false);
                 }
-                if (confirmSelectionBtn != null) confirmSelectionBtn.interactable = true;
+
+                if (confirmSelectionBtn != null)
+                {
+                    confirmSelectionBtn.interactable = pendingSelectedFriend.HasCompleteOutfit(pendingSelectedOutfit);
+                }
             }
             else
             {
                 if (selectionNameText != null) selectionNameText.text = "Selecciona un amigo";
                 if (selectionPreviewImage != null) selectionPreviewImage.sprite = null;
+                if (selectOutfitBlackBtn != null) selectOutfitBlackBtn.interactable = false;
+                if (selectOutfitWhiteBtn != null) selectOutfitWhiteBtn.interactable = false;
                 if (confirmSelectionBtn != null) confirmSelectionBtn.interactable = false;
             }
         }
@@ -339,6 +377,28 @@ namespace VillaDelChef.UI
         private void OnConfirmSelectionClicked()
         {
             if (pendingSelectedFriend == null) return;
+
+            string playerID = SaveManager.Instance?.SaveData?.selectedPlayerCharacterID ?? "";
+            if (pendingSelectedFriend.characterID.Equals(playerID, System.StringComparison.OrdinalIgnoreCase) || !pendingSelectedFriend.selectableAsHelper)
+            {
+                Debug.LogError($"[StaffMenuUI] Amigo inválido para ayudante: '{pendingSelectedFriend.characterID}'.");
+                return;
+            }
+
+            if (!pendingSelectedFriend.HasCompleteOutfit(pendingSelectedOutfit))
+            {
+                Debug.LogWarning($"[StaffMenuUI] El traje {pendingSelectedOutfit} no está completo para '{pendingSelectedFriend.displayName}'.");
+                return;
+            }
+
+            // REGLA CRÍTICA FASE 7.0.2: Proteger contra condición de carrera.
+            // Si el amigo ingresó como comensal entre la apertura del menú y la confirmación, rechazar la contratación.
+            if (CustomerManager.Instance != null && CustomerManager.Instance.IsFriendCurrentlyCustomer(pendingSelectedFriend.characterID))
+            {
+                Debug.LogWarning($"[StaffMenuUI] Este amigo ({pendingSelectedFriend.displayName}) está visitando el restaurante como comensal. Podrás elegirlo cuando termine su visita.");
+                FloatingTextManager.Instance?.ShowWarning("Este amigo está visitando el restaurante", Vector3.zero);
+                return;
+            }
 
             string oldHelperID = SaveManager.Instance?.SaveData?.selectedHelperCharacterID ?? "";
 

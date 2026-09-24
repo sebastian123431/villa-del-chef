@@ -159,6 +159,8 @@ namespace VillaDelChef.UI
                 if (characterCardPrefab != null)
                 {
                     cardGO = Instantiate(characterCardPrefab, characterGridContainer);
+                    var cardUI = cardGO.GetComponent<CharacterCardUI>() ?? cardGO.AddComponent<CharacterCardUI>();
+                    cardUI.Bind(ch, isVisiting, SelectCharacter);
                 }
                 else
                 {
@@ -167,17 +169,17 @@ namespace VillaDelChef.UI
                     cardGO.transform.SetParent(characterGridContainer, false);
 
                     Image cardBg = cardGO.AddComponent<Image>();
-                    cardBg.color = new Color(0.18f, 0.22f, 0.28f);
+                    cardBg.color = isVisiting ? new Color(0.25f, 0.25f, 0.25f, 0.7f) : new Color(0.18f, 0.22f, 0.28f);
 
                     var cardRT = cardGO.GetComponent<RectTransform>();
                     cardRT.sizeDelta = new Vector2(100f, 130f);
+
+                    Button btn = cardGO.AddComponent<Button>();
 
                     // Imagen preview
                     GameObject iconGO = new GameObject("Icon");
                     iconGO.transform.SetParent(cardGO.transform, false);
                     Image icon = iconGO.AddComponent<Image>();
-                    icon.sprite = ch.GetPreviewSprite(CharacterOutfit.Normal);
-                    icon.preserveAspect = true;
                     var iconRT = iconGO.GetComponent<RectTransform>();
                     iconRT.anchorMin = new Vector2(0.5f, 0.6f);
                     iconRT.anchorMax = new Vector2(0.5f, 0.6f);
@@ -187,28 +189,30 @@ namespace VillaDelChef.UI
                     GameObject nameGO = new GameObject("Name");
                     nameGO.transform.SetParent(cardGO.transform, false);
                     Text nameTxt = nameGO.AddComponent<Text>();
-                    nameTxt.text = isVisiting ? $"{ch.displayName}\n<size=10>(En restaurante)</size>" : ch.displayName;
                     nameTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                    nameTxt.fontSize = 12;
+                    nameTxt.fontSize = 11;
                     nameTxt.alignment = TextAnchor.MiddleCenter;
-                    nameTxt.color = isVisiting ? Color.gray : Color.white;
                     var nameRT = nameGO.GetComponent<RectTransform>();
-                    nameRT.anchorMin = new Vector2(0f, 0f);
-                    nameRT.anchorMax = new Vector2(1f, 0.35f);
+                    nameRT.anchorMin = new Vector2(0f, 0.15f);
+                    nameRT.anchorMax = new Vector2(1f, 0.4f);
                     nameRT.sizeDelta = Vector2.zero;
-                }
 
-                Button btn = cardGO.GetComponent<Button>();
-                if (btn == null) btn = cardGO.AddComponent<Button>();
+                    // Estado
+                    GameObject statusGO = new GameObject("Status");
+                    statusGO.transform.SetParent(cardGO.transform, false);
+                    Text statusTxt = statusGO.AddComponent<Text>();
+                    statusTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                    statusTxt.fontSize = 9;
+                    statusTxt.alignment = TextAnchor.MiddleCenter;
+                    statusTxt.color = new Color(0.9f, 0.7f, 0.2f);
+                    var statusRT = statusGO.GetComponent<RectTransform>();
+                    statusRT.anchorMin = new Vector2(0f, 0f);
+                    statusRT.anchorMax = new Vector2(1f, 0.15f);
+                    statusRT.sizeDelta = Vector2.zero;
 
-                if (isVisiting)
-                {
-                    btn.interactable = false;
-                }
-                else
-                {
-                    var targetCh = ch;
-                    btn.onClick.AddListener(() => SelectCharacter(targetCh));
+                    var cardUI = cardGO.AddComponent<CharacterCardUI>();
+                    cardUI.SetReferences(icon, nameTxt, statusTxt, btn);
+                    cardUI.Bind(ch, isVisiting, SelectCharacter);
                 }
             }
         }
@@ -219,10 +223,6 @@ namespace VillaDelChef.UI
             if (selectedFriendNameText != null && character != null)
             {
                 selectedFriendNameText.text = character.displayName;
-            }
-            if (confirmHelperBtn != null)
-            {
-                confirmHelperBtn.interactable = (character != null);
             }
             UpdatePreview();
         }
@@ -235,15 +235,55 @@ namespace VillaDelChef.UI
 
         private void UpdatePreview()
         {
-            if (previewImage != null && selectedHelperCharacter != null)
+            if (selectedHelperCharacter != null)
             {
-                previewImage.sprite = selectedHelperCharacter.GetPreviewSprite(selectedHelperOutfit);
+                bool blackAvailable = selectedHelperCharacter.HasCompleteOutfit(CharacterOutfit.ChefBlack);
+                bool whiteAvailable = selectedHelperCharacter.HasCompleteOutfit(CharacterOutfit.ChefWhite);
+
+                if (blackOutfitBtn != null) blackOutfitBtn.interactable = blackAvailable;
+                if (whiteOutfitBtn != null) whiteOutfitBtn.interactable = whiteAvailable;
+
+                if (!selectedHelperCharacter.HasCompleteOutfit(selectedHelperOutfit))
+                {
+                    if (whiteAvailable) selectedHelperOutfit = CharacterOutfit.ChefWhite;
+                    else if (blackAvailable) selectedHelperOutfit = CharacterOutfit.ChefBlack;
+                }
+
+                if (previewImage != null)
+                {
+                    previewImage.sprite = selectedHelperCharacter.GetPreviewSprite(selectedHelperOutfit, allowCrossOutfitFallback: false);
+                }
+
+                if (confirmHelperBtn != null)
+                {
+                    confirmHelperBtn.interactable = selectedHelperCharacter.HasCompleteOutfit(selectedHelperOutfit);
+                }
+            }
+            else
+            {
+                if (previewImage != null) previewImage.sprite = null;
+                if (blackOutfitBtn != null) blackOutfitBtn.interactable = false;
+                if (whiteOutfitBtn != null) whiteOutfitBtn.interactable = false;
+                if (confirmHelperBtn != null) confirmHelperBtn.interactable = false;
             }
         }
 
         private void OnConfirmHelperClicked()
         {
             if (selectedHelperCharacter == null) return;
+
+            if (!selectedHelperCharacter.HasCompleteOutfit(selectedHelperOutfit))
+            {
+                Debug.LogError($"[HelperIntroDialogUI] El vestuario {selectedHelperOutfit} no está completo para {selectedHelperCharacter.displayName}.");
+                return;
+            }
+
+            // REGLA CRÍTICA FASE 7.0.2: Proteger contra condición de carrera con comensal activo
+            if (CustomerManager.Instance != null && CustomerManager.Instance.IsFriendCurrentlyCustomer(selectedHelperCharacter.characterID))
+            {
+                Debug.LogWarning($"[HelperIntroDialogUI] Este amigo ({selectedHelperCharacter.displayName}) está visitando el restaurante como comensal.");
+                return;
+            }
 
             if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
             {
@@ -271,6 +311,13 @@ namespace VillaDelChef.UI
         public static void ApplyHelperToRestaurant(CharacterSO helperCharacter, CharacterOutfit outfit)
         {
             if (helperCharacter == null) return;
+
+            // REGLA CRÍTICA FASE 7.0.2: Validar outfit solicitado antes de aplicar
+            if (!helperCharacter.HasCompleteOutfit(outfit))
+            {
+                Debug.LogError($"[HelperIntroDialogUI] No se puede aplicar el ayudante '{helperCharacter.displayName}' con vestuario {outfit} porque no está completo.");
+                return;
+            }
 
             if (WorkerManager.Instance != null)
             {

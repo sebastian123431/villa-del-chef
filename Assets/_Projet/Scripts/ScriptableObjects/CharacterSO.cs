@@ -101,5 +101,23 @@ namespace VillaDelChef.ScriptableObjects
                     return allowCrossOutfitFallback ? (blackChefAnimator != null ? blackChefAnimator : whiteChefAnimator) : null;
             }
         }
+
+        /// <summary>
+        /// Comprueba si el vestuario solicitado está completamente implementado (Sprite Preview no nulo y Animator Controller no nulo)
+        /// sin permitir sustituciones de otros trajes.
+        /// </summary>
+        public bool HasCompleteOutfit(CharacterOutfit outfit)
+        {
+            switch (outfit)
+            {
+                case CharacterOutfit.ChefBlack:
+                    return blackChefPreview != null && blackChefAnimator != null;
+                case CharacterOutfit.ChefWhite:
+                    return whiteChefPreview != null && whiteChefAnimator != null;
+                case CharacterOutfit.Normal:
+                default:
+                    return normalPreview != null && normalAnimator != null;
+            }
+        }
     }
 }
