@@ -48,6 +48,11 @@ namespace VillaDelChef.Customers
         public SpriteRenderer orderIconRenderer;
         public GameObject patienceBar;
 
+        [Header("Social Identity (Friends Integration)")]
+        public CharacterSO characterAppearance;
+        public Characters.CharacterAppearanceController appearanceController;
+        private Animator animator;
+
         private List<Vector2Int> currentPath;
         private int currentPathIndex = 0;
         private float moveSpeed = 2.5f;
@@ -62,6 +67,11 @@ namespace VillaDelChef.Customers
             if (characterRenderer != null) characterRenderer.color = Color.white;
             if (orderBubble != null) orderBubble.SetActive(false);
             if (patienceBar != null) patienceBar.SetActive(false);
+            if (animator != null && animator.enabled)
+            {
+                animator.SetFloat("Speed", 0f);
+                animator.SetBool("IsThinking", false);
+            }
         }
 
         public void OnReturnToPool()
@@ -72,6 +82,12 @@ namespace VillaDelChef.Customers
             currentPath = null;
             if (orderBubble != null) orderBubble.SetActive(false);
             if (patienceBar != null) patienceBar.SetActive(false);
+            if (animator != null && animator.enabled)
+            {
+                animator.SetFloat("Speed", 0f);
+                animator.SetBool("IsThinking", false);
+            }
+            characterAppearance = null;
         }
 
         public void ReleaseTableReference()
@@ -91,15 +107,34 @@ namespace VillaDelChef.Customers
             }
         }
 
-        public void Setup(CustomerSO data, Vector2Int spawnGrid, Vector2Int exitGrid)
+        public void Setup(CustomerSO behaviorData, CharacterSO friendAppearance, Vector2Int spawnGrid, Vector2Int exitGrid)
         {
-            customerData = data;
+            customerData = behaviorData;
+            characterAppearance = friendAppearance;
             exitGridPos = exitGrid;
 
             if (characterRenderer == null) characterRenderer = GetComponentInChildren<SpriteRenderer>();
-            if (customerData != null && customerData.characterSprite != null && characterRenderer != null)
+            if (animator == null) animator = GetComponent<Animator>();
+
+            // Configuración visual: Si existe Friend real, usar vestuario Normal (rnormal + movimientos_rnormal)
+            if (characterAppearance != null)
             {
-                characterRenderer.sprite = customerData.characterSprite;
+                if (appearanceController == null)
+                {
+                    appearanceController = GetComponent<Characters.CharacterAppearanceController>() 
+                        ?? gameObject.AddComponent<Characters.CharacterAppearanceController>();
+                }
+                appearanceController.ApplyCharacter(characterAppearance, ScriptableObjects.CharacterOutfit.Normal);
+                if (animator == null) animator = GetComponent<Animator>();
+            }
+            else
+            {
+                // Fallback técnico procedural legacy
+                if (animator != null) animator.enabled = false;
+                if (customerData != null && customerData.characterSprite != null && characterRenderer != null)
+                {
+                    characterRenderer.sprite = customerData.characterSprite;
+                }
             }
 
             moveSpeed = customerData != null ? customerData.movementSpeed : 2.5f;
@@ -110,6 +145,11 @@ namespace VillaDelChef.Customers
             transform.position = GridManager.Instance != null ? GridManager.Instance.GridToWorld(spawnGrid) : (Vector3)(Vector2)spawnGrid;
             currentState = CustomerState.Entering;
             StartCoroutine(CustomerLifecycleRoutine());
+        }
+
+        public void Setup(CustomerSO data, Vector2Int spawnGrid, Vector2Int exitGrid)
+        {
+            Setup(data, null, spawnGrid, exitGrid);
         }
 
         private IEnumerator CustomerLifecycleRoutine()
@@ -166,6 +206,7 @@ namespace VillaDelChef.Customers
 
             // 4. Waiting for Food
             currentState = CustomerState.WaitingForFood;
+            if (animator != null && animator.enabled) animator.SetBool("IsThinking", true);
             if (orderBubble != null) orderBubble.SetActive(true);
             if (orderIconRenderer != null && orderedDish != null)
             {
@@ -181,6 +222,7 @@ namespace VillaDelChef.Customers
                 {
                     // Ran out of patience - anger penalty
                     if (orderBubble != null) orderBubble.SetActive(false);
+                    if (animator != null && animator.enabled) animator.SetBool("IsThinking", false);
                     int repPenalty = (customerData != null) ? customerData.reputationPenalty : 2;
                     if (EconomyManager.Instance != null)
                     {
@@ -198,6 +240,7 @@ namespace VillaDelChef.Customers
 
             // 5. Eating
             currentState = CustomerState.Eating;
+            if (animator != null && animator.enabled) animator.SetBool("IsThinking", false);
             if (orderBubble != null) orderBubble.SetActive(false);
             yield return new WaitForSeconds(eatingDuration);
 
@@ -210,6 +253,11 @@ namespace VillaDelChef.Customers
             if (satisfactionRatio > 0.6f && Random.value < (customerData != null ? customerData.tipProbability : 0.5f))
             {
                 tip = Mathf.RoundToInt(payAmount * 0.25f * (customerData != null ? customerData.tipMultiplier : 1f));
+            }
+
+            if (satisfactionRatio > 0.6f && animator != null && animator.enabled)
+            {
+                animator.SetTrigger("Celebrate");
             }
 
             int totalGold = payAmount + tip;
@@ -330,16 +378,27 @@ namespace VillaDelChef.Customers
                 Vector3 targetWorld = GridManager.Instance.GridToWorld(currentPath[currentPathIndex]);
                 while (Vector3.Distance(transform.position, targetWorld) > 0.05f)
                 {
+                    Vector3 moveDir = (targetWorld - transform.position).normalized;
                     transform.position = Vector3.MoveTowards(transform.position, targetWorld, moveSpeed * Time.deltaTime);
 
-                    // Flip sprite horizontally depending on move direction
-                    if (characterRenderer != null && (targetWorld.x - transform.position.x) != 0)
+                    if (animator != null && animator.enabled)
                     {
-                        characterRenderer.flipX = (targetWorld.x - transform.position.x) < 0;
+                        animator.SetFloat("MoveX", moveDir.x);
+                        animator.SetFloat("MoveY", moveDir.y);
+                        animator.SetFloat("Speed", 1f);
+                    }
+                    else if (characterRenderer != null && moveDir.x != 0)
+                    {
+                        characterRenderer.flipX = moveDir.x < 0;
                     }
                     yield return null;
                 }
                 currentPathIndex++;
+            }
+
+            if (animator != null && animator.enabled)
+            {
+                animator.SetFloat("Speed", 0f);
             }
         }
 

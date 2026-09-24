@@ -16,13 +16,14 @@ namespace VillaDelChef.EditorTools
             GenerateKitchenCheckerTexture();
             GenerateShopMarketStallTexture();
             GenerateWallBorderTexture();
-            GenerateNPCSprites();
+            // PROCEDURAL CHARACTERS DESACTIVADOS: La fuente de verdad son los personajes reales en Assets/_Projet/Art/Characters/Friends/
+            // GenerateNPCSprites();
             GenerateCraftingSprites();
             GenerateExpansionSprites();
-            GenerateCustomerSprites();
+            // GenerateCustomerSprites();
 
             AssetDatabase.Refresh();
-            Debug.Log("[ArtAssetGenerator] ¡Texturas de pisos, tienda física, NPCs, crafting, expansiones y clientes generadas con éxito!");
+            Debug.Log("[ArtAssetGenerator] Texturas de entorno, pisos y crafting generadas. (Personajes procedurales desactivados)");
         }
 
         private static void EnsureDirectories()
@@ -1507,6 +1508,13 @@ namespace VillaDelChef.EditorTools
 
         private static void SaveTextureAsPNG(Texture2D tex, string path)
         {
+            if (File.Exists(path))
+            {
+                // Seguridad crítica: Jamás sobrescribir archivos existentes
+                Object.DestroyImmediate(tex);
+                return;
+            }
+
             byte[] bytes = tex.EncodeToPNG();
             File.WriteAllBytes(path, bytes);
             Object.DestroyImmediate(tex);

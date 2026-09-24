@@ -121,7 +121,10 @@ namespace VillaDelChef.Workers
                 moveSpeed = workerData.movementSpeed;
                 if (characterRenderer != null && workerData.characterSprite != null)
                 {
-                    characterRenderer.sprite = workerData.characterSprite;
+                    if (GetComponent<Characters.CharacterAppearanceController>() == null)
+                    {
+                        characterRenderer.sprite = workerData.characterSprite;
+                    }
                 }
             }
 

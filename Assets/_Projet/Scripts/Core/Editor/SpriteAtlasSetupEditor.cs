@@ -47,6 +47,7 @@ namespace VillaDelChef.EditorTools
                         foreach (string guid in textureGuids)
                         {
                             string path = AssetDatabase.GUIDToAssetPath(guid);
+                            if (path.Contains("/Friends/")) continue; // Proteger hojas de animación de Friends
                             TextureImporter importer = AssetImporter.GetAtPath(path) as TextureImporter;
                             if (importer != null)
                             {

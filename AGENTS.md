@@ -115,6 +115,15 @@ Si una escena de gameplay se ejecuta sola en el editor sin pasar por `00_Boot`:
 - Gesto de pellizco (Pinch-to-zoom) con dos dedos o rueda del ratón para zoom orthographic con límites suaves.
 - `SafeAreaFitter.cs` ajusta los Canvas a notches e islas dinámicas en dispositivos iOS y Android.
 
+### 4.5. Elenco Social Dinámico (Friends)
+- Todos los personajes de `Assets/_Projet/Art/Characters/Friends/` forman el elenco social dinámico del juego.
+- En cada partida:
+  - 1 Friend es elegido como **Protagonista (Player)** (Uniforme de chef negro o blanco).
+  - 1 Friend es contratado como **Ayudante (Helper/Worker)** (Uniforme de chef negro o blanco).
+  - **Todos los Friends restantes** forman el pool principal de **Clientes** que visitan el restaurante como comensales con ropa normal casual (`rnormal` + `movimientos_rnormal`).
+- **Regla de Exclusión Dinámica**: El Player y el Helper activo están excluidos del pool de clientes. Si el helper cambia, el helper anterior vuelve a ser cliente elegible y el nuevo pasa a ser helper.
+- **Separación de Responsabilidades**: `CharacterSO` define la apariencia e identidad visual. `CustomerSO` define el comportamiento de juego (arquetipo, paciencia, propina, reputación, XP).
+
 ---
 
 ## 5. Herramientas del Editor (Menú Superior en Unity)
@@ -124,7 +133,7 @@ Dentro de la barra de menú de Unity, bajo **`Tools > Villa del Chef/`**:
 1. **`Setup ALL Scenes (Boot, Menu, Restaurant)`**:
    - Genera automáticamente los assets pixel art procedimentales.
    - Configura los ScriptableObjects en `Assets/_Projet/Resources`.
-   - Construye y configura las 3 escenas (`00_Boot`, `01_MainMenu`, `02_Restaurant`) con toda la jerarquía de cámaras, canvas y managers.
+   - Construye y configura las escenas con toda la jerarquía de cámaras, canvas y managers.
 2. **`Import & Organize Assets from _Drop`**:
    - Descomprime archivos `.zip` en `Assets/_Drop/` y clasifica imágenes en las carpetas de arte adecuadas según palabras clave.
 3. **`Populate ScriptableObjects Database`**:

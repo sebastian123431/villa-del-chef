@@ -119,6 +119,11 @@ namespace VillaDelChef.Core.Editor
                     Debug.LogWarning($"[GameDataValidator] NPCSO '{npc.npcName}' ({npc.name}) no tiene vendorData asignado.", npc);
                     warningCount++;
                 }
+
+                if (npc.characterReference == null)
+                {
+                    Debug.Log($"[GameDataValidator] NPCSO '{npc.npcName}' ({npc.npcID}): [PENDIENTE ARTE NPC OFICIAL - Placeholder temporal preservado]");
+                }
             }
 
             // 6. Customers

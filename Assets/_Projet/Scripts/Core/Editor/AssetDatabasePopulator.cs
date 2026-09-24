@@ -559,8 +559,8 @@ namespace VillaDelChef.EditorTools
             so.npcID = id;
             so.npcName = name;
             so.roleTitle = role;
-            so.portrait = portrait;
-            so.worldSprite = worldSprite;
+            if (portrait != null || so.portrait == null) so.portrait = portrait;
+            if (worldSprite != null || so.worldSprite == null) so.worldSprite = worldSprite;
             so.greetingDialogue = greeting;
             so.vendorData = vendor;
             so.unlockLevel = unlockLevel;

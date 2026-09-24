@@ -53,8 +53,9 @@ namespace VillaDelChef.Characters
 
             // 2. Asignar Animator Controller emparejado exactamente
             RuntimeAnimatorController runtimeController = character.GetAnimator(outfit);
-            if (runtimeController != null && animator != null)
+            if (runtimeController != null)
             {
+                if (animator == null) animator = GetComponent<Animator>() ?? gameObject.AddComponent<Animator>();
                 animator.runtimeAnimatorController = runtimeController;
                 animator.enabled = true;
             }

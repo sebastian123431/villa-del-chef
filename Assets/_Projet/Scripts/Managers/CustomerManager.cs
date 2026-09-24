@@ -18,6 +18,9 @@ namespace VillaDelChef.Managers
         public List<CustomerSO> availableCustomerTypes = new List<CustomerSO>();
         public GameObject customerPrefab;
 
+        [Header("Friends Cast (Social Integration)")]
+        public List<CharacterSO> availableFriends = new List<CharacterSO>();
+
         [Header("Spawn Positions (Grid Coordinates)")]
         public Vector2Int entranceGridPos = new Vector2Int(0, 15);
         public Vector2Int exitGridPos = new Vector2Int(0, 15);
@@ -47,6 +50,11 @@ namespace VillaDelChef.Managers
             if (availableCustomerTypes == null || availableCustomerTypes.Count == 0)
             {
                 availableCustomerTypes = new List<CustomerSO>(Resources.LoadAll<CustomerSO>("Customers"));
+            }
+
+            if (availableFriends == null || availableFriends.Count == 0)
+            {
+                availableFriends = new List<CharacterSO>(Resources.LoadAll<CharacterSO>("Characters"));
             }
 
             if (ObjectPoolManager.Instance != null && customerPrefab != null)
@@ -111,6 +119,52 @@ namespace VillaDelChef.Managers
             return false;
         }
 
+        public CharacterSO SelectEligibleFriendAppearance()
+        {
+            if (availableFriends == null || availableFriends.Count == 0)
+            {
+                availableFriends = new List<CharacterSO>(Resources.LoadAll<CharacterSO>("Characters"));
+            }
+
+            if (availableFriends == null || availableFriends.Count == 0) return null;
+
+            string playerID = (Save.SaveManager.Instance != null && Save.SaveManager.Instance.SaveData != null)
+                ? Save.SaveManager.Instance.SaveData.selectedPlayerCharacterID : "";
+            string helperID = (Save.SaveManager.Instance != null && Save.SaveManager.Instance.SaveData != null)
+                ? Save.SaveManager.Instance.SaveData.selectedHelperCharacterID : "";
+
+            List<CharacterSO> eligible = new List<CharacterSO>();
+            foreach (var c in availableFriends)
+            {
+                if (c == null) continue;
+                if (!c.canAppearAsCustomer) continue;
+                if (!string.IsNullOrEmpty(playerID) && c.characterID.Equals(playerID, System.StringComparison.OrdinalIgnoreCase)) continue;
+                if (!string.IsNullOrEmpty(helperID) && c.characterID.Equals(helperID, System.StringComparison.OrdinalIgnoreCase)) continue;
+                eligible.Add(c);
+            }
+
+            if (eligible.Count == 0) return null;
+
+            // Priorizar personajes que no se encuentren actualmente dentro del restaurante
+            List<CharacterSO> notInRestaurant = new List<CharacterSO>();
+            foreach (var c in eligible)
+            {
+                bool isInside = false;
+                foreach (var active in activeCustomers)
+                {
+                    if (active != null && active.characterAppearance == c)
+                    {
+                        isInside = true;
+                        break;
+                    }
+                }
+                if (!isInside) notInRestaurant.Add(c);
+            }
+
+            var pool = (notInRestaurant.Count > 0) ? notInRestaurant : eligible;
+            return pool[Random.Range(0, pool.Count)];
+        }
+
         public void SpawnCustomer()
         {
             if (availableCustomerTypes == null || availableCustomerTypes.Count == 0)
@@ -121,6 +175,8 @@ namespace VillaDelChef.Managers
 
             CustomerSO selectedType = SelectCustomerType();
             if (selectedType == null) return;
+
+            CharacterSO selectedFriend = SelectEligibleFriendAppearance();
 
             Vector3 spawnPos = GridManager.Instance != null ? GridManager.Instance.GridToWorld(entranceGridPos) : (Vector3)(Vector2)entranceGridPos;
             GameObject cObj;
@@ -135,7 +191,8 @@ namespace VillaDelChef.Managers
             }
             else
             {
-                cObj = new GameObject("Customer_" + selectedType.customerTitle);
+                string namePrefix = (selectedFriend != null) ? selectedFriend.displayName : selectedType.customerTitle;
+                cObj = new GameObject("Customer_" + namePrefix);
                 cObj.transform.position = spawnPos;
                 SpriteRenderer sr = cObj.AddComponent<SpriteRenderer>();
                 sr.sortingOrder = 5;
@@ -148,7 +205,7 @@ namespace VillaDelChef.Managers
             }
 
             activeCustomers.Add(controller);
-            controller.Setup(selectedType, entranceGridPos, exitGridPos);
+            controller.Setup(selectedType, selectedFriend, entranceGridPos, exitGridPos);
             GameEvents.TriggerCustomerArrived(controller);
         }
 

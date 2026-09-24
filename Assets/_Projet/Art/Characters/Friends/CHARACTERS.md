@@ -76,3 +76,17 @@ Cada personaje se compone de pares exactos entre **preview estático** y **sprit
 3. **Casos Especiales Registrados**:
    - `andres_arica/andres_rbnormal.png`: Nomenclatura no estándar (`rbnormal`). Se mantiene intacto sin asumir `rbchef`.
    - `juan/movimientos.png`: Movimientos sin clave explícita de outfit. Se mantiene intacto como ambiguo hasta confirmación.
+
+---
+
+## 5. Elenco Social Dinámico y Roles de los Personajes
+
+Los personajes ubicados en `Assets/_Projet/Art/Characters/Friends/` forman el **elenco social dinámico principal de Villa del Chef**. Un mismo `CharacterSO` puede asumir distintos roles según la partida:
+
+1. **Player (Protagonista)**: Elegido por el jugador al iniciar partida. Trabaja en el restaurante con uniforme de chef (`ChefBlack` o `ChefWhite`).
+2. **Helper (Ayudante)**: Elegido por el jugador para atender mesas o cocinar. Trabaja con uniforme de chef (`ChefBlack` o `ChefWhite`).
+3. **Customers (Clientes)**: **TODOS los Friends restantes forman el pool principal de clientes** que visitan el restaurante como comensales. Visten siempre ropa casual normal (`rnormal` + `movimientos_rnormal`).
+
+### Regla de Exclusión Dinámica
+- El protagonista (`selectedPlayerCharacterID`) y el ayudante activo (`selectedHelperCharacterID`) quedan excluidos del pool de clientes.
+- Si el ayudante cambia durante la partida (ej. Alex -> Carlos), Carlos deja de ser cliente elegible y Alex vuelve automáticamente a ser un cliente elegible para visitar el restaurante.

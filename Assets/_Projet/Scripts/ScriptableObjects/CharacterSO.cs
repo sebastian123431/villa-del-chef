@@ -29,6 +29,8 @@ namespace VillaDelChef.ScriptableObjects
         public bool selectableAsPlayer = true;
         [Tooltip("Indica si puede ser contratado como ayudante / camarero en el restaurante")]
         public bool selectableAsHelper = true;
+        [Tooltip("Indica si puede visitar el restaurante como cliente/comensal social")]
+        public bool canAppearAsCustomer = true;
 
         [Header("Static Previews (Emparejados exactamente por Outfit)")]
         [Tooltip("Preview estático de cuerpo entero con ropa normal (<nombre>_rnormal.png)")]
