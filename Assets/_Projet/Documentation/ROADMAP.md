@@ -136,12 +136,16 @@ Leyenda:
 - [x] Validadores de datos blindados: Falta de `normalPreview` o `normalAnimator` en `canAppearAsCustomer = true` es ERROR estricto. Comprobación de que Player y Helper tengan atuendos de chef completos. `ValidateAllGameData` y `ValidateCharacterDatabaseOnly` con 0 errores.
 - [x] Exclusión mutua dinámica: El protagonista y el ayudante activo quedan excluidos automáticamente del pool de clientes. Al cambiar de ayudante, el anterior se reintegra de inmediato al pool de comensales.
 - [x] Separación de responsabilidades: `CharacterSO` (identidad visual, previews, animators) desacoplado de `CustomerSO` (arquetipo, paciencia, propina, reputación, XP).
-- [x] Prólogo reanudable (`PrologueController.cs`): Guardado incremental en cada hito (`prologueStep`: 1 a 5, `playerName`, `selectedPlayerCharacterID`, `selectedChefOutfit`). Al cerrar y reabrir la app, el jugador retoma el prólogo exactamente donde lo dejó.
+- [x] Prólogo reanudable y determinista (`PrologueController.cs`): Guardado incremental en cada hito (`prologueStep`: 1 a 5, `playerName`, `selectedPlayerCharacterID`, `selectedChefOutfit`). Si el jugador reanuda con un uniforme guardado que ya no está completo para el protagonista, `ResolveResumeStep` fuerza deterministamente el retorno al Paso 4 para selección explícita sin mutar el archivo de guardado silenciosamente (Fase 7.0.4).
+- [x] Guarda de entrada al restaurante (`CanEnterRestaurant`): Validación estricta que impide entrar si `selectedCharacter == null` (0 fallback silencioso a Alex), si hay discrepancia de ID en partidas bloqueadas o si el atuendo está incompleto (Fase 7.0.4).
 - [x] Inicio de restaurante cerrado: Al completar el prólogo, `restaurantOpen = false` para permitir al jugador inspeccionar la cocina y comprar insumos antes de abrir las puertas al público.
 - [x] Control defensivo de apertura: `CustomerManager.SpawnLoop` no genera comensales si el restaurante está cerrado o si `RestaurantOperatingManager.Instance == null`.
 - [x] Protección de comerciantes oficiales: Los 7 comerciantes especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) mantienen su estado independiente `[PENDIENTE ARTE NPC OFICIAL]` sin Friends asignados.
 - [x] Blindaje de herramientas Editor: `ArtAssetGenerator`, `AssetDatabasePopulator` y `SpriteAtlasSetupEditor` respetan el arte original de los Friends sin regeneración ni sobrescritura.
-- [x] Test de integración integral (`SocialCastIntegrationTest.cs`): 20 suites automatizadas que validan exclusión, rotación, aislamiento SaveData, 19 personajes únicos, vestuario Normal estricto, reciclaje de pool, 64 frames en animators, liberación de mesa por fallo de pathfinding, protección de Dirty Table, guardia de ayudante activo, cero duplicación de clientes, rechazo de traje incompleto (Andrés Arica ChefWhite), data-binding de `CharacterCardUI`, auto-binding canónico en prefabs, fallo seguro de prefabs rotos, fallback procedural, retiro limpio de ayudante y guarda de identidad del protagonista contra fallback silencioso a Alex. 100% PASS en Unity Batchmode.
+- [x] Tests de integración automatizados:
+  * `SocialCastIntegrationTest.cs`: 20 suites completas (100% PASS en Unity Batchmode).
+  * `PrologueIntegrationTest.cs`: 9 pruebas especializadas que validan `ResolveResumeStep` (4 casos límite), `CanEnterRestaurant` (4 casos de seguridad) y simulación runtime de botones y previews (100% PASS en Unity Batchmode).
+  * Total tests automatizados ejecutados en Batchmode: 29/29 PASSED (100%).
 - [ ] Validación final de PlayMode E2E interactivo en dispositivo móvil / auditoría externa.
 
 ---

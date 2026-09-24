@@ -512,3 +512,26 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
   3. Deshabilitar atuendos incompletos con validación estricta, auto-binding canónico defensivo y fallback procedural garantizado.
 - **Elegida**: 3 (Deshabilitar atuendos incompletos y auto-binding canónico defensivo).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.3).
+
+---
+
+### DECISIÓN 033
+- **Título**: Resolución Determinista del Paso de Reanudación del Prólogo (`ResolveResumeStep`), Selección Explícita de Atuendo y Eliminación de Fallback Silencioso en Entrada al Restaurante (`CanEnterRestaurant`).
+- **Problema**:
+  1. Si un guardado reanudaba en `prologueStep = 5` con un uniforme que ya no estaba completo para el personaje actual, `Start()` reasignaba internamente `selectedOutfit` a una alternativa pero conservaba el paso 5. Al pulsar "Entrar al Restaurante", la alternativa se escribía en `SaveData.selectedChefOutfit` sin que el jugador la hubiese elegido explícitamente en la interfaz del Paso 4.
+  2. En `OnEnterRestaurant()`, si `selectedCharacter == null`, existía la línea `selectedPlayerCharacterID = selectedCharacter != null ? selectedCharacter.characterID : "alex"`, lo cual permitía sobreescribir silenciosamente la identidad del protagonista por "alex" ante fallos de carga o desincronizaciones de guardado.
+- **Decisión**:
+  1. Implementar la función estática pura `PrologueController.ResolveResumeStep(SaveData save, CharacterSO selectedChar)`. Si `save.prologueStep == 5` pero el atuendo guardado no está completo para el personaje actual (`!selectedChar.HasCompleteOutfit(save.selectedChefOutfit)`), la función retorna estrictamente el Paso 4, forzando al jugador a reanudar en la pantalla de selección de uniforme sin alterar el archivo de guardado automáticamente.
+  2. Implementar la función estática pura `PrologueController.CanEnterRestaurant(SaveData save, CharacterSO selectedChar, CharacterOutfit outfit, out string reason)` que valida de forma no destructiva:
+     - `selectedChar != null` (rechazo categórico de nulos sin fallback a "alex").
+     - Que si la partida está bloqueada (`playerCharacterLocked == true`), el ID del personaje seleccionado coincida estrictamente con `save.selectedPlayerCharacterID`.
+     - Que el atuendo seleccionado esté 100% completo (`selectedChar.HasCompleteOutfit(outfit)`).
+  3. En `OnEnterRestaurant()`, verificar `CanEnterRestaurant()` antes de persistir o cambiar de escena. Si no es válido, se emite `LogError` y se cancela la operación de forma segura. Se elimina definitivamente cualquier fallback silencioso hacia "alex".
+  4. La variable de estado `outfitConfirmedThisSession` garantiza que solo pulsaciones de botón voluntarias en la sesión (o reanudaciones válidas en Paso 5) se consideren selecciones de atuendo confirmadas.
+- **Alternativas consideradas**:
+  1. Auto-asignar y guardar el uniforme alternativo en `Start()` sin interacción del usuario (riesgo de guardar atuendos no deseados por el jugador).
+  2. Mantener el fallback a "alex" para evitar errores si `selectedCharacter` es nulo (riesgo crítico de corrupción de identidad de partidas guardadas).
+  3. Resolver deterministamente el paso forzando el retorno al Paso 4 si el atuendo es inválido, exigir confirmación por UI y validar de forma estricta el ingreso al restaurante.
+- **Elegida**: 3 (Resolución determinista, selección explícita y validación estricta de entrada sin fallback a Alex).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.4).
+

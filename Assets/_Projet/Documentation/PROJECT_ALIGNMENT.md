@@ -18,15 +18,15 @@
 
 ---
 
-## 1. Matriz de Alineación Integral (Fase 7.0.3)
+## 1. Matriz de Alineación Integral (Fase 7.0.4)
 
 | Subsistema / Requisito | Fuente de Verdad | Código / Asset Actual | Estado | Detalle Técnico / Comportamiento |
 | :--- | :--- | :--- | :--- | :--- |
 | **Elenco Social Dinámico (Friends)** | Regla Propietario / GDD / Doc Maestro | `Assets/_Projet/Art/Characters/Friends/` (19 Friends) | `[OK — STATIC]` | Los 19 Friends forman Player, Helper y Customers. Exclusión mutua dinámica verificada en `CustomerManager`. |
 | **Outfits por Rol (rnormal / rnchef / rbchef)** | Convención Oficial Propietario / CHARACTERS.md | `CharacterSO.cs`, `CharacterOutfit` | `[OK — STATIC]` | Player/Helper usan `rnchef` / `rbchef`. Customers usan estrictamente `rnormal`. |
 | **Fallback Estricto de Customer Normal** | Doc Maestro / Regla Propietario | `CharacterSO.cs`, `CharacterAppearanceController.cs` | `[OK — STATIC]` | `allowCrossOutfitFallback: false` garantizado en comensales. Si falta arte normal se marca error de datos; nunca se viste de chef. |
-| **Validación Estricta de Uniforme del Protagonista en Prólogo** | Regla Propietario / Auditoría Fase 7.0.3 | `PrologueController.cs` | `[OK — STATIC]` | `UpdateOutfitDisplay()` desactiva botones de trajes incompletos con `HasCompleteOutfit()`, usa previews con `allowCrossOutfitFallback: false`. `OnOutfitChosen()` implementa doble guarda que rechaza con `LogError` atuendos incompletos. Reanudar en paso 4/5 valida el traje guardado. |
-| **Protección de Identidad del Protagonista** | Regla Propietario / Auditoría Fase 7.0.3 | `PrologueController.OnEnterRestaurant()` | `[OK — STATIC]` | Si `playerCharacterLocked == true` y por anomalía de datos `selectedCharacter == null`, se aborta el ingreso al restaurante impidiendo mutar la identidad del protagonista a "alex". |
+| **Validación Estricta de Uniforme del Protagonista en Prólogo** | Regla Propietario / Auditoría Fase 7.0.3 / 7.0.4 | `PrologueController.cs` | `[OK — STATIC]` | `UpdateOutfitDisplay()` desactiva botones de trajes incompletos con `HasCompleteOutfit()`, usa previews con `allowCrossOutfitFallback: false`. `OnOutfitChosen()` implementa doble guarda que rechaza con `LogError` atuendos incompletos. Reanudar con traje incompleto fuerza deterministamente retorno al Paso 4 vía `ResolveResumeStep`. |
+| **Protección de Identidad del Protagonista** | Regla Propietario / Auditoría Fase 7.0.3 / 7.0.4 | `PrologueController.CanEnterRestaurant()` | `[OK — STATIC]` | `CanEnterRestaurant()` valida estrictamente que `selectedCharacter != null` (0 fallback silencioso a "alex"), consistencia de ID con partidas bloqueadas y disponibilidad completa del atuendo. Aborta con error antes de guardar o cargar escena. |
 | **Auto-Binding y Fallback Defensivo en Tarjetas** | Auditoría Fase 7.0.3 / UI | `CharacterCardUI.cs`, `HelperIntroDialogUI.cs`, `StaffMenuUI.cs` | `[OK — STATIC]` | `CharacterCardUI` soporta `TryAutoBindReferences()` por convención ("Icon", "Name", "Status", "Button"). `Bind()` retorna booleano defensivo. Si el prefab asignado está incompleto, se destruye y `CreateProceduralCard()` genera tarjeta de reemplazo operativa sin NRE. |
 | **Selector Real de Ayudante (Helper UI)** | Regla Propietario / Especificación 7.0.1 | `HelperIntroDialogUI.cs`, `StaffMenuUI.cs` | `[OK — STATIC]` | Se genera grid real de tarjetas seleccionables con preview y nombre. Excluye al protagonista y amigos comensales activos. Permite seleccionar traje (Negro/Blanco) y confirmar. Elimina auto-pick silencioso. |
 | **Menú de Personal / Relevo de Helper** | Regla Propietario / GDD Fase 7 | `StaffMenuUI.cs`, `HUDController.cs` | `[OK — STATIC]` | Botón "PERSONAL" en HUD. Permite alternar uniforme chef, relevar ayudante (el anterior reingresa al pool de clientes inmediatamente) o retirarlo. |
@@ -40,7 +40,7 @@
 | **Idempotencia de Pipeline sin Fuga de Sub-Assets** | Auditoría Fase 7.0.2 / Deuda Técnica | `CharacterPipelineEditor.cs` | `[OK — STATIC]` | Destrucción preventiva de sub-assets `BlendTree` huérfanos antes de recrear estados. Generación 100% idempotente (mismo conteo de líneas/sub-assets). |
 | **Reciclaje Limpio de Object Pool** | Problema 6 / Higiene Visual | `CustomerController.cs`, `CharacterAppearanceController.cs` | `[OK — STATIC]` | `OnReturnToPool()` limpia triggers de Animator, parámetros direccionales y el sprite previo (`spriteRenderer.sprite = null`), evitando persistencia de apariencia al cambiar de identidad. |
 | **Validadores de Datos Blindados** | Problema 5 / Protocolo QA | `GameDataValidatorEditor.cs` | `[OK — STATIC]` | Falta de `normalPreview` o `normalAnimator` en `canAppearAsCustomer = true` es ERROR estricto. Valida que Player y Helper cuenten con atuendos de chef completos. `ValidateAllGameData`: 0 errores. |
-| **Prólogo Reanudable (Resume)** | Doc Maestro / GDD Prólogo | `PrologueController.cs` | `[PARTIAL — PLAYMODE PENDING]` | Carga `prologueStep` guardado (1..5), restaura nombre incremental y selecciones previas al reanudar sin reiniciar forzadamente el paso 1. |
+| **Prólogo Reanudable Determinista (Resume)** | Doc Maestro / GDD Prólogo | `PrologueController.ResolveResumeStep()` | `[PARTIAL — PLAYMODE PENDING]` | Carga `prologueStep` guardado (1..5), restaura nombre y selecciones. Si el atuendo guardado en paso 5 no es completo, fuerza retorno a paso 4 sin mutar el archivo de guardado silenciosamente. |
 | **Persistencia Incremental del Prólogo** | Doc Maestro / Requisito Persistencia | `PrologueController.cs` | `[PARTIAL — PLAYMODE PENDING]` | Guarda en cada hito completado (`OnSubmitName`, `OnConfirmCharacter`, `OnOutfitChosen`). |
 | **Restaurante Inicia Cerrado** | Regla Propietario / Doc Maestro | `PrologueController.cs` | `[PARTIAL — PLAYMODE PENDING]` | Al completar el prólogo se establece `restaurantOpen = false` con mensaje invitando a revisar el restaurante antes de abrir. |
 | **Control de Apertura / Cierre (Operating)** | GDD / Doc Maestro | `RestaurantOperatingManager.cs`, `HUDController.cs` | `[OK — STATIC]` | Validación defensiva en `CustomerManager`: si el restaurante está cerrado o el manager falta, no se generan comensales. Los comensales que ya estaban dentro terminan su comida normalmente. |
@@ -57,9 +57,11 @@
 
 ---
 
-## 2. Resumen de Calidad de Fase 7.0.3
+## 2. Resumen de Calidad de Fase 7.0.4
 - **Compilación C#**: 0 errores, 0 advertencias en `Assembly-CSharp` y `Assembly-CSharp-Editor` (`dotnet build`).
-- **Suite de Integración Automática (`SocialCastIntegrationTest.cs`)**: 100% PASS (20/20 suites verificadas en Unity Batchmode).
+- **Suite de Prólogo Dedicada (`PrologueIntegrationTest.cs`)**: 100% PASS (9/9 pruebas especializadas ejecutadas en Unity Batchmode).
+- **Suite de Integración Social (`SocialCastIntegrationTest.cs`)**: 100% PASS (20/20 suites verificadas en Unity Batchmode con Test 20 integrado a `CanEnterRestaurant`).
+- **Total Tests Automatizados en Batchmode**: 29/29 PASSED (100%).
 - **Validador de Base de Datos (`GameDataValidatorEditor.cs`)**: 0 errores, 3 advertencias benignas documentadas.
 - **Validador de Personajes (`ValidateCharacterDatabaseOnly`)**: 0 errores, 1 advertencia benigna documentada (Andrés Arica ChefWhite faltante).
 - **Nivel de Madurez Técnica Fase 7**: 98–99% real (100% código, arquitectura, datos y tests batchmode; PlayMode interactivo y Android físico clasificados honestamente como `[PARTIAL — PLAYMODE PENDING]` hasta sesión de prueba en dispositivo físico o auditoría externa).

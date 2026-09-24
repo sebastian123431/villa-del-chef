@@ -549,6 +549,19 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 - **Solución Aplicada**: Creado auto-binding canónico y método `CharacterCardUI.CreateProceduralCard()`. En `HelperIntroDialogUI.PopulateGrid()`, si un prefab falla su binding, la instancia rota se destruye de inmediato y se genera una tarjeta procedural operativa. Verificado en Test de Integración Suites 18 y 19.
 - **Fecha**: 2026-09-24 (Fase 7.0.3).
 
+---
+
+### ISSUE #048
+- **Título**: Reanudación del Prólogo con atuendo incompleto en Paso 5 mutaba silenciosamente a alternativa sin confirmación explícita, y riesgo de fallback a Alex en entrada a restaurante.
+- **Severidad**: ALTA.
+- **Sistema**: Prólogo / Reanudación de Partida / Identidad (`PrologueController.cs`).
+- **Descripción**: Si un jugador guardaba en `prologueStep = 5` con un uniforme que posteriormente quedaba incompleto (ej. `ChefWhite` en Andrés Arica), `Start()` buscaba una alternativa como `ChefBlack` pero mantenía `targetStep = 5`. Al pulsar "Entrar al Restaurante", `ChefBlack` se guardaba en el archivo de guardado sin que el usuario lo hubiese pulsado ni confirmado explícitamente en la pantalla de selección. Además, `OnEnterRestaurant()` evaluaba `selectedPlayerCharacterID = selectedCharacter != null ? selectedCharacter.characterID : "alex"`, dejando abierta la puerta a un fallback silencioso no controlado.
+- **Solución Propuesta**: Crear la función pura y determinista `ResolveResumeStep(save, selectedChar)`. Si el guardado está en paso 5 pero el uniforme guardado no está completo para el protagonista, forzar el retorno al Paso 4 (selección de uniforme) sin modificar el guardado. Crear la función `CanEnterRestaurant(save, selectedChar, outfit, out reason)` que valide terminantemente que `selectedChar != null` (0 fallback a Alex), que no exista discrepancia con una partida con personaje bloqueado y que el atuendo esté 100% completo. Solo tras pulsar explícitamente un botón en el Paso 4 se actualiza `selectedChefOutfit` en el guardado.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Implementadas `ResolveResumeStep()`, `CanEnterRestaurant()`, `outfitConfirmedThisSession` y eliminación definitiva del fallback a "alex" en `PrologueController.cs`. Verificado de manera exhaustiva en la nueva suite `PrologueIntegrationTest.cs` (9/9 pruebas PASSED) y en `SocialCastIntegrationTest.cs` Suite 20.
+- **Fecha**: 2026-09-24 (Fase 7.0.4).
+
+
 
 
 
