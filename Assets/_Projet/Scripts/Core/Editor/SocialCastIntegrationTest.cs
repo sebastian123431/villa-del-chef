@@ -731,24 +731,38 @@ namespace VillaDelChef.EditorTools
                 }
                 Debug.Log("[TEST PASÓ] Prefab roto manejado defensivamente: Bind falla de forma controlada sin NRE y fallback procedural genera tarjeta operativa.");
 
-                // 20. Test Locked Player Never Replaced By Alex Fallback (Fase 7.0.3 — Sección 11)
+                // 20. Test Locked Player Never Replaced By Alex Fallback & Real CanEnterRestaurant Validation (Fase 7.0.4 — Secciones 8–11)
                 string lockedID = "carlos";
                 SaveManager.Instance.SaveData.playerCharacterLocked = true;
                 SaveManager.Instance.SaveData.selectedPlayerCharacterID = lockedID;
 
-                // Si por alguna razón selectedCharacter fuera null con partida bloqueada,
-                // la identidad persistida nunca debe mutar a "alex"
+                // 1. Probar que selectedCharacter nulo es estrictamente rechazado por la lógica real
                 CharacterSO nullChar = null;
-                string resultingID = (SaveManager.Instance.SaveData.playerCharacterLocked && nullChar == null)
-                    ? SaveManager.Instance.SaveData.selectedPlayerCharacterID
-                    : (nullChar != null ? nullChar.characterID : "alex");
-
-                if (resultingID != lockedID)
+                bool nullAllowed = PrologueController.CanEnterRestaurant(SaveManager.Instance.SaveData, nullChar, CharacterOutfit.ChefBlack, out string nullReason);
+                if (nullAllowed)
                 {
-                    Debug.LogError($"[TEST FALLIDO] La identidad bloqueada '{lockedID}' fue sustituida silenciosamente por '{resultingID}'.");
+                    Debug.LogError("[TEST FALLIDO] PrologueController.CanEnterRestaurant permitió ingresar al restaurante con selectedCharacter == null.");
                     return false;
                 }
-                Debug.Log("[TEST PASÓ] Guarda de identidad del protagonista: Un personaje bloqueado jamás se sustituye por fallback a 'alex'.");
+
+                // 2. Probar que un personaje discrepante con la partida bloqueada es estrictamente rechazado
+                CharacterSO alexChar = allCharacters[0];
+                bool mismatchAllowed = PrologueController.CanEnterRestaurant(SaveManager.Instance.SaveData, alexChar, CharacterOutfit.ChefBlack, out string mismatchReason);
+                if (mismatchAllowed)
+                {
+                    Debug.LogError($"[TEST FALLIDO] PrologueController.CanEnterRestaurant permitió sustituir el personaje bloqueado '{lockedID}' por '{alexChar.characterID}'.");
+                    return false;
+                }
+
+                // 3. Probar que el personaje correcto con uniforme válido es admitido
+                SaveManager.Instance.SaveData.selectedPlayerCharacterID = alexChar.characterID;
+                bool validAllowed = PrologueController.CanEnterRestaurant(SaveManager.Instance.SaveData, alexChar, CharacterOutfit.ChefBlack, out string validReason);
+                if (!validAllowed)
+                {
+                    Debug.LogError($"[TEST FALLIDO] PrologueController.CanEnterRestaurant rechazó un personaje bloqueado coincidente y válido: {validReason}.");
+                    return false;
+                }
+                Debug.Log("[TEST PASÓ] Guarda de identidad del protagonista validada contra código real de PrologueController.CanEnterRestaurant: Sin fallback a Alex, rechazo de discrepancias y admisión de personajes bloqueados válidos.");
 
                 Debug.Log("<color=green><b>==================================================\n¡TODAS LAS 20 PRUEBAS DE FASE 7 (7.0.1 + 7.0.2 + 7.0.3) PASARON EXITOSAMENTE!\n==================================================</b></color>");
                 return true;
