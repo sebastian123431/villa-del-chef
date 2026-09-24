@@ -41,6 +41,7 @@ namespace VillaDelChef.Core
         {
             EnsureCoreManagers();
             CreateDefaultDataAndObjects();
+            EnsurePlayerAvatarAndHelper();
         }
 
         private void EnsureCoreManagers()
@@ -137,9 +138,73 @@ namespace VillaDelChef.Core
                 expObj.AddComponent<ExpansionManager>();
             }
 
+            if (FindAnyObjectByType<RestaurantOperatingManager>() == null)
+            {
+                var romObj = new GameObject("RestaurantOperatingManager");
+                romObj.AddComponent<RestaurantOperatingManager>();
+            }
+
             EnsureVendorUI();
             EnsureCraftingUI();
             EnsureExpansionUI();
+        }
+
+        private void EnsurePlayerAvatarAndHelper()
+        {
+            // 1. Protagonista (Player Avatar)
+            string playerCharID = "alex";
+            CharacterOutfit playerOutfit = CharacterOutfit.ChefBlack;
+
+            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            {
+                var save = SaveManager.Instance.SaveData;
+                if (!string.IsNullOrEmpty(save.selectedPlayerCharacterID))
+                {
+                    playerCharID = save.selectedPlayerCharacterID;
+                }
+                playerOutfit = save.selectedChefOutfit;
+            }
+
+            GameObject playerObj = GameObject.Find("PlayerAvatar");
+            if (playerObj == null)
+            {
+                playerObj = new GameObject("PlayerAvatar");
+                playerObj.transform.position = new Vector3(-2f, 4.5f, 0f);
+            }
+
+            var appearance = playerObj.GetComponent<Characters.CharacterAppearanceController>();
+            if (appearance == null)
+            {
+                appearance = playerObj.AddComponent<Characters.CharacterAppearanceController>();
+            }
+
+            CharacterSO charSO = Resources.Load<CharacterSO>($"Characters/{playerCharID}");
+            if (charSO == null)
+            {
+                var allChars = Resources.LoadAll<CharacterSO>("Characters");
+                if (allChars != null && allChars.Length > 0) charSO = allChars[0];
+            }
+
+            if (charSO != null)
+            {
+                appearance.ApplyCharacter(charSO, playerOutfit);
+                Debug.Log($"[RestaurantBootstrap] Protagonista {charSO.displayName} configurado con uniforme {playerOutfit}.");
+            }
+
+            // 2. Ayudante / Helper si ya fue desbloqueado
+            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            {
+                var save = SaveManager.Instance.SaveData;
+                if (!string.IsNullOrEmpty(save.selectedHelperCharacterID))
+                {
+                    CharacterSO helperSO = Resources.Load<CharacterSO>($"Characters/{save.selectedHelperCharacterID}");
+                    if (helperSO != null)
+                    {
+                        UI.HelperIntroDialogUI.ApplyHelperToRestaurant(helperSO, save.helperChefOutfit);
+                        Debug.Log($"[RestaurantBootstrap] Ayudante {helperSO.displayName} restaurado con uniforme {save.helperChefOutfit}.");
+                    }
+                }
+            }
         }
 
         private void CreateDefaultDataAndObjects()

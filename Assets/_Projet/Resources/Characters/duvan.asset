@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: duvan
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: duvan
+  displayName: Duvan
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: c92d030f603ad2b46a7d04d64c33381c, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: 1acf08de6328e494c813fdf72fb5bc5a, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 7101524a8401fb8499075c19e5d318de, type: 3}
+  portrait: {fileID: 21300000, guid: c92d030f603ad2b46a7d04d64c33381c, type: 3}
+  normalAnimator: {fileID: 9100000, guid: 7185566bd071063418530b4711e0055b, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: a85117f412fdcbc44889956edbbe69ec, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 7703d588c2bfc3642a2fbc308de85b78, type: 2}
+  description: 'Chef y amigo de la villa: Duvan.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

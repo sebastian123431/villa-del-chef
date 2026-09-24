@@ -64,6 +64,15 @@ namespace VillaDelChef.Restaurant
             return true;
         }
 
+        public void ForceAddOverflowDish(DishInstance dish)
+        {
+            if (dish == null) return;
+            readyDishes.Add(dish);
+            RealignDishes();
+            GameEvents.TriggerDishReady(dish);
+            Debug.LogWarning($"[DeliveryCounter] Plato {dish.recipeData?.recipeName} añadido en búfer de desborde seguro del mostrador.");
+        }
+
         public DishInstance FindMatchingDish(RecipeSO recipe)
         {
             if (recipe == null || readyDishes.Count == 0) return null;

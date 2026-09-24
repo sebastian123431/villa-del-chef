@@ -21,6 +21,8 @@ namespace VillaDelChef.UI
         public Button inventoryButton;
         public Button questButton;
         public Button marketButton;
+        public Button openCloseButton;
+        public Text openCloseText;
 
         [Header("Panels")]
         public GameObject buildPanel;
@@ -61,6 +63,21 @@ namespace VillaDelChef.UI
                 marketButton.onClick.AddListener(() => MarketUI.Instance?.Toggle());
             }
 
+            if (openCloseButton != null)
+            {
+                openCloseButton.onClick.AddListener(OnOpenCloseClicked);
+            }
+            else
+            {
+                CreateFallbackOpenCloseButton();
+            }
+
+            if (Managers.RestaurantOperatingManager.Instance != null)
+            {
+                Managers.RestaurantOperatingManager.Instance.OnOperatingStateChanged += UpdateOperatingStateDisplay;
+                UpdateOperatingStateDisplay(Managers.RestaurantOperatingManager.Instance.IsOpen);
+            }
+
             // Sync initial states if managers are already up
             if (Economy.EconomyManager.Instance != null)
             {
@@ -87,6 +104,74 @@ namespace VillaDelChef.UI
             GameEvents.OnReputationChanged -= UpdateReputation;
             GameEvents.OnExperienceChanged -= UpdateXP;
             GameEvents.OnBuildModeToggled -= HandleBuildModeToggled;
+
+            if (Managers.RestaurantOperatingManager.Instance != null)
+            {
+                Managers.RestaurantOperatingManager.Instance.OnOperatingStateChanged -= UpdateOperatingStateDisplay;
+            }
+        }
+
+        private void OnOpenCloseClicked()
+        {
+            Managers.RestaurantOperatingManager.Instance?.ToggleOperatingState();
+        }
+
+        private void UpdateOperatingStateDisplay(bool isOpen)
+        {
+            if (openCloseText != null)
+            {
+                openCloseText.text = isOpen ? "ABIERTO" : "CERRADO";
+                openCloseText.color = Color.white;
+            }
+
+            if (openCloseButton != null)
+            {
+                var img = openCloseButton.GetComponent<Image>();
+                if (img != null)
+                {
+                    img.color = isOpen ? new Color(0.2f, 0.65f, 0.3f) : new Color(0.85f, 0.28f, 0.25f);
+                }
+            }
+        }
+
+        private void CreateFallbackOpenCloseButton()
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+
+            GameObject btnGO = new GameObject("Btn_OpenCloseRestaurant");
+            btnGO.transform.SetParent(canvas.transform, false);
+
+            RectTransform rt = btnGO.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(20f, -80f);
+            rt.sizeDelta = new Vector2(130, 42);
+
+            Image img = btnGO.AddComponent<Image>();
+            img.color = new Color(0.85f, 0.28f, 0.25f);
+
+            openCloseButton = btnGO.AddComponent<Button>();
+            openCloseButton.onClick.AddListener(OnOpenCloseClicked);
+
+            GameObject textGO = new GameObject("Label");
+            textGO.transform.SetParent(btnGO.transform, false);
+            openCloseText = textGO.AddComponent<Text>();
+            openCloseText.text = "CERRADO";
+            openCloseText.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            openCloseText.fontSize = 16;
+            openCloseText.fontStyle = FontStyle.Bold;
+            openCloseText.alignment = TextAnchor.MiddleCenter;
+            openCloseText.color = Color.white;
+
+            RectTransform trt = textGO.GetComponent<RectTransform>();
+            trt.sizeDelta = rt.sizeDelta;
+
+            if (Managers.RestaurantOperatingManager.Instance != null)
+            {
+                UpdateOperatingStateDisplay(Managers.RestaurantOperatingManager.Instance.IsOpen);
+            }
         }
 
         private void UpdateCoins(int coins)

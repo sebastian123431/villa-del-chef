@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: mario
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: mario
+  displayName: Mario
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: efcb1c6d1d3917142bb300c3742bedfb, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: 713db75bf93e5134d98bfa2fe9073a45, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 30b83bc4da507c64da87c99ce2c8eb14, type: 3}
+  portrait: {fileID: 21300000, guid: efcb1c6d1d3917142bb300c3742bedfb, type: 3}
+  normalAnimator: {fileID: 9100000, guid: 86d13f4e2a92efd4898153d39423973e, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: 1736aae86481fcb4eae33abdfbbe3252, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 23dd3ed841b28cd4bb0fbf6d007a9750, type: 2}
+  description: 'Chef y amigo de la villa: Mario.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

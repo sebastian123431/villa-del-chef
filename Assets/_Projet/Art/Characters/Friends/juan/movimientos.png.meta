@@ -1,0 +1,1796 @@
+fileFormatVersion: 2
+guid: 35223a697899d4e46964054742aa58b1
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5734115260918645642
+    second: movimientos_0
+  - first:
+      213: -6828954006481914837
+    second: movimientos_1
+  - first:
+      213: -4249644348957413813
+    second: movimientos_2
+  - first:
+      213: 2215726563523015756
+    second: movimientos_3
+  - first:
+      213: 5748169774673112343
+    second: movimientos_4
+  - first:
+      213: 2499555848110022943
+    second: movimientos_5
+  - first:
+      213: -409319653975988750
+    second: movimientos_6
+  - first:
+      213: 6041544392144617774
+    second: movimientos_7
+  - first:
+      213: 1466221244585105084
+    second: movimientos_8
+  - first:
+      213: 1495468322980781267
+    second: movimientos_9
+  - first:
+      213: -1195420373658176148
+    second: movimientos_10
+  - first:
+      213: 3512158319094431598
+    second: movimientos_11
+  - first:
+      213: 1977500956261993281
+    second: movimientos_12
+  - first:
+      213: 220632462202825237
+    second: movimientos_13
+  - first:
+      213: -1552912777243729225
+    second: movimientos_14
+  - first:
+      213: 453025830638630528
+    second: movimientos_15
+  - first:
+      213: 4965723717368312965
+    second: movimientos_16
+  - first:
+      213: -9115622263652096617
+    second: movimientos_17
+  - first:
+      213: 4575771647764760153
+    second: movimientos_18
+  - first:
+      213: -8309340194102512296
+    second: movimientos_19
+  - first:
+      213: 3454178366771057585
+    second: movimientos_20
+  - first:
+      213: 5657859116397620140
+    second: movimientos_21
+  - first:
+      213: -7864920463476473630
+    second: movimientos_22
+  - first:
+      213: 3310004593682520961
+    second: movimientos_23
+  - first:
+      213: -5464952383311884943
+    second: movimientos_24
+  - first:
+      213: 3705416130343530210
+    second: movimientos_25
+  - first:
+      213: 7983746500391723468
+    second: movimientos_26
+  - first:
+      213: 2949956538799966907
+    second: movimientos_27
+  - first:
+      213: 633691558415795453
+    second: movimientos_28
+  - first:
+      213: 3140252216538397217
+    second: movimientos_29
+  - first:
+      213: -7774056774018379301
+    second: movimientos_30
+  - first:
+      213: 4402899473825908100
+    second: movimientos_31
+  - first:
+      213: 8806258026002836458
+    second: movimientos_32
+  - first:
+      213: 1990035191312299830
+    second: movimientos_33
+  - first:
+      213: -2287750255912027133
+    second: movimientos_34
+  - first:
+      213: -3827507194885283861
+    second: movimientos_35
+  - first:
+      213: -978524193772727425
+    second: movimientos_36
+  - first:
+      213: 6016871348324086772
+    second: movimientos_37
+  - first:
+      213: 1653405126677667964
+    second: movimientos_38
+  - first:
+      213: -4916368044195225743
+    second: movimientos_39
+  - first:
+      213: 1963743504643405534
+    second: movimientos_40
+  - first:
+      213: 2901925067372065891
+    second: movimientos_41
+  - first:
+      213: -293875138868719889
+    second: movimientos_42
+  - first:
+      213: 8804257693700968121
+    second: movimientos_43
+  - first:
+      213: -6143921390577890448
+    second: movimientos_44
+  - first:
+      213: -1272202742954011019
+    second: movimientos_45
+  - first:
+      213: -7372437517443490488
+    second: movimientos_46
+  - first:
+      213: -6593804046730221389
+    second: movimientos_47
+  - first:
+      213: 5614525627703132215
+    second: movimientos_48
+  - first:
+      213: -1382030627560439993
+    second: movimientos_49
+  - first:
+      213: 8685223114611216609
+    second: movimientos_50
+  - first:
+      213: 720335694945092372
+    second: movimientos_51
+  - first:
+      213: -765602597604334852
+    second: movimientos_52
+  - first:
+      213: -4299373969175727731
+    second: movimientos_53
+  - first:
+      213: -1397506783950187990
+    second: movimientos_54
+  - first:
+      213: 6554872281639081757
+    second: movimientos_55
+  - first:
+      213: 1965280457567512438
+    second: movimientos_56
+  - first:
+      213: 6534184542399743343
+    second: movimientos_57
+  - first:
+      213: 2633514809442450372
+    second: movimientos_58
+  - first:
+      213: 3220103391333705831
+    second: movimientos_59
+  - first:
+      213: -1278161622497237565
+    second: movimientos_60
+  - first:
+      213: -1194578193112554808
+    second: movimientos_61
+  - first:
+      213: -8367208560949219401
+    second: movimientos_62
+  - first:
+      213: -3720393141955264669
+    second: movimientos_63
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: movimientos_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1920
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a83c33cf27ba39f40800000000000000
+      internalID: 5734115260918645642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_1
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1920
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b243a20338eaa31a0800000000000000
+      internalID: -6828954006481914837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_2
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1920
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b4ea5aeeafa3605c0800000000000000
+      internalID: -4249644348957413813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_3
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1920
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c44bf22f197dfbe10800000000000000
+      internalID: 2215726563523015756
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1792
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 71d270874f995cf40800000000000000
+      internalID: 5748169774673112343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_5
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1792
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1129d6fcc430b220800000000000000
+      internalID: 2499555848110022943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_6
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1792
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2f5ec2181fdc15af0800000000000000
+      internalID: -409319653975988750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_7
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1792
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e21888c7d90e7d350800000000000000
+      internalID: 6041544392144617774
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1664
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cb650ad1470195410800000000000000
+      internalID: 1466221244585105084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_9
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1664
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3dc5e143488f0c410800000000000000
+      internalID: 1495468322980781267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_10
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1664
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c65f6d6f083096fe0800000000000000
+      internalID: -1195420373658176148
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_11
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1664
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e6f7e8c0261bdb030800000000000000
+      internalID: 3512158319094431598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1536
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 14bcdf874ae717b10800000000000000
+      internalID: 1977500956261993281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_13
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1536
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 51ae48f2e08df0300800000000000000
+      internalID: 220632462202825237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_14
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1536
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b2e8398e02f27ae0800000000000000
+      internalID: -1552912777243729225
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_15
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1536
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 086ba4db798794600800000000000000
+      internalID: 453025830638630528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1408
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5847872596bc9e440800000000000000
+      internalID: 4965723717368312965
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_17
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1408
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 795ef5c09ddce7180800000000000000
+      internalID: -9115622263652096617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_18
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1408
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9568256f118608f30800000000000000
+      internalID: 4575771647764760153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_19
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1408
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 855f4a44e1b4fac80800000000000000
+      internalID: -8309340194102512296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1280
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b35a3e6ce4bfef20800000000000000
+      internalID: 3454178366771057585
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_21
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1280
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cabe516c3e0c48e40800000000000000
+      internalID: 5657859116397620140
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_22
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1280
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e0c8c332803ad290800000000000000
+      internalID: -7864920463476473630
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_23
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1280
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18b9b5b04af7fed20800000000000000
+      internalID: 3310004593682520961
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1152
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17d454e03c69824b0800000000000000
+      internalID: -5464952383311884943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_25
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1152
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2eee022a6584c6330800000000000000
+      internalID: 3705416130343530210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_26
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1152
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc1ed947427fbce60800000000000000
+      internalID: 7983746500391723468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_27
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1152
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bba430ea7d950f820800000000000000
+      internalID: 2949956538799966907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1024
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df4898c6d135bc800800000000000000
+      internalID: 633691558415795453
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_29
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 1024
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 12a77efc0ca649b20800000000000000
+      internalID: 3140252216538397217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_30
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 1024
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bd15ae08d800d1490800000000000000
+      internalID: -7774056774018379301
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_31
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 1024
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 485c52f6ebd3a1d30800000000000000
+      internalID: 4402899473825908100
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 896
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aebe450640d163a70800000000000000
+      internalID: 8806258026002836458
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_33
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 896
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63732bc76760e9b10800000000000000
+      internalID: 1990035191312299830
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_34
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 896
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 30cfd8563474040e0800000000000000
+      internalID: -2287750255912027133
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_35
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 896
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bef5c993c76f1eac0800000000000000
+      internalID: -3827507194885283861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 768
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f731d022e659b62f0800000000000000
+      internalID: -978524193772727425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_37
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 768
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4f33510dc98308350800000000000000
+      internalID: 6016871348324086772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_38
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 768
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c70ae6dd33312f610800000000000000
+      internalID: 1653405126677667964
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_39
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 768
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 17f59a4df4d85cbb0800000000000000
+      internalID: -4916368044195225743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_40
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 640
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ed63048205e904b10800000000000000
+      internalID: 1963743504643405534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_41
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 640
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36473854975b54820800000000000000
+      internalID: 2901925067372065891
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_42
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 640
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fee49634e12fbebf0800000000000000
+      internalID: -293875138868719889
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_43
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 640
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9becb08b9b10f2a70800000000000000
+      internalID: 8804257693700968121
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_44
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 512
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 07b4ea21c086cbaa0800000000000000
+      internalID: -6143921390577890448
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_45
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 512
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 576d2ff785a385ee0800000000000000
+      internalID: -1272202742954011019
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_46
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 512
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84d94048327dfa990800000000000000
+      internalID: -7372437517443490488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_47
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 512
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b8ac1ca72a1e74a0800000000000000
+      internalID: -6593804046730221389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_48
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 384
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7308295bf4dcaed40800000000000000
+      internalID: 5614525627703132215
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_49
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 384
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74fbc8f677a02dce0800000000000000
+      internalID: -1382030627560439993
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_50
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 384
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1e0d96d086c188870800000000000000
+      internalID: 8685223114611216609
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_51
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 384
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4138c308f752ff900800000000000000
+      internalID: 720335694945092372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_52
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 256
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cf26daa6e780065f0800000000000000
+      internalID: -765602597604334852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_53
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 256
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8138b2772e8554c0800000000000000
+      internalID: -4299373969175727731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_54
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 256
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a22537bfbfe0b9ce0800000000000000
+      internalID: -1397506783950187990
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_55
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 256
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d17d6276c9597fa50800000000000000
+      internalID: 6554872281639081757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_56
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 128
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6772455e924164b10800000000000000
+      internalID: 1965280457567512438
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_57
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 128
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f65c592c8361eaa50800000000000000
+      internalID: 6534184542399743343
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_58
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 128
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cb3c8724cf1c8420800000000000000
+      internalID: 2633514809442450372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_59
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 128
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 768e97c39fa10bc20800000000000000
+      internalID: 3220103391333705831
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_60
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c5e38db6ce034ee0800000000000000
+      internalID: -1278161622497237565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_61
+      rect:
+        serializedVersion: 2
+        x: 170.75
+        y: 0
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c2291766710c6fe0800000000000000
+      internalID: -1194578193112554808
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_62
+      rect:
+        serializedVersion: 2
+        x: 341.5
+        y: 0
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7bfa30b2524b1eb80800000000000000
+      internalID: -8367208560949219401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_63
+      rect:
+        serializedVersion: 2
+        x: 512.25
+        y: 0
+        width: 170.75
+        height: 128
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36ff4fc16228e5cc0800000000000000
+      internalID: -3720393141955264669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      movimientos_0: 5734115260918645642
+      movimientos_1: -6828954006481914837
+      movimientos_10: -1195420373658176148
+      movimientos_11: 3512158319094431598
+      movimientos_12: 1977500956261993281
+      movimientos_13: 220632462202825237
+      movimientos_14: -1552912777243729225
+      movimientos_15: 453025830638630528
+      movimientos_16: 4965723717368312965
+      movimientos_17: -9115622263652096617
+      movimientos_18: 4575771647764760153
+      movimientos_19: -8309340194102512296
+      movimientos_2: -4249644348957413813
+      movimientos_20: 3454178366771057585
+      movimientos_21: 5657859116397620140
+      movimientos_22: -7864920463476473630
+      movimientos_23: 3310004593682520961
+      movimientos_24: -5464952383311884943
+      movimientos_25: 3705416130343530210
+      movimientos_26: 7983746500391723468
+      movimientos_27: 2949956538799966907
+      movimientos_28: 633691558415795453
+      movimientos_29: 3140252216538397217
+      movimientos_3: 2215726563523015756
+      movimientos_30: -7774056774018379301
+      movimientos_31: 4402899473825908100
+      movimientos_32: 8806258026002836458
+      movimientos_33: 1990035191312299830
+      movimientos_34: -2287750255912027133
+      movimientos_35: -3827507194885283861
+      movimientos_36: -978524193772727425
+      movimientos_37: 6016871348324086772
+      movimientos_38: 1653405126677667964
+      movimientos_39: -4916368044195225743
+      movimientos_4: 5748169774673112343
+      movimientos_40: 1963743504643405534
+      movimientos_41: 2901925067372065891
+      movimientos_42: -293875138868719889
+      movimientos_43: 8804257693700968121
+      movimientos_44: -6143921390577890448
+      movimientos_45: -1272202742954011019
+      movimientos_46: -7372437517443490488
+      movimientos_47: -6593804046730221389
+      movimientos_48: 5614525627703132215
+      movimientos_49: -1382030627560439993
+      movimientos_5: 2499555848110022943
+      movimientos_50: 8685223114611216609
+      movimientos_51: 720335694945092372
+      movimientos_52: -765602597604334852
+      movimientos_53: -4299373969175727731
+      movimientos_54: -1397506783950187990
+      movimientos_55: 6554872281639081757
+      movimientos_56: 1965280457567512438
+      movimientos_57: 6534184542399743343
+      movimientos_58: 2633514809442450372
+      movimientos_59: 3220103391333705831
+      movimientos_6: -409319653975988750
+      movimientos_60: -1278161622497237565
+      movimientos_61: -1194578193112554808
+      movimientos_62: -8367208560949219401
+      movimientos_63: -3720393141955264669
+      movimientos_7: 6041544392144617774
+      movimientos_8: 1466221244585105084
+      movimientos_9: 1495468322980781267
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: diego_vallenar
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: diego_vallenar
+  displayName: Diego Vallenar
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: 849595d17f70f6342a5b0c5ee522c6fc, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: 3994019f2a64ced4287b89232b16f848, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 9d27e6db7930d1e449e36141c408eac3, type: 3}
+  portrait: {fileID: 21300000, guid: 849595d17f70f6342a5b0c5ee522c6fc, type: 3}
+  normalAnimator: {fileID: 9100000, guid: a16c9fbd18b8bb84cb550c00638c6cd7, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: 1b208db3236e8d14a96cead4f7da6fee, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 03fe2eb3ae04609409a5eb6cfa45a325, type: 2}
+  description: 'Chef y amigo de la villa: Diego Vallenar.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

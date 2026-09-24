@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: alex
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: alex
+  displayName: Alex
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: 89d47ff743aa58c4ab56dcbb6f94550d, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: 3b62279d4e2592e4d9855a38b3c7cd46, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: b5748b2193f36f5478ae32b2518d0256, type: 3}
+  portrait: {fileID: 21300000, guid: 89d47ff743aa58c4ab56dcbb6f94550d, type: 3}
+  normalAnimator: {fileID: 9100000, guid: b7e887c575898e54d94d48eb78ba494c, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: 09e8f70b798b4954699719dbe68ebb9c, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 2a1e50095dfa6284fbb837235194a65c, type: 2}
+  description: 'Chef y amigo de la villa: Alex.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

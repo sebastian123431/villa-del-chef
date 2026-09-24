@@ -29,7 +29,8 @@ namespace VillaDelChef.EditorTools
                 // Only generate scenes if they are completely missing on disk
                 if (!System.IO.File.Exists("Assets/_Projet/Scenes/00_Boot.unity") ||
                     !System.IO.File.Exists("Assets/_Projet/Scenes/01_MainMenu.unity") ||
-                    !System.IO.File.Exists("Assets/_Projet/Scenes/02_Restaurant.unity"))
+                    !System.IO.File.Exists("Assets/_Projet/Scenes/02_Restaurant.unity") ||
+                    !System.IO.File.Exists("Assets/_Projet/Scenes/03_Prologue.unity"))
                 {
                     Debug.Log("[RestaurantSceneSetupEditor] Escenas faltantes en disco. Inicializando configuración automática...");
                     SetupAllScenes();
@@ -46,7 +47,7 @@ namespace VillaDelChef.EditorTools
             }
         }
 
-        [MenuItem("Tools/Villa del Chef/Setup ALL Scenes (Boot, Menu, Restaurant)", false, 0)]
+        [MenuItem("Tools/Villa del Chef/Setup ALL Scenes (Boot, Menu, Restaurant, Prologue)", false, 0)]
         public static void SetupAllScenes()
         {
             if (!System.IO.Directory.Exists("Assets/_Projet/Scenes"))
@@ -62,18 +63,20 @@ namespace VillaDelChef.EditorTools
             SetupBootScene();
             SetupMainMenuScene();
             SetupRestaurantScene();
+            SetupPrologueScene();
 
-            // Set all 3 in Build Settings
+            // Set all 4 in Build Settings
             EditorBuildSettings.scenes = new[]
             {
                 new EditorBuildSettingsScene("Assets/_Projet/Scenes/00_Boot.unity", true),
                 new EditorBuildSettingsScene("Assets/_Projet/Scenes/01_MainMenu.unity", true),
-                new EditorBuildSettingsScene("Assets/_Projet/Scenes/02_Restaurant.unity", true)
+                new EditorBuildSettingsScene("Assets/_Projet/Scenes/02_Restaurant.unity", true),
+                new EditorBuildSettingsScene("Assets/_Projet/Scenes/03_Prologue.unity", true)
             };
 
             SetPlayModeStartSceneToBoot();
 
-            Debug.Log("[RestaurantSceneSetupEditor] ¡Las 3 escenas (00_Boot, 01_MainMenu, 02_Restaurant) han sido generadas y registradas con éxito!");
+            Debug.Log("[RestaurantSceneSetupEditor] ¡Las 4 escenas (00_Boot, 01_MainMenu, 02_Restaurant, 03_Prologue) han sido generadas y registradas con éxito!");
         }
 
         [MenuItem("Tools/Villa del Chef/Setup Restaurant MVP Scene", false, 1)]
@@ -579,6 +582,7 @@ namespace VillaDelChef.EditorTools
             systemsGO.AddComponent<SaveManager>();
             systemsGO.AddComponent<VillaDelChef.Managers.CraftingManager>();
             systemsGO.AddComponent<VillaDelChef.Managers.ExpansionManager>();
+            systemsGO.AddComponent<VillaDelChef.Managers.RestaurantOperatingManager>();
             systemsGO.AddComponent<RestaurantBootstrap>();
 
             // 7. Setup Audio System
@@ -846,6 +850,272 @@ namespace VillaDelChef.EditorTools
             t.resizeTextMaxSize = 20;
 
             return btn;
+        }
+
+        public static void SetupPrologueScene()
+        {
+            string scenePath = "Assets/_Projet/Scenes/03_Prologue.unity";
+            var scene = EditorSceneManager.NewScene(NewSceneSetup.EmptyScene, NewSceneMode.Single);
+
+            // 1. Camera
+            GameObject camGO = new GameObject("Main Camera");
+            Camera cam = camGO.AddComponent<Camera>();
+            cam.orthographic = true;
+            cam.clearFlags = CameraClearFlags.SolidColor;
+            cam.backgroundColor = new Color(0.12f, 0.14f, 0.18f);
+            camGO.AddComponent<AudioListener>();
+
+            // 2. Background Scenery
+            SetupWorldBackground();
+
+            // 3. Event System
+            GameObject eventSystemGO = new GameObject("EventSystem");
+            eventSystemGO.AddComponent<EventSystem>();
+            eventSystemGO.AddComponent<StandaloneInputModule>();
+
+            // 4. Canvas
+            GameObject canvasGO = new GameObject("Canvas");
+            Canvas canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+            canvasGO.AddComponent<GraphicRaycaster>();
+
+            // 5. SafeArea Container
+            GameObject safeAreaGO = new GameObject("SafeAreaContainer");
+            safeAreaGO.transform.SetParent(canvasGO.transform, false);
+            RectTransform safeAreaRT = safeAreaGO.AddComponent<RectTransform>();
+            safeAreaRT.anchorMin = Vector2.zero;
+            safeAreaRT.anchorMax = Vector2.one;
+            safeAreaRT.offsetMin = Vector2.zero;
+            safeAreaRT.offsetMax = Vector2.zero;
+            safeAreaGO.AddComponent<SafeAreaFitter>();
+
+            var prologue = safeAreaGO.AddComponent<PrologueController>();
+
+            // Background Shade
+            GameObject bgShadeGO = new GameObject("BackgroundShade");
+            bgShadeGO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform bgRT = bgShadeGO.AddComponent<RectTransform>();
+            bgRT.anchorMin = Vector2.zero;
+            bgRT.anchorMax = Vector2.one;
+            bgRT.offsetMin = Vector2.zero;
+            bgRT.offsetMax = Vector2.zero;
+            Image bgImg = bgShadeGO.AddComponent<Image>();
+            bgImg.color = new Color(0.08f, 0.1f, 0.14f, 0.92f);
+
+            // ==========================================
+            // PANEL 1: NOMBRE
+            // ==========================================
+            GameObject p1GO = new GameObject("Step1_NameInputPanel");
+            p1GO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform p1RT = p1GO.AddComponent<RectTransform>();
+            p1RT.anchorMin = new Vector2(0.5f, 0.5f);
+            p1RT.anchorMax = new Vector2(0.5f, 0.5f);
+            p1RT.sizeDelta = new Vector2(760, 480);
+            p1RT.anchoredPosition = Vector2.zero;
+            Image p1Bg = p1GO.AddComponent<Image>();
+            p1Bg.color = new Color(0.14f, 0.16f, 0.22f, 0.98f);
+
+            CreateTextElement(p1GO, "Title", "¡BIENVENIDO A VILLA DEL CHEF!", 34, new Vector2(0, 160), new Vector2(700, 50), new Color(1f, 0.88f, 0.25f));
+            CreateTextElement(p1GO, "Prompt", "Hola... ¿cómo te llamas, nuevo Chef?", 24, new Vector2(0, 80), new Vector2(650, 40), Color.white);
+            prologue.nameInputField = CreateInputField(p1GO, "InputField", "Ingresa tu nombre...", new Vector2(0, 0), new Vector2(420, 60));
+            prologue.submitNameBtn = CreateButton(p1GO, "SubmitBtn", "CONTINUAR ▶", new Vector2(0, -90), new Vector2(260, 60), new Color(0.2f, 0.75f, 0.4f));
+            prologue.nameErrorText = CreateTextElement(p1GO, "ErrorText", "", 18, new Vector2(0, -170), new Vector2(600, 30), new Color(1f, 0.4f, 0.4f));
+            prologue.nameInputPanel = p1GO;
+
+            // ==========================================
+            // PANEL 2: SELECTOR DE PERSONAJE (Preview rnormal)
+            // ==========================================
+            GameObject p2GO = new GameObject("Step2_CharacterSelectPanel");
+            p2GO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform p2RT = p2GO.AddComponent<RectTransform>();
+            p2RT.anchorMin = new Vector2(0.5f, 0.5f);
+            p2RT.anchorMax = new Vector2(0.5f, 0.5f);
+            p2RT.sizeDelta = new Vector2(900, 640);
+            p2RT.anchoredPosition = Vector2.zero;
+            Image p2Bg = p2GO.AddComponent<Image>();
+            p2Bg.color = new Color(0.14f, 0.16f, 0.22f, 0.98f);
+
+            CreateTextElement(p2GO, "Title", "ELIGE A TU PROTAGONISTA", 34, new Vector2(0, 250), new Vector2(800, 50), new Color(1f, 0.88f, 0.25f));
+            CreateTextElement(p2GO, "Subtitle", "Ropa casual — Este aspecto te identificará como habitante de la villa", 18, new Vector2(0, 205), new Vector2(800, 30), new Color(0.85f, 0.88f, 0.95f));
+
+            // Preview Box
+            GameObject prevBoxGO = new GameObject("PreviewBox");
+            prevBoxGO.transform.SetParent(p2GO.transform, false);
+            RectTransform pbRT = prevBoxGO.AddComponent<RectTransform>();
+            pbRT.sizeDelta = new Vector2(280, 360);
+            pbRT.anchoredPosition = new Vector2(0, 20);
+            Image pbBg = prevBoxGO.AddComponent<Image>();
+            pbBg.color = new Color(0.08f, 0.1f, 0.14f, 0.7f);
+
+            GameObject prevImgGO = new GameObject("CharacterImage");
+            prevImgGO.transform.SetParent(prevBoxGO.transform, false);
+            RectTransform piRT = prevImgGO.AddComponent<RectTransform>();
+            piRT.sizeDelta = new Vector2(260, 340);
+            piRT.anchoredPosition = Vector2.zero;
+            prologue.characterPreviewImage = prevImgGO.AddComponent<Image>();
+            prologue.characterPreviewImage.preserveAspect = true;
+
+            // Nav Buttons
+            prologue.prevCharacterBtn = CreateButton(p2GO, "PrevBtn", "◀", new Vector2(-220, 20), new Vector2(70, 70), new Color(0.3f, 0.45f, 0.7f));
+            prologue.nextCharacterBtn = CreateButton(p2GO, "NextBtn", "▶", new Vector2(220, 20), new Vector2(70, 70), new Color(0.3f, 0.45f, 0.7f));
+
+            prologue.characterNameText = CreateTextElement(p2GO, "CharName", "Nombre de Personaje", 28, new Vector2(0, -185), new Vector2(500, 40), Color.white);
+            prologue.characterLoreText = CreateTextElement(p2GO, "CharLore", "Descripción", 16, new Vector2(0, -225), new Vector2(700, 40), new Color(0.8f, 0.85f, 0.9f));
+            prologue.selectCharacterBtn = CreateButton(p2GO, "SelectBtn", "ELEGIR ESTE CHEF ▶", new Vector2(0, -275), new Vector2(300, 55), new Color(0.2f, 0.75f, 0.4f));
+            prologue.characterSelectPanel = p2GO;
+            p2GO.SetActive(false);
+
+            // ==========================================
+            // PANEL 3: CONFIRMACIÓN PERMANENTE
+            // ==========================================
+            GameObject p3GO = new GameObject("Step3_ConfirmPanel");
+            p3GO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform p3RT = p3GO.AddComponent<RectTransform>();
+            p3RT.anchorMin = new Vector2(0.5f, 0.5f);
+            p3RT.anchorMax = new Vector2(0.5f, 0.5f);
+            p3RT.sizeDelta = new Vector2(720, 420);
+            p3RT.anchoredPosition = Vector2.zero;
+            Image p3Bg = p3GO.AddComponent<Image>();
+            p3Bg.color = new Color(0.12f, 0.14f, 0.20f, 0.99f);
+
+            CreateTextElement(p3GO, "Title", "CONFIRMAR PROTAGONISTA", 32, new Vector2(0, 140), new Vector2(650, 45), new Color(1f, 0.88f, 0.25f));
+            prologue.confirmPromptText = CreateTextElement(p3GO, "Prompt", "¿Estás seguro?\n\nEste será el protagonista de tu historia.\nNo podrás cambiarlo durante esta partida.", 22, new Vector2(0, 20), new Vector2(620, 160), Color.white);
+            prologue.confirmCharacterBtn = CreateButton(p3GO, "ConfirmBtn", "CONFIRMAR", new Vector2(150, -130), new Vector2(220, 60), new Color(0.2f, 0.75f, 0.4f));
+            prologue.backToSelectionBtn = CreateButton(p3GO, "BackBtn", "VOLVER", new Vector2(-150, -130), new Vector2(220, 60), new Color(0.5f, 0.55f, 0.6f));
+            prologue.confirmCharacterPanel = p3GO;
+            p3GO.SetActive(false);
+
+            // ==========================================
+            // PANEL 4: ELECCIÓN DE UNIFORME
+            // ==========================================
+            GameObject p4GO = new GameObject("Step4_OutfitPanel");
+            p4GO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform p4RT = p4GO.AddComponent<RectTransform>();
+            p4RT.anchorMin = new Vector2(0.5f, 0.5f);
+            p4RT.anchorMax = new Vector2(0.5f, 0.5f);
+            p4RT.sizeDelta = new Vector2(980, 680);
+            p4RT.anchoredPosition = Vector2.zero;
+            Image p4Bg = p4GO.AddComponent<Image>();
+            p4Bg.color = new Color(0.14f, 0.16f, 0.22f, 0.98f);
+
+            CreateTextElement(p4GO, "Title", "¿QUÉ UNIFORME DE CHEF QUIERES USAR?", 34, new Vector2(0, 270), new Vector2(900, 50), new Color(1f, 0.88f, 0.25f));
+            CreateTextElement(p4GO, "Subtitle", "Elige tu vestimenta para trabajar dentro de la cocina del restaurante", 18, new Vector2(0, 225), new Vector2(850, 30), new Color(0.85f, 0.88f, 0.95f));
+
+            // Card 1: Chef Negro
+            GameObject cardBlackGO = new GameObject("Card_ChefBlack");
+            cardBlackGO.transform.SetParent(p4GO.transform, false);
+            RectTransform cbRT = cardBlackGO.AddComponent<RectTransform>();
+            cbRT.sizeDelta = new Vector2(360, 460);
+            cbRT.anchoredPosition = new Vector2(-220, -20);
+            Image cbBg = cardBlackGO.AddComponent<Image>();
+            cbBg.color = new Color(0.18f, 0.2f, 0.26f, 0.95f);
+
+            CreateTextElement(cardBlackGO, "Title", "UNIFORME NEGRO", 24, new Vector2(0, 185), new Vector2(320, 35), Color.white);
+            GameObject bImgGO = new GameObject("BlackImg");
+            bImgGO.transform.SetParent(cardBlackGO.transform, false);
+            RectTransform biRT = bImgGO.AddComponent<RectTransform>();
+            biRT.sizeDelta = new Vector2(240, 300);
+            biRT.anchoredPosition = new Vector2(0, 10);
+            prologue.blackUniformPreviewImage = bImgGO.AddComponent<Image>();
+            prologue.blackUniformPreviewImage.preserveAspect = true;
+            prologue.chooseBlackOutfitBtn = CreateButton(cardBlackGO, "ChooseBlackBtn", "ELEGIR CHEF NEGRO", new Vector2(0, -180), new Vector2(280, 50), new Color(0.2f, 0.22f, 0.28f));
+
+            // Card 2: Chef Blanco
+            GameObject cardWhiteGO = new GameObject("Card_ChefWhite");
+            cardWhiteGO.transform.SetParent(p4GO.transform, false);
+            RectTransform cwRT = cardWhiteGO.AddComponent<RectTransform>();
+            cwRT.sizeDelta = new Vector2(360, 460);
+            cwRT.anchoredPosition = new Vector2(220, -20);
+            Image cwBg = cardWhiteGO.AddComponent<Image>();
+            cwBg.color = new Color(0.24f, 0.27f, 0.35f, 0.95f);
+
+            CreateTextElement(cardWhiteGO, "Title", "UNIFORME BLANCO", 24, new Vector2(0, 185), new Vector2(320, 35), Color.white);
+            GameObject wImgGO = new GameObject("WhiteImg");
+            wImgGO.transform.SetParent(cardWhiteGO.transform, false);
+            RectTransform wiRT = wImgGO.AddComponent<RectTransform>();
+            wiRT.sizeDelta = new Vector2(240, 300);
+            wiRT.anchoredPosition = new Vector2(0, 10);
+            prologue.whiteUniformPreviewImage = wImgGO.AddComponent<Image>();
+            prologue.whiteUniformPreviewImage.preserveAspect = true;
+            prologue.chooseWhiteOutfitBtn = CreateButton(cardWhiteGO, "ChooseWhiteBtn", "ELEGIR CHEF BLANCO", new Vector2(0, -180), new Vector2(280, 50), new Color(0.85f, 0.72f, 0.3f));
+
+            prologue.outfitSelectPanel = p4GO;
+            p4GO.SetActive(false);
+
+            // ==========================================
+            // PANEL 5: BIENVENIDA Y APERTURA
+            // ==========================================
+            GameObject p5GO = new GameObject("Step5_WelcomeStoryPanel");
+            p5GO.transform.SetParent(safeAreaGO.transform, false);
+            RectTransform p5RT = p5GO.AddComponent<RectTransform>();
+            p5RT.anchorMin = new Vector2(0.5f, 0.5f);
+            p5RT.anchorMax = new Vector2(0.5f, 0.5f);
+            p5RT.sizeDelta = new Vector2(800, 500);
+            p5RT.anchoredPosition = Vector2.zero;
+            Image p5Bg = p5GO.AddComponent<Image>();
+            p5Bg.color = new Color(0.12f, 0.14f, 0.20f, 0.99f);
+
+            CreateTextElement(p5GO, "Title", "¡LAS PUERTAS SE ABREN!", 36, new Vector2(0, 170), new Vector2(750, 50), new Color(1f, 0.88f, 0.25f));
+            prologue.welcomeStoryText = CreateTextElement(p5GO, "Story", "¡Bienvenido a Villa del Chef!\n\nLas mesas están puestas, la huerta tiene sus primeros brotes y los clientes comenzarán a llegar pronto.\n\nPrepara tus fogones para deleitar al valle.", 22, new Vector2(0, 30), new Vector2(700, 180), Color.white);
+            prologue.enterRestaurantBtn = CreateButton(p5GO, "EnterBtn", "ENTRAR AL RESTAURANTE 🍽️", new Vector2(0, -160), new Vector2(360, 65), new Color(0.2f, 0.75f, 0.4f));
+            prologue.welcomeStoryPanel = p5GO;
+            p5GO.SetActive(false);
+
+            EditorSceneManager.SaveScene(scene, scenePath);
+            Debug.Log($"[RestaurantSceneSetupEditor] 03_Prologue scene successfully created at {scenePath}!");
+        }
+
+        private static InputField CreateInputField(GameObject parent, string name, string placeholderText, Vector2 anchoredPos, Vector2 size)
+        {
+            GameObject inputGO = new GameObject(name);
+            inputGO.transform.SetParent(parent.transform, false);
+            RectTransform rt = inputGO.AddComponent<RectTransform>();
+            rt.sizeDelta = size;
+            rt.anchoredPosition = anchoredPos;
+
+            Image bg = inputGO.AddComponent<Image>();
+            bg.color = new Color(0.18f, 0.22f, 0.30f);
+
+            InputField inputField = inputGO.AddComponent<InputField>();
+
+            GameObject textGO = new GameObject("Text");
+            textGO.transform.SetParent(inputGO.transform, false);
+            RectTransform textRT = textGO.AddComponent<RectTransform>();
+            textRT.anchorMin = Vector2.zero;
+            textRT.anchorMax = Vector2.one;
+            textRT.offsetMin = new Vector2(10, 5);
+            textRT.offsetMax = new Vector2(-10, -5);
+
+            Text text = textGO.AddComponent<Text>();
+            text.fontSize = 22;
+            text.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            text.color = Color.white;
+            text.alignment = TextAnchor.MiddleLeft;
+
+            GameObject phGO = new GameObject("Placeholder");
+            phGO.transform.SetParent(inputGO.transform, false);
+            RectTransform phRT = phGO.AddComponent<RectTransform>();
+            phRT.anchorMin = Vector2.zero;
+            phRT.anchorMax = Vector2.one;
+            phRT.offsetMin = new Vector2(10, 5);
+            phRT.offsetMax = new Vector2(-10, -5);
+
+            Text placeholder = phGO.AddComponent<Text>();
+            placeholder.text = placeholderText;
+            placeholder.fontSize = 20;
+            placeholder.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            placeholder.fontStyle = FontStyle.Italic;
+            placeholder.color = new Color(0.65f, 0.70f, 0.80f, 0.8f);
+            placeholder.alignment = TextAnchor.MiddleLeft;
+
+            inputField.textComponent = text;
+            inputField.placeholder = placeholder;
+
+            return inputField;
         }
     }
 }

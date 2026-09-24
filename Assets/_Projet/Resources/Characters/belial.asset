@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: belial
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: belial
+  displayName: Belial
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: f321761b9ea43534995d4ec7aa893640, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: e8946a45eedac524481dbfce76630874, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: d2b87fe3b5334c5469d51d5e45e1a99a, type: 3}
+  portrait: {fileID: 21300000, guid: f321761b9ea43534995d4ec7aa893640, type: 3}
+  normalAnimator: {fileID: 9100000, guid: 2cd4c4a710e61fa4c9e37c6de8ce1def, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: bbc9d69d45822724eb80bad52b06703c, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 31c63abf04fc14c47ad57a195aa64d01, type: 2}
+  description: 'Chef y amigo de la villa: Belial.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

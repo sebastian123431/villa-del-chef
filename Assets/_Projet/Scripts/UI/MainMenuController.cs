@@ -111,7 +111,10 @@ namespace VillaDelChef.UI
         private void OnContinueClicked()
         {
             AudioManager.Instance?.PlayButtonClick();
-            SceneManager.LoadScene(restaurantSceneName);
+            string targetScene = VillaDelChef.Save.SaveManager.Instance != null 
+                ? VillaDelChef.Save.SaveManager.Instance.GetTargetGameplayScene() 
+                : restaurantSceneName;
+            SceneManager.LoadScene(targetScene);
         }
 
         public void ConfirmNewGame()
@@ -129,7 +132,7 @@ namespace VillaDelChef.UI
         private void StartNewGameAndLoad()
         {
             VillaDelChef.Save.SaveManager.Instance?.StartNewGame();
-            SceneManager.LoadScene(restaurantSceneName);
+            SceneManager.LoadScene("03_Prologue");
         }
 
         private void ShowFallbackConfirmationModal()

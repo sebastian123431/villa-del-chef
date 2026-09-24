@@ -74,11 +74,43 @@ namespace VillaDelChef.Workers
             if (carryingDish != null)
             {
                 carryingDish.isReserved = false;
-                if (DeliveryCounter.Instance != null && DeliveryCounter.Instance.HasSpace())
+                if (DeliveryCounter.Instance != null)
                 {
-                    DeliveryCounter.Instance.AddDish(carryingDish);
+                    if (DeliveryCounter.Instance.HasSpace())
+                    {
+                        DeliveryCounter.Instance.AddDish(carryingDish);
+                    }
+                    else
+                    {
+                        DeliveryCounter.Instance.ForceAddOverflowDish(carryingDish);
+                    }
+                    carryingDish = null;
                 }
-                carryingDish = null;
+                else if (carryingDish.recipeData != null && Inventory.InventoryManager.Instance != null)
+                {
+                    // Mostrador no disponible: reembolsar los ingredientes íntegros al inventario del jugador
+                    foreach (var req in carryingDish.recipeData.requiredIngredients)
+                    {
+                        if (req.ingredient != null && req.amount > 0)
+                        {
+                            Inventory.InventoryManager.Instance.AddItem(req.ingredient.ingredientID, req.amount);
+                        }
+                    }
+                    if (carryingDish.gameObject != null)
+                    {
+                        Destroy(carryingDish.gameObject);
+                    }
+                    carryingDish = null;
+                    Debug.LogWarning("[WorkerController] Mostrador no disponible al desactivar trabajador. Ingredientes reembolsados al inventario de forma segura.");
+                }
+                else
+                {
+                    if (carryingDish.gameObject != null)
+                    {
+                        Destroy(carryingDish.gameObject);
+                    }
+                    carryingDish = null;
+                }
             }
         }
 

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: dafne
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: dafne
+  displayName: Dafne
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: 53cb5eb86a063e44fa7c7a486005328c, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: d78d8710f3be1dd4f91ec29f5ac1dbe5, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 5ee4a2275a7637f47b81f492eb1b0c5e, type: 3}
+  portrait: {fileID: 21300000, guid: 53cb5eb86a063e44fa7c7a486005328c, type: 3}
+  normalAnimator: {fileID: 9100000, guid: 5af4fc46fd7508240887046f51b5aea2, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: 62575a92e192407429b686fbebdc6cbe, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 251c1c39c1cd979499e350d5d124a375, type: 2}
+  description: 'Chef y amigo de la villa: Dafne.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

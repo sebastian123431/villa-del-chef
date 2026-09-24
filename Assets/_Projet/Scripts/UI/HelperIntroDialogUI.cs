@@ -1,0 +1,342 @@
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+using VillaDelChef.Characters;
+using VillaDelChef.Managers;
+using VillaDelChef.Save;
+using VillaDelChef.ScriptableObjects;
+
+namespace VillaDelChef.UI
+{
+    /// <summary>
+    /// Escenario 1.5 — Invitación del Primer Ayudante (Fase 7).
+    /// Se dispara cuando el jugador sirve 3 clientes. Permite invitar a un amigo (excluyendo al protagonista)
+    /// o posponerlo con [AHORA NO].
+    /// </summary>
+    public class HelperIntroDialogUI : MonoBehaviour
+    {
+        public static HelperIntroDialogUI Instance { get; private set; }
+
+        [Header("UI Panels")]
+        [SerializeField] private GameObject modalRoot;
+        [SerializeField] private GameObject invitePanel;
+        [SerializeField] private GameObject selectionPanel;
+
+        [Header("Invite Panel Elements")]
+        [SerializeField] private Text inviteTitleText;
+        [SerializeField] private Text inviteBodyText;
+        [SerializeField] private Button chooseHelperButton;
+        [SerializeField] private Button notNowButton;
+
+        [Header("Selection Panel Elements")]
+        [SerializeField] private Transform characterGridContainer;
+        [SerializeField] private GameObject characterCardPrefab;
+        [SerializeField] private Button blackOutfitBtn;
+        [SerializeField] private Button whiteOutfitBtn;
+        [SerializeField] private Image previewImage;
+        [SerializeField] private Text selectedFriendNameText;
+        [SerializeField] private Button confirmHelperBtn;
+        [SerializeField] private Button cancelSelectionBtn;
+
+        private CharacterSO selectedHelperCharacter;
+        private CharacterOutfit selectedHelperOutfit = CharacterOutfit.ChefWhite;
+        private List<CharacterSO> availableFriends = new List<CharacterSO>();
+
+        private void Awake()
+        {
+            if (Instance == null)
+            {
+                Instance = this;
+            }
+            else
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            if (modalRoot != null) modalRoot.SetActive(false);
+        }
+
+        private void Start()
+        {
+            if (chooseHelperButton != null) chooseHelperButton.onClick.AddListener(OnChooseHelperClicked);
+            if (notNowButton != null) notNowButton.onClick.AddListener(OnNotNowClicked);
+            if (blackOutfitBtn != null) blackOutfitBtn.onClick.AddListener(() => SetOutfit(CharacterOutfit.ChefBlack));
+            if (whiteOutfitBtn != null) whiteOutfitBtn.onClick.AddListener(() => SetOutfit(CharacterOutfit.ChefWhite));
+            if (confirmHelperBtn != null) confirmHelperBtn.onClick.AddListener(OnConfirmHelperClicked);
+            if (cancelSelectionBtn != null) cancelSelectionBtn.onClick.AddListener(OnCancelSelectionClicked);
+        }
+
+        public static void ShowIfAvailable()
+        {
+            if (Instance != null)
+            {
+                Instance.OpenInviteModal();
+            }
+            else
+            {
+                // Fallback dinámico si no existe en la escena
+                CreateFallbackModal();
+            }
+        }
+
+        public void OpenInviteModal()
+        {
+            if (modalRoot != null) modalRoot.SetActive(true);
+            if (invitePanel != null) invitePanel.SetActive(true);
+            if (selectionPanel != null) selectionPanel.SetActive(false);
+
+            if (inviteTitleText != null) inviteTitleText.text = "¡El restaurante se está llenando!";
+            if (inviteBodyText != null)
+            {
+                inviteBodyText.text = "Has atendido a tus primeros clientes con éxito.\n¿Te gustaría invitar a un amigo para que te ayude en el servicio?";
+            }
+        }
+
+        private void OnChooseHelperClicked()
+        {
+            if (invitePanel != null) invitePanel.SetActive(false);
+            if (selectionPanel != null) selectionPanel.SetActive(true);
+
+            LoadAvailableFriends();
+        }
+
+        private void OnNotNowClicked()
+        {
+            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            {
+                SaveManager.Instance.SaveData.helperIntroTriggered = true;
+                SaveManager.Instance.SaveData.helperSelectionSkipped = true;
+                SaveManager.Instance.SaveGame();
+            }
+
+            if (modalRoot != null) modalRoot.SetActive(false);
+            Debug.Log("[HelperIntroDialogUI] Selección de ayudante pospuesta por el jugador.");
+        }
+
+        private void LoadAvailableFriends()
+        {
+            availableFriends.Clear();
+            var allCharacters = Resources.LoadAll<CharacterSO>("Characters");
+
+            string playerID = SaveManager.Instance != null && SaveManager.Instance.SaveData != null
+                ? SaveManager.Instance.SaveData.selectedPlayerCharacterID
+                : "";
+
+            foreach (var ch in allCharacters)
+            {
+                if (ch == null) continue;
+                // REGLA CRÍTICA: Excluir al protagonista
+                if (!string.IsNullOrEmpty(playerID) && ch.characterID == playerID) continue;
+                if (!ch.selectableAsHelper) continue;
+
+                availableFriends.Add(ch);
+            }
+
+            if (availableFriends.Count > 0)
+            {
+                SelectCharacter(availableFriends[0]);
+            }
+        }
+
+        private void SelectCharacter(CharacterSO character)
+        {
+            selectedHelperCharacter = character;
+            if (selectedFriendNameText != null && character != null)
+            {
+                selectedFriendNameText.text = character.displayName;
+            }
+            UpdatePreview();
+        }
+
+        private void SetOutfit(CharacterOutfit outfit)
+        {
+            selectedHelperOutfit = outfit;
+            UpdatePreview();
+        }
+
+        private void UpdatePreview()
+        {
+            if (previewImage != null && selectedHelperCharacter != null)
+            {
+                previewImage.sprite = selectedHelperCharacter.GetPreviewSprite(selectedHelperOutfit);
+            }
+        }
+
+        private void OnConfirmHelperClicked()
+        {
+            if (selectedHelperCharacter == null) return;
+
+            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            {
+                var data = SaveManager.Instance.SaveData;
+                data.selectedHelperCharacterID = selectedHelperCharacter.characterID;
+                data.helperChefOutfit = selectedHelperOutfit;
+                data.helperIntroTriggered = true;
+                data.helperSelectionSkipped = false;
+                SaveManager.Instance.SaveGame();
+            }
+
+            // Spawn or update worker in WorkerManager
+            ApplyHelperToRestaurant(selectedHelperCharacter, selectedHelperOutfit);
+
+            if (modalRoot != null) modalRoot.SetActive(false);
+            Debug.Log($"[HelperIntroDialogUI] ¡Ayudante {selectedHelperCharacter.displayName} contratado con uniforme {selectedHelperOutfit}!");
+        }
+
+        private void OnCancelSelectionClicked()
+        {
+            if (selectionPanel != null) selectionPanel.SetActive(false);
+            if (invitePanel != null) invitePanel.SetActive(true);
+        }
+
+        public static void ApplyHelperToRestaurant(CharacterSO helperCharacter, CharacterOutfit outfit)
+        {
+            if (helperCharacter == null) return;
+
+            if (WorkerManager.Instance != null)
+            {
+                // Buscar si ya hay un worker activo para asignarle apariencia
+                if (WorkerManager.Instance.activeWorkers.Count > 0)
+                {
+                    var worker = WorkerManager.Instance.activeWorkers[0];
+                    var app = worker.GetComponent<CharacterAppearanceController>();
+                    if (app == null) app = worker.gameObject.AddComponent<CharacterAppearanceController>();
+                    app.ApplyCharacter(helperCharacter, outfit);
+                }
+                else
+                {
+                    // Crear worker con WorkerSO fallback y aplicarle CharacterAppearanceController
+                    var defaultWorkerSO = Resources.Load<WorkerSO>("Worker_Waiter");
+                    if (defaultWorkerSO == null)
+                    {
+                        defaultWorkerSO = ScriptableObject.CreateInstance<WorkerSO>();
+                        defaultWorkerSO.workerName = helperCharacter.displayName;
+                    }
+                    WorkerManager.Instance.SpawnWorker(defaultWorkerSO, WorkerManager.Instance.initialWorkerGrid);
+                    if (WorkerManager.Instance.activeWorkers.Count > 0)
+                    {
+                        var worker = WorkerManager.Instance.activeWorkers[0];
+                        var app = worker.GetComponent<CharacterAppearanceController>();
+                        if (app == null) app = worker.gameObject.AddComponent<CharacterAppearanceController>();
+                        app.ApplyCharacter(helperCharacter, outfit);
+                    }
+                }
+            }
+        }
+
+        private static void CreateFallbackModal()
+        {
+            Canvas canvas = Object.FindAnyObjectByType<Canvas>();
+            if (canvas == null) return;
+
+            GameObject root = new GameObject("HelperIntroModal_Fallback");
+            root.transform.SetParent(canvas.transform, false);
+
+            var dialog = root.AddComponent<HelperIntroDialogUI>();
+            dialog.modalRoot = root;
+
+            RectTransform rt = root.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0.5f, 0.5f);
+            rt.anchorMax = new Vector2(0.5f, 0.5f);
+            rt.sizeDelta = new Vector2(580, 360);
+            rt.anchoredPosition = Vector2.zero;
+
+            Image bg = root.AddComponent<Image>();
+            bg.color = new Color(0.12f, 0.14f, 0.18f, 0.98f);
+
+            GameObject textGO = new GameObject("InviteText");
+            textGO.transform.SetParent(root.transform, false);
+            Text t = textGO.AddComponent<Text>();
+            t.text = "<b>¡El restaurante se está llenando!</b>\n\nHas atendido a tus primeros comensales.\n¿Te gustaría invitar a un amigo para que te ayude?";
+            t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            t.fontSize = 20;
+            t.alignment = TextAnchor.MiddleCenter;
+            t.color = Color.white;
+            RectTransform trt = textGO.GetComponent<RectTransform>();
+            trt.anchoredPosition = new Vector2(0f, 40f);
+            trt.sizeDelta = new Vector2(520, 160);
+
+            // Elegir Ayudante Button
+            GameObject chooseGO = new GameObject("ChooseBtn");
+            chooseGO.transform.SetParent(root.transform, false);
+            Image cBg = chooseGO.AddComponent<Image>();
+            cBg.color = new Color(0.2f, 0.65f, 0.35f);
+            Button cBtn = chooseGO.AddComponent<Button>();
+            RectTransform cRT = chooseGO.GetComponent<RectTransform>();
+            cRT.anchoredPosition = new Vector2(120f, -100f);
+            cRT.sizeDelta = new Vector2(200, 50);
+
+            GameObject cTextGO = new GameObject("Label");
+            cTextGO.transform.SetParent(chooseGO.transform, false);
+            Text cTxt = cTextGO.AddComponent<Text>();
+            cTxt.text = "ELEGIR AMIGO";
+            cTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            cTxt.fontSize = 18;
+            cTxt.alignment = TextAnchor.MiddleCenter;
+            cTxt.color = Color.white;
+            RectTransform ctxtRT = cTextGO.GetComponent<RectTransform>();
+            ctxtRT.sizeDelta = cRT.sizeDelta;
+
+            // Ahora No Button
+            GameObject skipGO = new GameObject("SkipBtn");
+            skipGO.transform.SetParent(root.transform, false);
+            Image sBg = skipGO.AddComponent<Image>();
+            sBg.color = new Color(0.45f, 0.48f, 0.52f);
+            Button sBtn = skipGO.AddComponent<Button>();
+            RectTransform sRT = skipGO.GetComponent<RectTransform>();
+            sRT.anchoredPosition = new Vector2(-120f, -100f);
+            sRT.sizeDelta = new Vector2(180, 50);
+
+            GameObject sTextGO = new GameObject("Label");
+            sTextGO.transform.SetParent(skipGO.transform, false);
+            Text sTxt = sTextGO.AddComponent<Text>();
+            sTxt.text = "AHORA NO";
+            sTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            sTxt.fontSize = 18;
+            sTxt.alignment = TextAnchor.MiddleCenter;
+            sTxt.color = Color.white;
+            RectTransform stxtRT = sTextGO.GetComponent<RectTransform>();
+            stxtRT.sizeDelta = sRT.sizeDelta;
+
+            cBtn.onClick.AddListener(() =>
+            {
+                // Auto-pick first available friend who is not player
+                var allChars = Resources.LoadAll<CharacterSO>("Characters");
+                string playerID = SaveManager.Instance?.SaveData?.selectedPlayerCharacterID ?? "";
+                CharacterSO helper = null;
+                foreach (var ch in allChars)
+                {
+                    if (ch != null && ch.characterID != playerID)
+                    {
+                        helper = ch;
+                        break;
+                    }
+                }
+                if (helper != null)
+                {
+                    ApplyHelperToRestaurant(helper, CharacterOutfit.ChefWhite);
+                    if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+                    {
+                        SaveManager.Instance.SaveData.selectedHelperCharacterID = helper.characterID;
+                        SaveManager.Instance.SaveData.helperChefOutfit = CharacterOutfit.ChefWhite;
+                        SaveManager.Instance.SaveData.helperIntroTriggered = true;
+                        SaveManager.Instance.SaveGame();
+                    }
+                }
+                Object.Destroy(root);
+            });
+
+            sBtn.onClick.AddListener(() =>
+            {
+                if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+                {
+                    SaveManager.Instance.SaveData.helperIntroTriggered = true;
+                    SaveManager.Instance.SaveData.helperSelectionSkipped = true;
+                    SaveManager.Instance.SaveGame();
+                }
+                Object.Destroy(root);
+            });
+        }
+    }
+}

@@ -55,13 +55,30 @@ namespace VillaDelChef.Managers
             }
 
             GameEvents.OnCustomerLeft += HandleCustomerLeft;
+            GameEvents.OnCustomerServed += HandleCustomerServed;
             spawnRoutine = StartCoroutine(SpawnLoop());
         }
 
         private void OnDestroy()
         {
             GameEvents.OnCustomerLeft -= HandleCustomerLeft;
+            GameEvents.OnCustomerServed -= HandleCustomerServed;
             if (spawnRoutine != null) StopCoroutine(spawnRoutine);
+        }
+
+        private void HandleCustomerServed(object customerObj, bool satisfied)
+        {
+            if (satisfied && Save.SaveManager.Instance != null && Save.SaveManager.Instance.SaveData != null)
+            {
+                Save.SaveManager.Instance.SaveData.customersServedTotal++;
+                Save.SaveManager.Instance.SaveGame();
+
+                if (Save.SaveManager.Instance.SaveData.customersServedTotal >= 3 &&
+                    !Save.SaveManager.Instance.SaveData.helperIntroTriggered)
+                {
+                    UI.HelperIntroDialogUI.ShowIfAvailable();
+                }
+            }
         }
 
         private IEnumerator SpawnLoop()
@@ -75,7 +92,8 @@ namespace VillaDelChef.Managers
                 float waitTime = Random.Range(minSpawnInterval, maxSpawnInterval) * repMultiplier;
                 yield return new WaitForSeconds(waitTime);
 
-                if (activeCustomers.Count < maxSimultaneousCustomers && HasAvailableTables())
+                bool isOpen = RestaurantOperatingManager.Instance == null || RestaurantOperatingManager.Instance.IsOpen;
+                if (isOpen && activeCustomers.Count < maxSimultaneousCustomers && HasAvailableTables())
                 {
                     SpawnCustomer();
                 }

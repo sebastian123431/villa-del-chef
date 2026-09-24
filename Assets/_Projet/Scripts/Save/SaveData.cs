@@ -69,7 +69,7 @@ namespace VillaDelChef.Save
     [Serializable]
     public class SaveData
     {
-        public int saveVersion = 2;
+        public int saveVersion = 3;
 
         // Player stats
         public int coins = 250;
@@ -80,6 +80,20 @@ namespace VillaDelChef.Save
         // Session & Progression State
         public bool hasStartedGame = false;
         public bool starterItemsGranted = false;
+
+        // Phase 7: Prologue, Character Identity & Restaurant Operation
+        public string playerName = "";
+        public string selectedPlayerCharacterID = "";
+        public VillaDelChef.ScriptableObjects.CharacterOutfit selectedChefOutfit = VillaDelChef.ScriptableObjects.CharacterOutfit.ChefBlack;
+        public bool playerCharacterLocked = false;
+        public bool prologueCompleted = false;
+        public int prologueStep = 0;
+        public string selectedHelperCharacterID = "";
+        public VillaDelChef.ScriptableObjects.CharacterOutfit helperChefOutfit = VillaDelChef.ScriptableObjects.CharacterOutfit.ChefWhite;
+        public bool helperIntroTriggered = false;
+        public bool helperSelectionSkipped = false;
+        public int customersServedTotal = 0;
+        public bool restaurantOpen = false;
 
         // Inventory
         public List<InventoryItemEntry> inventory = new List<InventoryItemEntry>();

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: bastian
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: bastian
+  displayName: Bastian
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: 4effdb47a8cac7649a5009c3e19d8151, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: 7bc1fbc82c411a84c8861a0c2dcc13f3, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 06451298d82d7424b9a740078c194f90, type: 3}
+  portrait: {fileID: 21300000, guid: 4effdb47a8cac7649a5009c3e19d8151, type: 3}
+  normalAnimator: {fileID: 9100000, guid: 52d421fee4cc9044194cd70d23724862, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: 5a730e9e81c19e841a9541965b1e320d, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: f65982d593d60bb46a546f839fed4ee8, type: 2}
+  description: 'Chef y amigo de la villa: Bastian.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

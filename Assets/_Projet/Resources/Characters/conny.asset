@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: conny
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: conny
+  displayName: Conny
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: 81612856e30d5834183da7ea22950270, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: 0b9435690bc80c746a8139a6fb989eb9, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 1def40a729de84c4a8173fec9498011b, type: 3}
+  portrait: {fileID: 21300000, guid: 81612856e30d5834183da7ea22950270, type: 3}
+  normalAnimator: {fileID: 9100000, guid: d229a76b54f336f4abc90636d26b15d9, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: 5a809d2f2c73d574fa5bbae441efd73a, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 62d7038d5f4f29d4582d8b0a68c3ec0b, type: 2}
+  description: 'Chef y amigo de la villa: Conny.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

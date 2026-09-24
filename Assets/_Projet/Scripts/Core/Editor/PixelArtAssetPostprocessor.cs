@@ -12,8 +12,14 @@ namespace VillaDelChef.EditorTools
             if (assetPath.Contains("Assets/_Projet/Art/"))
             {
                 TextureImporter importer = (TextureImporter)assetImporter;
-                importer.textureType = TextureImporterType.Sprite;
-                importer.spriteImportMode = SpriteImportMode.Single;
+                if (assetPath.Contains("movimientos_") || assetPath.Contains("movimientos"))
+                {
+                    importer.spriteImportMode = SpriteImportMode.Multiple;
+                }
+                else
+                {
+                    importer.spriteImportMode = SpriteImportMode.Single;
+                }
                 importer.filterMode = FilterMode.Point;
                 importer.textureCompression = TextureImporterCompression.Uncompressed;
                 importer.mipmapEnabled = false;

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: dana
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: dana
+  displayName: Dana
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: 017327858468d7c4fbce738a807d4dfd, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: 24c7b07fe1371a7449f8fd5f65893305, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 6d1ad59f89096244b956b33e66b46947, type: 3}
+  portrait: {fileID: 21300000, guid: 017327858468d7c4fbce738a807d4dfd, type: 3}
+  normalAnimator: {fileID: 9100000, guid: c982b735e3488e94a9ba1d148c60d466, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: 1d80dd39af0cd5e4dbc0ad23363b909a, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 63df186194ab028479b998a92198f16f, type: 2}
+  description: 'Chef y amigo de la villa: Dana.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}

@@ -1,0 +1,1796 @@
+fileFormatVersion: 2
+guid: 278d24c2b4735c641b4a0059a1c1df1d
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2030519359901745227
+    second: movimientos_rbchef_0
+  - first:
+      213: -7919054727351457845
+    second: movimientos_rbchef_1
+  - first:
+      213: -5228411152388370048
+    second: movimientos_rbchef_2
+  - first:
+      213: 7038941400753672610
+    second: movimientos_rbchef_3
+  - first:
+      213: -6435379463472655134
+    second: movimientos_rbchef_4
+  - first:
+      213: 5343653311175726447
+    second: movimientos_rbchef_5
+  - first:
+      213: -3623403321986820567
+    second: movimientos_rbchef_6
+  - first:
+      213: -6780747593306307382
+    second: movimientos_rbchef_7
+  - first:
+      213: -6250960314631402937
+    second: movimientos_rbchef_8
+  - first:
+      213: -3280972366135401038
+    second: movimientos_rbchef_9
+  - first:
+      213: 515891672298923929
+    second: movimientos_rbchef_10
+  - first:
+      213: 1278355583880482342
+    second: movimientos_rbchef_11
+  - first:
+      213: 5898979831062266324
+    second: movimientos_rbchef_12
+  - first:
+      213: 511516447903436743
+    second: movimientos_rbchef_13
+  - first:
+      213: 6340842185604228098
+    second: movimientos_rbchef_14
+  - first:
+      213: 7347634719379571679
+    second: movimientos_rbchef_15
+  - first:
+      213: -3339573400722859647
+    second: movimientos_rbchef_16
+  - first:
+      213: -3157877836374217574
+    second: movimientos_rbchef_17
+  - first:
+      213: -6639517567206093354
+    second: movimientos_rbchef_18
+  - first:
+      213: -7577940783813214419
+    second: movimientos_rbchef_19
+  - first:
+      213: 1340614357031665313
+    second: movimientos_rbchef_20
+  - first:
+      213: 2900439672890670682
+    second: movimientos_rbchef_21
+  - first:
+      213: -6562821635506380782
+    second: movimientos_rbchef_22
+  - first:
+      213: 2061321564145682302
+    second: movimientos_rbchef_23
+  - first:
+      213: -7127028935582881032
+    second: movimientos_rbchef_24
+  - first:
+      213: 5776993772178823898
+    second: movimientos_rbchef_25
+  - first:
+      213: 1095999975298809942
+    second: movimientos_rbchef_26
+  - first:
+      213: 7011833782680078460
+    second: movimientos_rbchef_27
+  - first:
+      213: -4303137405873407508
+    second: movimientos_rbchef_28
+  - first:
+      213: -4641653191788057047
+    second: movimientos_rbchef_29
+  - first:
+      213: 5988696581622889552
+    second: movimientos_rbchef_30
+  - first:
+      213: -7541876271217060407
+    second: movimientos_rbchef_31
+  - first:
+      213: 308249381359186742
+    second: movimientos_rbchef_32
+  - first:
+      213: 2776463272966887810
+    second: movimientos_rbchef_33
+  - first:
+      213: -850861914762319747
+    second: movimientos_rbchef_34
+  - first:
+      213: 2723239436980301125
+    second: movimientos_rbchef_35
+  - first:
+      213: 8908299708416438107
+    second: movimientos_rbchef_36
+  - first:
+      213: 2462239004547220056
+    second: movimientos_rbchef_37
+  - first:
+      213: -1088437148894183243
+    second: movimientos_rbchef_38
+  - first:
+      213: -6169849771137515116
+    second: movimientos_rbchef_39
+  - first:
+      213: -1829237351413673512
+    second: movimientos_rbchef_40
+  - first:
+      213: 197899646882069502
+    second: movimientos_rbchef_41
+  - first:
+      213: -8837927489253695782
+    second: movimientos_rbchef_42
+  - first:
+      213: 3311033597835395471
+    second: movimientos_rbchef_43
+  - first:
+      213: -3547895015182584962
+    second: movimientos_rbchef_44
+  - first:
+      213: -9153294623368304202
+    second: movimientos_rbchef_45
+  - first:
+      213: -8373554976588476306
+    second: movimientos_rbchef_46
+  - first:
+      213: 5510836635213521043
+    second: movimientos_rbchef_47
+  - first:
+      213: 4695605693237669767
+    second: movimientos_rbchef_48
+  - first:
+      213: -2336161292225680322
+    second: movimientos_rbchef_49
+  - first:
+      213: -2474412775888244902
+    second: movimientos_rbchef_50
+  - first:
+      213: -3165528509867550968
+    second: movimientos_rbchef_51
+  - first:
+      213: -2874442005999567917
+    second: movimientos_rbchef_52
+  - first:
+      213: -4105053963828200203
+    second: movimientos_rbchef_53
+  - first:
+      213: -3224132435547726488
+    second: movimientos_rbchef_54
+  - first:
+      213: 7570359166641678535
+    second: movimientos_rbchef_55
+  - first:
+      213: -6454071496219654120
+    second: movimientos_rbchef_56
+  - first:
+      213: -726105196262141084
+    second: movimientos_rbchef_57
+  - first:
+      213: 6779168364328607048
+    second: movimientos_rbchef_58
+  - first:
+      213: -459778763507379131
+    second: movimientos_rbchef_59
+  - first:
+      213: -1535177853934137495
+    second: movimientos_rbchef_60
+  - first:
+      213: -7223601692663383355
+    second: movimientos_rbchef_61
+  - first:
+      213: -530606043667422837
+    second: movimientos_rbchef_62
+  - first:
+      213: -4249856404702225170
+    second: movimientos_rbchef_63
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 16
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationMethod: 0
+  spriteTessellationDetail: -1
+  spriteGeometrySubdivision: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 0
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: movimientos_rbchef_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1488.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5bfb08b766522d3e0800000000000000
+      internalID: -2030519359901745227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_1
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 1488.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc7a653beadd91290800000000000000
+      internalID: -7919054727351457845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_2
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 1488.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 081533a12c3f077b0800000000000000
+      internalID: -5228411152388370048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_3
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 1488.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2a196baf8e75fa160800000000000000
+      internalID: 7038941400753672610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1389.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e45edc5970f0b6a0800000000000000
+      internalID: -6435379463472655134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_5
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 1389.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f651877ef58782a40800000000000000
+      internalID: 5343653311175726447
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_6
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 1389.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 926510350e517bdc0800000000000000
+      internalID: -3623403321986820567
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_7
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 1389.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ac484656df1f5e1a0800000000000000
+      internalID: -6780747593306307382
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1290.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 74ac45d76b02049a0800000000000000
+      internalID: -6250960314631402937
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_9
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 1290.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2b560ae2405a772d0800000000000000
+      internalID: -3280972366135401038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_10
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 1290.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 997a5fd1eb0d82700800000000000000
+      internalID: 515891672298923929
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_11
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 1290.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62e45d961a1adb110800000000000000
+      internalID: 1278355583880482342
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1191
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d109a7f6e26dd150800000000000000
+      internalID: 5898979831062266324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_13
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 1191
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cfcd0ecf75491700800000000000000
+      internalID: 511516447903436743
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_14
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 1191
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20460c16f523ff750800000000000000
+      internalID: 6340842185604228098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_15
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 1191
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd342fb09da08f560800000000000000
+      internalID: 7347634719379571679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1091.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 18912949fa377a1d0800000000000000
+      internalID: -3339573400722859647
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_17
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 1091.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a9ce5d6c6d6fc24d0800000000000000
+      internalID: -3157877836374217574
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_18
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 1091.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6dd07b643f1bbd3a0800000000000000
+      internalID: -6639517567206093354
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_19
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 1091.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2f3edbb10fb5d690800000000000000
+      internalID: -7577940783813214419
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 992.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ae39a3a7a1da9210800000000000000
+      internalID: 1340614357031665313
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_21
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 992.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5e391be38e604820800000000000000
+      internalID: 2900439672890670682
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_22
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 992.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 210e46b6e7c2ce4a0800000000000000
+      internalID: -6562821635506380782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_23
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 992.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7781ce8a094b9c10800000000000000
+      internalID: 2061321564145682302
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 893.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8fae6a691f4b71d90800000000000000
+      internalID: -7127028935582881032
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_25
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 893.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: adadc5c5a310c2050800000000000000
+      internalID: 5776993772178823898
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_26
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 893.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 650c581bb26c53f00800000000000000
+      internalID: 1095999975298809942
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_27
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 893.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c78cab0dca90f4160800000000000000
+      internalID: 7011833782680078460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 794
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce9383f045f2844c0800000000000000
+      internalID: -4303137405873407508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_29
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 794
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92e2aecb309859fb0800000000000000
+      internalID: -4641653191788057047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_30
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 794
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05c7a3fbfcf1c1350800000000000000
+      internalID: 5988696581622889552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_31
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 794
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9c5d82a6d7fd55790800000000000000
+      internalID: -7541876271217060407
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_32
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 694.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 633f52edd2f174400800000000000000
+      internalID: 308249381359186742
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_33
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 694.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2891c1de2aaf78620800000000000000
+      internalID: 2776463272966887810
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_34
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 694.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d78eea9b8912134f0800000000000000
+      internalID: -850861914762319747
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_35
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 694.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 54dab8fe6d3eac520800000000000000
+      internalID: 2723239436980301125
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_36
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 595.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5fa0e8f263a0ab70800000000000000
+      internalID: 8908299708416438107
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_37
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 595.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 85206224451ab2220800000000000000
+      internalID: 2462239004547220056
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_38
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 595.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b0c2db0e2815e0f0800000000000000
+      internalID: -1088437148894183243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_39
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 595.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 491c2d9825a406aa0800000000000000
+      internalID: -6169849771137515116
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_40
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 496.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8d19c13125e3d96e0800000000000000
+      internalID: -1829237351413673512
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_41
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 496.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efbb4992ea41fb200800000000000000
+      internalID: 197899646882069502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_42
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 496.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ade9f5c16cf595580800000000000000
+      internalID: -8837927489253695782
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_43
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 496.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f81cc5eb38723fd20800000000000000
+      internalID: 3311033597835395471
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_44
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 397
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e73b9aff74853cec0800000000000000
+      internalID: -3547895015182584962
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_45
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 397
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6b9a3a94907f8f080800000000000000
+      internalID: -9153294623368304202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_46
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 397
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e605d312d182bcb80800000000000000
+      internalID: -8373554976588476306
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_47
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 397
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3906c19d8bc6a7c40800000000000000
+      internalID: 5510836635213521043
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_48
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 297.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 78fabb6ef742a2140800000000000000
+      internalID: 4695605693237669767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_49
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 297.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e3ceed6aea9449fd0800000000000000
+      internalID: -2336161292225680322
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_50
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 297.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a5f2e79b0be19add0800000000000000
+      internalID: -2474412775888244902
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_51
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 297.75
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80719fa8798c114d0800000000000000
+      internalID: -3165528509867550968
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_52
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 198.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3db3fe8993eeb18d0800000000000000
+      internalID: -2874442005999567917
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_53
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 198.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fcf53e5b2be707c0800000000000000
+      internalID: -4105053963828200203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_54
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 198.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86ddc5ec1a49143d0800000000000000
+      internalID: -3224132435547726488
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_55
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 198.5
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c8acc57d815f0960800000000000000
+      internalID: 7570359166641678535
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_56
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 99.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8188ad85b288e66a0800000000000000
+      internalID: -6454071496219654120
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_57
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 99.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 463da3bcb2b5ce5f0800000000000000
+      internalID: -726105196262141084
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_58
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 99.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 84d5f54b5b1741e50800000000000000
+      internalID: 6779168364328607048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_59
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 99.25
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 544dfdd86a98e99f0800000000000000
+      internalID: -459778763507379131
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_60
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96f853520e3f1bae0800000000000000
+      internalID: -1535177853934137495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_61
+      rect:
+        serializedVersion: 2
+        x: 247.5
+        y: 0
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ca73e5688c90cb90800000000000000
+      internalID: -7223601692663383355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_62
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 0
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8127835d98e2a8f0800000000000000
+      internalID: -530606043667422837
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: movimientos_rbchef_63
+      rect:
+        serializedVersion: 2
+        x: 742.5
+        y: 0
+        width: 247.5
+        height: 99.25
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eec1e4bdd1a7505c0800000000000000
+      internalID: -4249856404702225170
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      movimientos_rbchef_0: -2030519359901745227
+      movimientos_rbchef_1: -7919054727351457845
+      movimientos_rbchef_10: 515891672298923929
+      movimientos_rbchef_11: 1278355583880482342
+      movimientos_rbchef_12: 5898979831062266324
+      movimientos_rbchef_13: 511516447903436743
+      movimientos_rbchef_14: 6340842185604228098
+      movimientos_rbchef_15: 7347634719379571679
+      movimientos_rbchef_16: -3339573400722859647
+      movimientos_rbchef_17: -3157877836374217574
+      movimientos_rbchef_18: -6639517567206093354
+      movimientos_rbchef_19: -7577940783813214419
+      movimientos_rbchef_2: -5228411152388370048
+      movimientos_rbchef_20: 1340614357031665313
+      movimientos_rbchef_21: 2900439672890670682
+      movimientos_rbchef_22: -6562821635506380782
+      movimientos_rbchef_23: 2061321564145682302
+      movimientos_rbchef_24: -7127028935582881032
+      movimientos_rbchef_25: 5776993772178823898
+      movimientos_rbchef_26: 1095999975298809942
+      movimientos_rbchef_27: 7011833782680078460
+      movimientos_rbchef_28: -4303137405873407508
+      movimientos_rbchef_29: -4641653191788057047
+      movimientos_rbchef_3: 7038941400753672610
+      movimientos_rbchef_30: 5988696581622889552
+      movimientos_rbchef_31: -7541876271217060407
+      movimientos_rbchef_32: 308249381359186742
+      movimientos_rbchef_33: 2776463272966887810
+      movimientos_rbchef_34: -850861914762319747
+      movimientos_rbchef_35: 2723239436980301125
+      movimientos_rbchef_36: 8908299708416438107
+      movimientos_rbchef_37: 2462239004547220056
+      movimientos_rbchef_38: -1088437148894183243
+      movimientos_rbchef_39: -6169849771137515116
+      movimientos_rbchef_4: -6435379463472655134
+      movimientos_rbchef_40: -1829237351413673512
+      movimientos_rbchef_41: 197899646882069502
+      movimientos_rbchef_42: -8837927489253695782
+      movimientos_rbchef_43: 3311033597835395471
+      movimientos_rbchef_44: -3547895015182584962
+      movimientos_rbchef_45: -9153294623368304202
+      movimientos_rbchef_46: -8373554976588476306
+      movimientos_rbchef_47: 5510836635213521043
+      movimientos_rbchef_48: 4695605693237669767
+      movimientos_rbchef_49: -2336161292225680322
+      movimientos_rbchef_5: 5343653311175726447
+      movimientos_rbchef_50: -2474412775888244902
+      movimientos_rbchef_51: -3165528509867550968
+      movimientos_rbchef_52: -2874442005999567917
+      movimientos_rbchef_53: -4105053963828200203
+      movimientos_rbchef_54: -3224132435547726488
+      movimientos_rbchef_55: 7570359166641678535
+      movimientos_rbchef_56: -6454071496219654120
+      movimientos_rbchef_57: -726105196262141084
+      movimientos_rbchef_58: 6779168364328607048
+      movimientos_rbchef_59: -459778763507379131
+      movimientos_rbchef_6: -3623403321986820567
+      movimientos_rbchef_60: -1535177853934137495
+      movimientos_rbchef_61: -7223601692663383355
+      movimientos_rbchef_62: -530606043667422837
+      movimientos_rbchef_63: -4249856404702225170
+      movimientos_rbchef_7: -6780747593306307382
+      movimientos_rbchef_8: -6250960314631402937
+      movimientos_rbchef_9: -3280972366135401038
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

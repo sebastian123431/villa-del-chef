@@ -191,6 +191,87 @@ namespace VillaDelChef.Core.Editor
                 }
             }
 
+            // 9. Characters (Fase 7)
+            var characters = Resources.LoadAll<CharacterSO>("Characters");
+            var charIds = new HashSet<string>();
+            foreach (var ch in characters)
+            {
+                if (ch == null) continue;
+                if (string.IsNullOrWhiteSpace(ch.characterID))
+                {
+                    Debug.LogError($"[GameDataValidator] CharacterSO '{ch.name}' no tiene characterID asignado.", ch);
+                    errorCount++;
+                }
+                else if (!charIds.Add(ch.characterID))
+                {
+                    Debug.LogError($"[GameDataValidator] ID duplicado en CharacterSO: '{ch.characterID}' en asset '{ch.name}'.", ch);
+                    errorCount++;
+                }
+
+                if (string.IsNullOrWhiteSpace(ch.displayName))
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene displayName asignado.", ch);
+                    warningCount++;
+                }
+
+                if (ch.normalPreview == null)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene normalPreview (_rnormal).", ch);
+                    warningCount++;
+                }
+
+                if (ch.blackChefPreview == null)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene blackChefPreview (_rnchef).", ch);
+                    warningCount++;
+                }
+
+                if (ch.whiteChefPreview == null)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene whiteChefPreview (_rbchef).", ch);
+                    warningCount++;
+                }
+
+                if (ch.normalAnimator == null && ch.normalPreview != null)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene normalAnimator configurado.", ch);
+                    warningCount++;
+                }
+
+                if (ch.blackChefAnimator == null && ch.blackChefPreview != null)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene blackChefAnimator configurado.", ch);
+                    warningCount++;
+                }
+
+                if (ch.whiteChefAnimator == null && ch.whiteChefPreview != null)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene whiteChefAnimator configurado.", ch);
+                    warningCount++;
+                }
+            }
+
+            // 10. Friends Art Directory Audit (Check ambiguous files without touching PNGs)
+            string friendsPath = "Assets/_Projet/Art/Characters/Friends";
+            if (System.IO.Directory.Exists(friendsPath))
+            {
+                string[] allPngs = System.IO.Directory.GetFiles(friendsPath, "*.png", System.IO.SearchOption.AllDirectories);
+                foreach (string pngPath in allPngs)
+                {
+                    string fileName = System.IO.Path.GetFileName(pngPath).ToLower();
+                    if (fileName.Contains("rbnormal"))
+                    {
+                        Debug.LogWarning($"[GameDataValidator] NOMENCLATURA AMBIGUA DETECTADA: Archivo '{pngPath}' contiene 'rbnormal' (clave no oficial). Conservar intacto y no renombrar automáticamente.");
+                        warningCount++;
+                    }
+                    if (fileName == "movimientos.png")
+                    {
+                        Debug.LogWarning($"[GameDataValidator] NOMENCLATURA AMBIGUA DETECTADA: Archivo '{pngPath}' no especifica sufijo de vestuario (_rnormal, _rnchef, _rbchef). Conservar intacto.");
+                        warningCount++;
+                    }
+                }
+            }
+
             // Summary
             if (errorCount == 0 && warningCount == 0)
             {

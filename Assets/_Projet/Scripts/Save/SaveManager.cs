@@ -14,7 +14,9 @@ namespace VillaDelChef.Save
         private SaveData currentSaveData;
 
         public SaveData CurrentSave => currentSaveData;
+        public SaveData SaveData => currentSaveData;
         public long OfflineSecondsElapsed { get; private set; }
+        public bool RestoredFromBackup { get; private set; } = false;
 
         public static bool HasSaveFile()
         {
@@ -69,8 +71,9 @@ namespace VillaDelChef.Save
                     // Calculate offline time
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
+                    RestoredFromBackup = false;
 
-                    // Centralized migration for older saves (e.g. v1 -> v2)
+                    // Centralized migration for older saves (e.g. v1 -> v2 -> v3)
                     MigrateSaveIfNeeded(currentSaveData);
 
                     Debug.Log($"[SaveManager] Loaded save game (v{currentSaveData.saveVersion}). Offline time: {OfflineSecondsElapsed} seconds.");
@@ -91,8 +94,9 @@ namespace VillaDelChef.Save
                     currentSaveData = JsonUtility.FromJson<SaveData>(json);
                     long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                     OfflineSecondsElapsed = Math.Max(0, now - currentSaveData.lastSaveTimestampSeconds);
+                    RestoredFromBackup = true;
 
-                    // Centralized migration for older saves (e.g. v1 -> v2)
+                    // Centralized migration for older saves (e.g. v1 -> v2 -> v3)
                     MigrateSaveIfNeeded(currentSaveData);
 
                     Debug.Log($"[SaveManager] Restored save game from backup. Offline time: {OfflineSecondsElapsed} seconds.");
@@ -104,6 +108,7 @@ namespace VillaDelChef.Save
                 }
             }
 
+            RestoredFromBackup = false;
             CreateDefaultSave();
         }
 
@@ -138,8 +143,36 @@ namespace VillaDelChef.Save
                 }
 
                 data.saveVersion = 2;
+                Debug.Log($"[SaveManager] Migración a v2 completada. hasStartedGame={data.hasStartedGame}");
+            }
+
+            if (data.saveVersion < 3)
+            {
+                Debug.Log($"[SaveManager] Migrando partida guardada de v{data.saveVersion} a v3 (Fase 7: Prólogo e Identidad)...");
+
+                if (data.hasStartedGame)
+                {
+                    data.prologueCompleted = true;
+                    if (string.IsNullOrEmpty(data.playerName))
+                    {
+                        data.playerName = "Chef";
+                    }
+                    if (string.IsNullOrEmpty(data.selectedPlayerCharacterID))
+                    {
+                        data.selectedPlayerCharacterID = "alex";
+                    }
+                    data.playerCharacterLocked = true;
+                    data.restaurantOpen = true;
+                }
+                else
+                {
+                    data.prologueCompleted = false;
+                    data.restaurantOpen = false;
+                }
+
+                data.saveVersion = 3;
                 SaveGame();
-                Debug.Log($"[SaveManager] Migración a v2 completada. hasStartedGame={data.hasStartedGame}, starterItemsGranted={data.starterItemsGranted}");
+                Debug.Log($"[SaveManager] Migración a v3 completada. prologueCompleted={data.prologueCompleted}, playerName={data.playerName}");
             }
         }
 
@@ -168,8 +201,9 @@ namespace VillaDelChef.Save
                 // 1. Write to temporary file
                 File.WriteAllText(tempPath, json);
 
-                // 2. Backup existing save if present
-                if (File.Exists(saveFilePath))
+                // 2. Backup existing save if present AND not recovering from backup
+                // (Si acabamos de restaurar desde backup, no sobreescribir el backup con el main corrupto anterior)
+                if (!RestoredFromBackup && File.Exists(saveFilePath))
                 {
                     File.Copy(saveFilePath, backupPath, true);
                 }
@@ -177,6 +211,9 @@ namespace VillaDelChef.Save
                 // 3. Atomically replace main file
                 File.Copy(tempPath, saveFilePath, true);
                 File.Delete(tempPath);
+
+                // Una vez guardado el main válido, reseteamos la bandera para que futuros guardados generen backup normal
+                RestoredFromBackup = false;
 
                 Debug.Log($"[SaveManager] Game saved atomically at {saveFilePath}");
             }
@@ -191,12 +228,23 @@ namespace VillaDelChef.Save
             return currentSaveData != null && currentSaveData.hasStartedGame;
         }
 
+        public string GetTargetGameplayScene()
+        {
+            if (currentSaveData == null || !currentSaveData.hasStartedGame || !currentSaveData.prologueCompleted)
+            {
+                return "03_Prologue";
+            }
+            return "02_Restaurant";
+        }
+
         public void StartNewGame()
         {
             ResetSaveData();
             if (currentSaveData != null)
             {
                 currentSaveData.hasStartedGame = true;
+                currentSaveData.prologueCompleted = false;
+                currentSaveData.restaurantOpen = false;
                 SaveGame();
             }
         }
@@ -205,15 +253,18 @@ namespace VillaDelChef.Save
         {
             currentSaveData = new SaveData
             {
-                saveVersion = 2,
+                saveVersion = 3,
                 coins = 200,
                 experience = 0,
                 level = 1,
                 reputation = 10,
                 hasStartedGame = false,
                 starterItemsGranted = false,
+                prologueCompleted = false,
+                restaurantOpen = false,
                 lastSaveTimestampSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             };
+            RestoredFromBackup = false;
             OfflineSecondsElapsed = 0;
             SaveGame();
         }
@@ -229,6 +280,7 @@ namespace VillaDelChef.Save
             {
                 File.Delete(backupPath);
             }
+            RestoredFromBackup = false;
             CreateDefaultSave();
         }
     }

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a8b9c0d1e2f3a4b5c6d7e8f9a0b1c2d, type: 3}
+  m_Name: maty_hermano
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.CharacterSO
+  characterID: maty_hermano
+  displayName: Maty Hermano
+  selectableAsPlayer: 1
+  selectableAsHelper: 1
+  normalPreview: {fileID: 21300000, guid: e06d284abd7283642b9f79f136749c7b, type: 3}
+  blackChefPreview: {fileID: 21300000, guid: a9be902fe0ed1aa478c4470c8fe937c6, type: 3}
+  whiteChefPreview: {fileID: 21300000, guid: 771fa7c1852a1f3468bee241795f425f, type: 3}
+  portrait: {fileID: 21300000, guid: e06d284abd7283642b9f79f136749c7b, type: 3}
+  normalAnimator: {fileID: 9100000, guid: b2691f7572b7e7148b16e96a808c4292, type: 2}
+  blackChefAnimator: {fileID: 9100000, guid: fa50cc467debdee439c7a1d819c0a39f, type: 2}
+  whiteChefAnimator: {fileID: 9100000, guid: 9cddc791f1e3e374a9bc5a719170432f, type: 2}
+  description: 'Chef y amigo de la villa: Maty Hermano.'
+  selectionVoiceClip: {fileID: 0}
+  celebrateVoiceClip: {fileID: 0}
