@@ -76,6 +76,38 @@ namespace VillaDelChef.Restaurant
             tableState = TableState.Reserved;
         }
 
+        /// <summary>
+        /// Cancela la reserva de mesa realizada por un comensal (por ejemplo por fallo de pathfinding o salida prematura).
+        /// Garantiza liberación atómica de silla y estado Available sin afectar mesas sucias o en proceso de limpieza.
+        /// </summary>
+        public void CancelCustomerReservation(CustomerController customer)
+        {
+            // REGLA CRÍTICA FASE 7.0.2: Si la mesa está sucia o en limpieza, NUNCA convertirla a Available accidentalmente
+            if (tableState == TableState.Dirty || tableState == TableState.Cleaning || needsCleaning)
+            {
+                if (currentCustomer == customer)
+                {
+                    currentCustomer = null;
+                }
+                return;
+            }
+
+            if (currentCustomer == null || currentCustomer == customer)
+            {
+                currentCustomer = null;
+                isReserved = false;
+                tableState = TableState.Available;
+                currentOrder = null;
+                needsCleaning = false;
+                isCleaningReserved = false;
+
+                foreach (var chair in chairs)
+                {
+                    if (chair != null) chair.SetOccupied(false);
+                }
+            }
+        }
+
         public void CustomerSeated(CustomerController customer)
         {
             currentCustomer = customer;

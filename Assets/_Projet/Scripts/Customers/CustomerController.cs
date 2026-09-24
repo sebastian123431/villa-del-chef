@@ -77,6 +77,10 @@ namespace VillaDelChef.Customers
         public void OnReturnToPool()
         {
             StopAllCoroutines();
+            if (assignedTable != null)
+            {
+                assignedTable.CancelCustomerReservation(this);
+            }
             ReleaseTableReference();
             orderedDish = null;
             currentPath = null;
@@ -194,13 +198,24 @@ namespace VillaDelChef.Customers
 
             if (!reachedChair)
             {
-                // REGLA CRÍTICA: Si no hay camino a la mesa, NUNCA teletransportar
-                Debug.LogWarning($"[CustomerController] No se pudo alcanzar la mesa en {chairGrid}. Cancelando atención de comensal de forma segura.");
-                ReleaseTableReference();
-                if (assignedTable != null)
+                // REGLA CRÍTICA FASE 7.0.2: Si no hay camino a la mesa, NUNCA teletransportar.
+                // Liberación atómica de la reserva antes de anular referencias locales.
+                Debug.LogWarning($"[CustomerController] No se pudo alcanzar la mesa en {chairGrid}. Cancelando reserva de mesa de forma segura.");
+                Table failedTable = assignedTable;
+                Chair failedChair = assignedChair;
+
+                if (failedTable != null)
                 {
-                    assignedTable.ClearTable();
+                    failedTable.CancelCustomerReservation(this);
                 }
+                else if (failedChair != null)
+                {
+                    failedChair.SetOccupied(false);
+                }
+
+                assignedTable = null;
+                assignedChair = null;
+
                 yield return StartCoroutine(WalkToRoutine(exitGridPos, null));
                 GameEvents.TriggerCustomerLeft(this);
                 DespawnCustomer();
@@ -367,7 +382,7 @@ namespace VillaDelChef.Customers
                 }
                 else
                 {
-                    assignedTable.ClearTable();
+                    assignedTable.CancelCustomerReservation(this);
                 }
                 ReleaseTableReference();
             }
