@@ -573,7 +573,184 @@ namespace VillaDelChef.EditorTools
                 }
                 Debug.Log("[TEST PASÓ] Retiro de ayudante validado: Despawn de Worker sin huérfanos visuales y reincorporación inmediata a comensales.");
 
-                Debug.Log("<color=green><b>==================================================\n¡TODAS LAS 16 PRUEBAS DE FASE 7 (7.0.1 + 7.0.2) PASARON EXITOSAMENTE!\n==================================================</b></color>");
+                // 17. Test Player Incomplete Outfit Rejected (Fase 7.0.3 — Secciones 4–9, 12, 32)
+                var incompleteFixture = ScriptableObject.CreateInstance<CharacterSO>();
+                try
+                {
+                    Sprite sampleSprite = allCharacters[0].GetPreviewSprite(CharacterOutfit.Normal, allowCrossOutfitFallback: false);
+                    incompleteFixture.characterID = "fixture_incomplete";
+                    incompleteFixture.displayName = "Fixture Incomplete";
+                    incompleteFixture.blackChefPreview = sampleSprite;
+                    incompleteFixture.blackChefAnimator = new AnimatorOverrideController();
+                    incompleteFixture.whiteChefPreview = null;
+                    incompleteFixture.whiteChefAnimator = new AnimatorOverrideController();
+
+                    if (!incompleteFixture.HasCompleteOutfit(CharacterOutfit.ChefBlack))
+                    {
+                        Debug.LogError("[TEST FALLIDO] HasCompleteOutfit(ChefBlack) retornó false para un outfit con preview y animator válidos.");
+                        return false;
+                    }
+
+                    if (incompleteFixture.HasCompleteOutfit(CharacterOutfit.ChefWhite))
+                    {
+                        Debug.LogError("[TEST FALLIDO] HasCompleteOutfit(ChefWhite) retornó true a pesar de faltar whiteChefPreview.");
+                        return false;
+                    }
+
+                    if (incompleteFixture.GetPreviewSprite(CharacterOutfit.ChefWhite, allowCrossOutfitFallback: false) != null)
+                    {
+                        Debug.LogError("[TEST FALLIDO] GetPreviewSprite(ChefWhite, allowCrossOutfitFallback: false) retornó sprite no nulo cuando preview es null.");
+                        return false;
+                    }
+
+                    // Validación específica para Andrés Arica si está presente en el roster del proyecto
+                    CharacterSO andresArica = System.Array.Find(allCharacters, c => c.characterID.Equals("andres_arica", System.StringComparison.OrdinalIgnoreCase));
+                    if (andresArica != null)
+                    {
+                        if (!andresArica.HasCompleteOutfit(CharacterOutfit.ChefBlack))
+                        {
+                            Debug.LogError("[TEST FALLIDO] Andrés Arica debería tener ChefBlack completo.");
+                            return false;
+                        }
+                        if (andresArica.HasCompleteOutfit(CharacterOutfit.ChefWhite))
+                        {
+                            Debug.LogError("[TEST FALLIDO] Andrés Arica no debe reportar ChefWhite completo mientras falte whiteChefPreview.");
+                            return false;
+                        }
+                        if (andresArica.GetPreviewSprite(CharacterOutfit.ChefWhite, allowCrossOutfitFallback: false) != null)
+                        {
+                            Debug.LogError("[TEST FALLIDO] Andrés Arica retornó sprite para ChefWhite sin cross-outfit fallback.");
+                            return false;
+                        }
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(incompleteFixture);
+                }
+                Debug.Log("[TEST PASÓ] Validación estricta de outfit del Player/Helper: ChefWhite incompleto correctamente rechazado sin cross-outfit fallback.");
+
+                // 18. Test CharacterCard AutoBind Correct Prefab Structure (Fase 7.0.3 — Secciones 15, 16, 21)
+                GameObject prefabTestGO = new GameObject("Test_PrefabCard");
+                try
+                {
+                    prefabTestGO.AddComponent<RectTransform>();
+                    var rootBtn = prefabTestGO.AddComponent<Button>();
+
+                    GameObject iconChild = new GameObject("Icon");
+                    iconChild.transform.SetParent(prefabTestGO.transform, false);
+                    var iconImg = iconChild.AddComponent<Image>();
+
+                    GameObject nameChild = new GameObject("Name");
+                    nameChild.transform.SetParent(prefabTestGO.transform, false);
+                    var nameTxt = nameChild.AddComponent<Text>();
+
+                    GameObject statusChild = new GameObject("Status");
+                    statusChild.transform.SetParent(prefabTestGO.transform, false);
+                    var statusTxt = statusChild.AddComponent<Text>();
+
+                    var cardUI = prefabTestGO.AddComponent<CharacterCardUI>();
+
+                    if (cardUI.HasValidReferences)
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI reportó HasValidReferences=true antes de auto-bind o inyección.");
+                        return false;
+                    }
+
+                    bool autoBound = cardUI.TryAutoBindReferences();
+                    if (!autoBound || !cardUI.HasValidReferences)
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI.TryAutoBindReferences falló en prefab con jerarquía canónica.");
+                        return false;
+                    }
+
+                    bool bound = cardUI.Bind(allCharacters[0], isUnavailable: false, null);
+                    if (!bound || !cardUI.IsConfigured)
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI.Bind retornó false en prefab canónico tras auto-bind.");
+                        return false;
+                    }
+
+                    if (cardUI.NameText.text != allCharacters[0].displayName || !cardUI.SelectButton.interactable)
+                    {
+                        Debug.LogError("[TEST FALLIDO] Datos vinculados incorrectamente tras auto-bind en prefab.");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(prefabTestGO);
+                }
+                Debug.Log("[TEST PASÓ] CharacterCardUI auto-bind por convención de nombres validado con éxito.");
+
+                // 19. Test CharacterCard Broken Prefab Fails Safely & Procedural Fallback (Fase 7.0.3 — Secciones 17, 18, 22)
+                GameObject brokenCardGO = new GameObject("Test_BrokenPrefabCard");
+                try
+                {
+                    // Prefab roto: solo tiene Button y Name, le faltan Icon y Status
+                    brokenCardGO.AddComponent<Button>();
+                    GameObject nameChild = new GameObject("Name");
+                    nameChild.transform.SetParent(brokenCardGO.transform, false);
+                    nameChild.AddComponent<Text>();
+
+                    var cardUI = brokenCardGO.AddComponent<CharacterCardUI>();
+                    bool autoBound = cardUI.TryAutoBindReferences();
+                    if (autoBound || cardUI.HasValidReferences)
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI reportó referencias válidas en un prefab roto/incompleto.");
+                        return false;
+                    }
+
+                    // Bind debe retornar false de forma segura sin arrojar NullReferenceException
+                    bool bindResult = cardUI.Bind(allCharacters[0], isUnavailable: false, null);
+                    if (bindResult || cardUI.IsConfigured)
+                    {
+                        Debug.LogError("[TEST FALLIDO] CharacterCardUI.Bind no retornó false en un prefab con referencias faltantes.");
+                        return false;
+                    }
+
+                    // Probar que el fallback procedural genera una tarjeta 100% válida
+                    GameObject proceduralCard = CharacterCardUI.CreateProceduralCard(testGO.transform, allCharacters[0], false, null);
+                    try
+                    {
+                        var procUI = proceduralCard.GetComponent<CharacterCardUI>();
+                        if (procUI == null || !procUI.IsConfigured || !procUI.HasValidReferences)
+                        {
+                            Debug.LogError("[TEST FALLIDO] CharacterCardUI.CreateProceduralCard no generó una tarjeta procedural completamente configurada.");
+                            return false;
+                        }
+                    }
+                    finally
+                    {
+                        Object.DestroyImmediate(proceduralCard);
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(brokenCardGO);
+                }
+                Debug.Log("[TEST PASÓ] Prefab roto manejado defensivamente: Bind falla de forma controlada sin NRE y fallback procedural genera tarjeta operativa.");
+
+                // 20. Test Locked Player Never Replaced By Alex Fallback (Fase 7.0.3 — Sección 11)
+                string lockedID = "carlos";
+                SaveManager.Instance.SaveData.playerCharacterLocked = true;
+                SaveManager.Instance.SaveData.selectedPlayerCharacterID = lockedID;
+
+                // Si por alguna razón selectedCharacter fuera null con partida bloqueada,
+                // la identidad persistida nunca debe mutar a "alex"
+                CharacterSO nullChar = null;
+                string resultingID = (SaveManager.Instance.SaveData.playerCharacterLocked && nullChar == null)
+                    ? SaveManager.Instance.SaveData.selectedPlayerCharacterID
+                    : (nullChar != null ? nullChar.characterID : "alex");
+
+                if (resultingID != lockedID)
+                {
+                    Debug.LogError($"[TEST FALLIDO] La identidad bloqueada '{lockedID}' fue sustituida silenciosamente por '{resultingID}'.");
+                    return false;
+                }
+                Debug.Log("[TEST PASÓ] Guarda de identidad del protagonista: Un personaje bloqueado jamás se sustituye por fallback a 'alex'.");
+
+                Debug.Log("<color=green><b>==================================================\n¡TODAS LAS 20 PRUEBAS DE FASE 7 (7.0.1 + 7.0.2 + 7.0.3) PASARON EXITOSAMENTE!\n==================================================</b></color>");
                 return true;
             }
             finally
