@@ -160,59 +160,17 @@ namespace VillaDelChef.UI
                 {
                     cardGO = Instantiate(characterCardPrefab, characterGridContainer);
                     var cardUI = cardGO.GetComponent<CharacterCardUI>() ?? cardGO.AddComponent<CharacterCardUI>();
-                    cardUI.Bind(ch, isVisiting, SelectCharacter);
+                    bool bound = cardUI.Bind(ch, isVisiting, SelectCharacter);
+                    if (!bound)
+                    {
+                        Debug.LogWarning($"[HelperIntroDialogUI] El prefab '{characterCardPrefab.name}' no tiene la estructura requerida. Creando tarjeta procedural de respaldo para '{ch.characterID}'.");
+                        Destroy(cardGO);
+                        cardGO = CharacterCardUI.CreateProceduralCard(characterGridContainer, ch, isVisiting, SelectCharacter);
+                    }
                 }
                 else
                 {
-                    // Fallback dinámico de tarjeta
-                    cardGO = new GameObject($"Card_{ch.characterID}");
-                    cardGO.transform.SetParent(characterGridContainer, false);
-
-                    Image cardBg = cardGO.AddComponent<Image>();
-                    cardBg.color = isVisiting ? new Color(0.25f, 0.25f, 0.25f, 0.7f) : new Color(0.18f, 0.22f, 0.28f);
-
-                    var cardRT = cardGO.GetComponent<RectTransform>();
-                    cardRT.sizeDelta = new Vector2(100f, 130f);
-
-                    Button btn = cardGO.AddComponent<Button>();
-
-                    // Imagen preview
-                    GameObject iconGO = new GameObject("Icon");
-                    iconGO.transform.SetParent(cardGO.transform, false);
-                    Image icon = iconGO.AddComponent<Image>();
-                    var iconRT = iconGO.GetComponent<RectTransform>();
-                    iconRT.anchorMin = new Vector2(0.5f, 0.6f);
-                    iconRT.anchorMax = new Vector2(0.5f, 0.6f);
-                    iconRT.sizeDelta = new Vector2(64f, 64f);
-
-                    // Nombre
-                    GameObject nameGO = new GameObject("Name");
-                    nameGO.transform.SetParent(cardGO.transform, false);
-                    Text nameTxt = nameGO.AddComponent<Text>();
-                    nameTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                    nameTxt.fontSize = 11;
-                    nameTxt.alignment = TextAnchor.MiddleCenter;
-                    var nameRT = nameGO.GetComponent<RectTransform>();
-                    nameRT.anchorMin = new Vector2(0f, 0.15f);
-                    nameRT.anchorMax = new Vector2(1f, 0.4f);
-                    nameRT.sizeDelta = Vector2.zero;
-
-                    // Estado
-                    GameObject statusGO = new GameObject("Status");
-                    statusGO.transform.SetParent(cardGO.transform, false);
-                    Text statusTxt = statusGO.AddComponent<Text>();
-                    statusTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                    statusTxt.fontSize = 9;
-                    statusTxt.alignment = TextAnchor.MiddleCenter;
-                    statusTxt.color = new Color(0.9f, 0.7f, 0.2f);
-                    var statusRT = statusGO.GetComponent<RectTransform>();
-                    statusRT.anchorMin = new Vector2(0f, 0f);
-                    statusRT.anchorMax = new Vector2(1f, 0.15f);
-                    statusRT.sizeDelta = Vector2.zero;
-
-                    var cardUI = cardGO.AddComponent<CharacterCardUI>();
-                    cardUI.SetReferences(icon, nameTxt, statusTxt, btn);
-                    cardUI.Bind(ch, isVisiting, SelectCharacter);
+                    cardGO = CharacterCardUI.CreateProceduralCard(characterGridContainer, ch, isVisiting, SelectCharacter);
                 }
             }
         }

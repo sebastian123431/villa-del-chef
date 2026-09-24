@@ -277,55 +277,16 @@ namespace VillaDelChef.UI
             {
                 bool isCurrentlyCustomer = CustomerManager.Instance != null && CustomerManager.Instance.IsFriendCurrentlyCustomer(friend.characterID);
 
-                GameObject cardGO = new GameObject($"Card_{friend.characterID}");
-                cardGO.transform.SetParent(friendsGridContainer, false);
-
-                RectTransform rt = cardGO.AddComponent<RectTransform>();
-                rt.sizeDelta = new Vector2(100, 120);
-
-                Image bg = cardGO.AddComponent<Image>();
-                bg.color = isCurrentlyCustomer ? new Color(0.25f, 0.25f, 0.25f, 0.7f) : new Color(0.18f, 0.22f, 0.30f, 0.95f);
-
-                Button btn = cardGO.AddComponent<Button>();
-
-                // Preview normal del Friend
-                GameObject imgGO = new GameObject("Icon");
-                imgGO.transform.SetParent(cardGO.transform, false);
-                Image img = imgGO.AddComponent<Image>();
-                RectTransform imgRT = imgGO.GetComponent<RectTransform>();
-                imgRT.anchoredPosition = new Vector2(0f, 15f);
-                imgRT.sizeDelta = new Vector2(64, 64);
-
-                // Nombre
-                GameObject nameGO = new GameObject("Name");
-                nameGO.transform.SetParent(cardGO.transform, false);
-                Text nameTxt = nameGO.AddComponent<Text>();
-                nameTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                nameTxt.fontSize = 11;
-                nameTxt.alignment = TextAnchor.MiddleCenter;
-                RectTransform nameRT = nameGO.GetComponent<RectTransform>();
-                nameRT.anchoredPosition = new Vector2(0f, -38f);
-                nameRT.sizeDelta = new Vector2(95, 30);
-
-                // Estado
-                GameObject statusGO = new GameObject("Status");
-                statusGO.transform.SetParent(cardGO.transform, false);
-                Text statusTxt = statusGO.AddComponent<Text>();
-                statusTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-                statusTxt.fontSize = 9;
-                statusTxt.alignment = TextAnchor.MiddleCenter;
-                statusTxt.color = new Color(0.9f, 0.7f, 0.2f);
-                RectTransform statusRT = statusGO.GetComponent<RectTransform>();
-                statusRT.anchoredPosition = new Vector2(0f, -50f);
-                statusRT.sizeDelta = new Vector2(95, 15);
-
-                var cardUI = cardGO.AddComponent<CharacterCardUI>();
-                cardUI.SetReferences(img, nameTxt, statusTxt, btn);
-                cardUI.Bind(friend, isCurrentlyCustomer, (selected) =>
-                {
-                    pendingSelectedFriend = selected;
-                    UpdateSelectionDisplay();
-                });
+                CharacterCardUI.CreateProceduralCard(
+                    friendsGridContainer,
+                    friend,
+                    isCurrentlyCustomer,
+                    (selected) =>
+                    {
+                        pendingSelectedFriend = selected;
+                        UpdateSelectionDisplay();
+                    }
+                );
             }
         }
 
