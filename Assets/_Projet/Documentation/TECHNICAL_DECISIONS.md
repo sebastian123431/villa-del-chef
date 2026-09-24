@@ -399,5 +399,45 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Persistencia incremental con arranque cerrado).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7).
 
+---
+
+### DECISIÓN 027
+- **Título**: Selección Interactiva de Ayudante, Menú de Personal (`StaffMenuUI`) y Rotación Dinámica con Exclusión en Pool de Clientes.
+- **Problema**:
+  1. La invitación del primer ayudante (`HelperIntroDialogUI`) auto-seleccionaba al primer amigo sin grid interactivo.
+  2. Si el jugador posponía con "Ahora no", no existía interfaz dentro del juego para seleccionar o cambiar de ayudante más tarde.
+  3. Al cambiar de ayudante, debía garantizarse que el nuevo ayudante fuera excluido de inmediato de los comensales y que el ex-ayudante reingresara al pool sin duplicaciones ni necesidad de reiniciar la escena.
+- **Decisión**:
+  1. En `HelperIntroDialogUI`, instanciar tarjetas interactivas reales en `characterGridContainer`. Deshabilitar amigos que estén visitando el restaurante como comensales en ese momento.
+  2. Exigir selección activa del jugador antes de habilitar el botón "Confirmar" y permitir elegir entre uniforme `ChefBlack` y `ChefWhite`.
+  3. Crear `StaffMenuUI` con acceso permanente desde el HUD mediante el botón "PERSONAL" (`HUDController.cs`). Permite ver al ayudante activo, alternar uniforme, despedirlo o relevarlo.
+  4. La consulta del pool de clientes en `CustomerManager.SelectEligibleFriendAppearance()` se reevalúa en cada spawn leyendo `selectedPlayerCharacterID` y `selectedHelperCharacterID` de forma dinámica.
+- **Alternativas consideradas**:
+  1. Asignar un ayudante fijo no intercambiable. Descartada por limitar la experiencia social del elenco.
+  2. Permitir que el mismo amigo sea ayudante y cliente a la vez. Descartada terminantemente por coherencia del mundo.
+  3. Selector interactivo con fallback y gestión centralizada en `StaffMenuUI`.
+- **Elegida**: 3 (Selector interactivo con gestión permanente en StaffMenuUI).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.1).
+
+---
+
+### DECISIÓN 028
+- **Título**: Locomoción Direccional 2D en 64 Frames, Supresión Definitiva de Teletransporte en Pathfinding y Limpieza Integral de Object Pool.
+- **Problema**:
+  1. Las spritesheets 4x16 contienen 16 filas con 64 frames en total. El pipeline previo solo exportaba acciones Down, dejando sin uso las filas de Up, Left, Right y acciones de cocina, pensamiento, recogida, servicio y celebración. Además, el Animator no recordaba la última dirección, volviendo siempre a `Idle_Down`.
+  2. Si una mesa era inalcanzable por obstáculos o puertas bloqueadas, `CustomerController` finalizaba la caminata pero el ciclo forzaba `transform.position = assignedChair.GetSitPosition()`, sentando mágicamente al cliente.
+  3. Al devolver comensales al pool, podían retener sprites o runtime animators de identidades previas.
+- **Decisión**:
+  1. `CharacterPipelineEditor.cs` genera los 16 clips dedicados por vestuario e instala BlendTrees `SimpleDirectional2D` para Idle, Walk y Cook. Los controladores de comensales y trabajadores alimentan `MoveX` y `MoveY` y retienen el último vector direccional cuando `Speed == 0`.
+  2. `CustomerController.WalkToRoutine()` reporta `reachedChair`. Si no es alcanzable, libera la silla y reserva de mesa de inmediato, no teletransporta y despawnea al comensal tras caminar hacia la salida.
+  3. `CustomerController.OnReturnToPool()` y `CharacterAppearanceController.ResetAppearance()` limpian todos los parámetros, triggers y dejan `spriteRenderer.sprite = null` y `runtimeAnimatorController = null`.
+- **Alternativas consideradas**:
+  1. Continuar con teletransporte de emergencia (desaconsejado: causa fallos visuales graves en gameplay).
+  2. Crear solo clips Down (desperdicia el 75% del arte pixel art creado por el usuario).
+  3. Pipeline completo de 16 filas con blend trees direccionales, cancelación segura de comensales y limpieza estricta de pool.
+- **Elegida**: 3 (Pipeline completo de 16 filas, cancelación segura de comensales y limpieza estricta de pool).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.1).
+
+
 
 

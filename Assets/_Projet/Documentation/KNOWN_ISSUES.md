@@ -420,6 +420,67 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 - **Solución Aplicada**: `SocialCastIntegrationTest.cs` encapsula toda la prueba en un bloque `try ... finally`, restaura el JSON original íntegramente al terminar, destruye los GameObjects temporales y valida dinámicamente la exclusión y rotación de personajes sin hardcodear el total de amigos.
 - **Fecha**: 2026-09-24 (Fase 7).
 
+---
+
+### ISSUE #037
+- **Título**: Selector de ayudante (`HelperIntroDialogUI`) incompleto con auto-selección silenciosa.
+- **Severidad**: ALTA (Experiencia de usuario y narrativa).
+- **Sistema**: Diálogo / UI de Ayudante (`HelperIntroDialogUI.cs`, `StaffMenuUI.cs`).
+- **Descripción**: Al dispararse la invitación del primer ayudante, `LoadAvailableFriends()` ejecutaba `SelectCharacter(availableFriends[0])` sin instanciar tarjetas interactivas visibles, y el fallback seleccionaba silenciosamente al primer amigo. Además, si el jugador pulsaba "Ahora no", no existía un menú para contratar o relevar al ayudante con posterioridad.
+- **Solución Propuesta**: Poblar un grid real de tarjetas seleccionables excluyendo al protagonista y comensales activos; requerir confirmación explícita con selección de vestuario (ChefBlack / ChefWhite); crear el menú `StaffMenuUI` ("PERSONAL") accesible desde el HUD para relevar o contratar ayudantes más adelante.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `HelperIntroDialogUI.cs` genera tarjetas dinámicas completas, deshabilita comensales activos, requiere selección activa antes de habilitar "Confirmar", y delega el fallback a `StaffMenuUI`. Se implementó `StaffMenuUI.cs` y su botón en el HUD (`HUDController.cs`).
+- **Fecha**: 2026-09-24 (Fase 7.0.1).
+
+---
+
+### ISSUE #038
+- **Título**: Teletransporte indirecto del comensal en caso de camino bloqueado hacia la mesa.
+- **Severidad**: CRÍTICA (Fidelidad física y visual).
+- **Sistema**: Pathfinding e IA de Comensal (`CustomerController.cs`).
+- **Descripción**: En `CustomerController.WalkToRoutine()`, si el pathfinding fallaba por bloqueo o no existía camino a la mesa, la corutina finalizaba con `yield break`, pero el ciclo posterior ejecutaba `transform.position = assignedChair.GetSitPosition()`, sentando mágicamente al comensal en la mesa inaccesible.
+- **Solución Propuesta**: Hacer que `WalkToRoutine` reporte éxito/fracaso mediante callback booleano. Si falla, liberar de inmediato la silla y la mesa reservada, cancelar la atención, caminar a la salida y despawnear de forma segura sin teletransporte.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `CustomerController.CustomerLifecycleRoutine` evalúa `reachedChair`. Si es falso, libera la mesa y silla, registra advertencia, no teletransporta y despawnea al comensal limpiamente.
+- **Fecha**: 2026-09-24 (Fase 7.0.1).
+
+---
+
+### ISSUE #039
+- **Título**: 64 frames (16 filas) desaprovechados y Animator direccional sin memoria de orientación.
+- **Severidad**: ALTA (Animación y calidad visual).
+- **Sistema**: Pipeline de Animación (`CharacterPipelineEditor.cs`).
+- **Descripción**: Las hojas 4x16 poseían 16 filas de acciones pero el editor solo generaba clips para Down, dejando Up/Left/Right y acciones especializadas (Cocina en 4 direcciones, Think, Pickup, Carry/Serve, Celebrate) incompletas. Además, el Animator no retenía la última dirección al detenerse (`Speed == 0`), regresando siempre a `Idle_Down`.
+- **Solución Propuesta**: Generar las 16 filas como AnimationClips dedicados por cada vestuario; configurar BlendTrees `SimpleDirectional2D` para Idle, Walk y Cook; alimentar `MoveX` y `MoveY` en locomoción preservando el último vector al detenerse.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `CharacterPipelineEditor.cs` genera los 16 clips por vestuario e instala BlendTrees direccionales y transiciones completas. `CustomerController.cs` y `WorkerController.cs` preservan la última orientación al frenar.
+- **Fecha**: 2026-09-24 (Fase 7.0.1).
+
+---
+
+### ISSUE #040
+- **Título**: Contaminación visual en reciclaje de ObjectPool y validadores excesivamente permisivos.
+- **Severidad**: MEDIA.
+- **Sistema**: Object Pooling y Validación (`CustomerController.cs`, `GameDataValidatorEditor.cs`).
+- **Descripción**: Si un comensal devuelto al pool era reasignado a otra identidad con assets pendientes, podía conservar el sprite o controller del comensal anterior. Asimismo, `GameDataValidatorEditor` catalogaba la falta de preview normal como advertencia y no como error.
+- **Solución Propuesta**: Implementar `ResetAppearance()` en `CharacterAppearanceController` y llamarlo en `CustomerController.OnReturnToPool()`. Endurecer validadores para catalogar la falta de normalPreview/Animator en `canAppearAsCustomer` como ERROR estricto.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `CustomerController.OnReturnToPool()` y `CharacterAppearanceController.ResetAppearance()` limpian totalmente sprites y runtime controllers al reciclar. `GameDataValidatorEditor.cs` marca errores estrictos ante omisión de arte normal o atuendos de chef requeridos.
+- **Fecha**: 2026-09-24 (Fase 7.0.1).
+
+---
+
+### ISSUE #041
+- **Título**: Expansiones `exp_crafting.asset` y `exp_crops.asset` con `height = 8` invadían la zona Market pública (`y >= 19`).
+- **Severidad**: ALTA.
+- **Sistema**: Expansiones / Zonificación (`exp_crafting.asset`, `exp_crops.asset`).
+- **Descripción**: Aunque la decisión técnica había estipulado reducir la altura de estas expansiones a 3 filas (`height = 3`, `y: 16..18`), los archivos `.asset` en disco aún mantenían `height: 8`, invadiendo las filas del bulevar comercial público y disparando errores en `GameDataValidatorEditor`.
+- **Solución Propuesta**: Ajustar `height: 3` en `exp_crafting.asset` y `exp_crops.asset`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se corrigió `height: 3` en ambos assets YAML, eliminando todo solapamiento con la zona comercial y logrando 0 errores en `GameDataValidatorEditor`.
+- **Fecha**: 2026-09-24 (Fase 7.0.1).
+
+
 
 
 

@@ -10,64 +10,48 @@
 ---
 
 ### Estados Permitidos
-- `[OK]`: Implementado, verificado físicamente y consistente con el diseño.
-- `[PARTIAL]`: Implementado en su núcleo pero con detalles o pasos pendientes.
-- `[MISSING]`: Diseñado formalmente pero no implementado en código.
-- `[CONFLICT]`: Contradicción entre código y diseño que requiere alineación.
-- `[FUTURE]`: Diseño aprobado para una fase futura planificada.
-- `[OPEN]`: Decisión o balance aún no confirmado por el propietario.
-- `[DEPRECATED]`: Mecánica descartada explícitamente (ej: energía, gemas premium obligatorias).
+- `[OK — STATIC]`: Implementado en código y validado formalmente mediante compilación, pruebas estáticas o suite de tests en Editor.
+- `[OK — PLAYMODE]`: Probado y validado en sesión activa de Play Mode.
+- `[PARTIAL — PLAYMODE PENDING]`: Implementado técnicamente, pendiente de confirmación en Play Mode / dispositivo.
+- `[DESIGN FUTURE]`: Diseño aprobado para una fase futura planificada (ej: Fases 7.1 a 10).
 - `[BROKEN]`: Implementado pero presenta fallos o regresiones activas.
 
 ---
 
-## 1. Matriz de Alineación Integral
+## 1. Matriz de Alineación Integral (Fase 7.0.1)
 
-| Subsistema / Requisito | Fuente de Verdad | Código / Asset Actual | Estado | Problema Identificado | Acción Correctiva / Estado |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Elenco Social Dinámico (Friends)** | Regla Propietario / GDD / Doc Maestro | `Assets/_Projet/Art/Characters/Friends/` (19 Friends) | `[OK]` | Anteriormente se asumió erróneamente que Friends eran solo personal. | Los 19 Friends forman Player, Helper y Customers. Exclusión mutua implementada en `CustomerManager`. |
-| **Outfits por Rol (rnormal / rnchef / rbchef)** | Convención Oficial Propietario / CHARACTERS.md | `CharacterSO.cs`, `CharacterOutfit` | `[OK]` | Riesgo de mezclar ropa casual en servicio o chef en comensales. | Player/Helper usan `rnchef` / `rbchef`. Customers usan estrictamente `rnormal` sin fallback a chef. |
-| **Fallback Estricto de Customer Normal** | Doc Maestro / Instrucción Directa | `CharacterSO.GetPreviewSprite()` y `GetAnimator()` | `[CONFLICT]` | Si falta `Normal`, hacía fallback a variantes de chef (`ChefBlack`/`ChefWhite`). | Agregar sobrecarga `allowCrossOutfitFallback = false` para Customers. |
-| **Prólogo Reanudable (Resume)** | Doc Maestro / GDD Prólogo | `PrologueController.cs` | `[PARTIAL]` | `Start()` forzaba `ShowStep(1)`, ignorando `prologueStep` y datos previos en SaveData. | Cargar `prologueStep` guardado (1..5), restaurar nombre y selecciones previas al reanudar. |
-| **Persistencia Incremental del Prólogo** | Doc Maestro / Requisito Persistencia | `PrologueController.cs` | `[PARTIAL]` | Solo guardaba al pulsar "Entrar al Restaurante" en el paso 5. | Guardar en cada paso completado (`OnSubmitName`, `OnConfirmCharacter`, `OnOutfitChosen`). |
-| **Restaurante Inicia Cerrado** | Regla Propietario / Doc Maestro | `PrologueController.cs` (línea 259) | `[CONFLICT]` | Al completar el prólogo forzaba `data.restaurantOpen = true;`. | Corregir a `data.restaurantOpen = false;` para que el jugador abra manualmente el restaurante. |
-| **Control de Apertura / Cierre (Operating)** | GDD / Doc Maestro | `RestaurantOperatingManager.cs`, `HUDController.cs` | `[PARTIAL]` | En `CustomerManager`, si el manager era nulo asumía `isOpen = true`. | Cambiar a validación defensiva estricta: `isOpen = Instance != null && Instance.IsOpen`. |
-| **Exclusión de Clientes y Rotación de Helper** | Regla Propietario | `CustomerManager.SelectEligibleFriendAppearance()` | `[OK]` | Al rotar Helper (A -> B), A debe regresar al pool y B salir. | Implementado y comprobado en `CustomerManager.cs` y suite de tests. |
-| **Comerciantes Oficiales (7 NPCs)** | GDD / Doc Maestro | `Assets/_Projet/Resources/NPC/` (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) | `[OK]` | Riesgo de reemplazarlos por Friends aleatorios. | Catalogados `[PENDIENTE ARTE NPC OFICIAL]`, puestos físicos en `y=20`, sin mezclar con Friends. |
-| **Generación Procedural Detenida** | Instrucción Propietario | `ArtAssetGenerator.cs`, `AssetDatabasePopulator.cs` | `[OK]` | Sobreescritura de arte real y generación de sprites genéricos de 16x24. | Generación de personajes desactivada. Guardián de seguridad `if (File.Exists) return;` implementado. |
-| **Ciclo de Mesas y Suciedad (Dirty Tables)** | GDD Actualizado / Doc Maestro | `Table.cs`, `WorkerController.cs`, `CustomerController.cs` | `[OK]` | GDD anterior decía "limpieza pendiente". | Implementado en Fase 6.1: `Available` -> `Reserved` -> `Occupied` -> `WaitingFood` -> `Eating` -> `Dirty` -> `Cleaning` -> `Available`. |
-| **Entrega de Platos Atómica (Delivery)** | Doc Maestro | `WorkerController.cs`, `DeliveryCounter.cs`, `CustomerController.cs` | `[OK]` | Posible carrera o duplicación en `PlaceDish`. | Responsabilidad única en `CustomerController.ReceiveDish`. Reserva atómica de plato y mesa sucia. |
-| **Customer Parties / Grupos en Mesas** | GDD Sección Grupos | N/A (Actualmente comensales individuales) | `[FUTURE]` | No se deben implementar de golpe en Fase 7 rompiendo el flujo base. | Asignado formalmente a **FASE 7.1 — CUSTOMER PARTIES Y MESAS POR GRUPO**. |
-| **Construcción y Zonificación (Grid / Build)** | Doc Maestro / GDD | `BuildManager.cs`, `GridManager.cs`, `FurnitureSO.cs` | `[OK]` | Validación de caminos y protección de tiendas físicas. | Footprints 3x2, zonificación (`Kitchen`, `Dining`, `Exterior`, `Farming`, `Market`, `Crafting`), restauración exacta de transitabilidad con `try/finally`. |
-| **Farming Centralizado (Huerto)** | GDD / Doc Maestro | `FarmingManager.cs`, `CropPlot.cs` | `[OK]` | Timestamps UTC y cálculo offline. | Tick central de 1s en `FarmingManager`. Persistencia de estado de crecimiento en JSON. |
-| **Crafting de Insumos Intermedios** | GDD / Doc Maestro | `CraftingManager.cs`, `CraftingStation.cs`, `CraftingRecipeSO.cs` | `[OK]` | Distinción plato final vs insumo procesado. | 5 recetas procesadas, cálculo offline UTC y estaciones interactuables en grid. |
-| **Economía (Monedas, XP, Reputación)** | GDD / Doc Maestro | `EconomyManager.cs`, `ProgressionManager.cs` | `[OK]` | Riesgo de añadir monedas premium o barras de energía. | Economía limpia: Oro, Experiencia/Nivel (1-50) y Reputación. Sin gemas obligatorias ni energía. |
-| **Persistencia Atómica (Save/Load)** | Doc Maestro | `SaveManager.cs`, `SaveData.cs` | `[OK]` | Corrupción en cortes abruptos en móvil. | Versionado `saveVersion = 3`, archivo `.tmp`, backup `.bak`, validación de integridad y migración automática. |
-| **Distinción New Game vs Continue** | Doc Maestro | `MainMenuController.cs`, `SaveData.hasStartedGame` | `[OK]` | Continuar activo sin progreso real. | `CanContinueGame()` desacopla existencia de archivo técnico del avance jugable real. |
-| **Entrada Táctil Móvil & PC (New Input)** | Doc Maestro | `TouchInputManager.cs`, `CameraController2D.cs` | `[OK]` | Conflictos entre tap, drag y pinch. | Estados mutuamente excluyentes, pinch-to-zoom suave, drag de cámara y ghost preview en build mode. |
-| **Optimización Móvil 60 FPS** | Doc Maestro | `ObjectPoolManager.cs`, `SpriteAtlasSetupEditor.cs` | `[OK]` | Draw calls altos por sprites individuales. | Atlases V2 configurados. `Friends/` excluido explícitamente para proteger hojas 4x16. |
-| **Suite de Tests de Elenco Social** | Doc Maestro / Protocolo QA | `SocialCastIntegrationTest.cs` | `[PARTIAL]` | Hardcode de 19 personajes fijos y mutación directa de SaveData en producción. | Generalizar conteo contra assets cargados y aislar SaveData con snapshot/restauración. |
-| **Catálogo de 50 Recetas Chilenas** | GDD Catálogo Gastronómico | N/A (12 recetas base actuales) | `[FUTURE]` | No implementar de golpe sin insumos, balance ni estaciones. | Asignado formalmente a **FASE 8 — RECETAS, DOMINIO Y MILAGROS** (subfase 8A en lotes temáticos). |
-| **Dominio de Recetas (Mastery)** | GDD | N/A | `[FUTURE]` | Niveles de preparación por plato con bonos progresivos. | Asignado a **FASE 8**. |
-| **Milagros del Chef (Miracles)** | GDD | N/A | `[FUTURE]` | Habilidades activas (no consumibles premium). | Asignado a **FASE 8**. |
-| **Reloj de Restaurante y Franjas Horarias** | GDD | N/A | `[FUTURE]` | Desayuno, Almuerzo, Once, Cena con demanda dinámica. | Asignado a **FASE 9 — HORARIOS Y EVENTOS ESTACIONALES**. |
-| **Eventos Estacionales & Calendario** | GDD | N/A | `[FUTURE]` | Fiestas Patrias, Halloween, Navidad, cumpleaños. | Asignado a **FASE 9**. |
-| **Multiplayer Cooperativo / Versus** | GDD | N/A | `[FUTURE]` | Red local / Online Chef vs Chef. | Asignado a **FASE 10 — MULTIPLAYER & FUNCIONES SOCIALES**. |
+| Subsistema / Requisito | Fuente de Verdad | Código / Asset Actual | Estado | Detalle Técnico / Comportamiento |
+| :--- | :--- | :--- | :--- | :--- |
+| **Elenco Social Dinámico (Friends)** | Regla Propietario / GDD / Doc Maestro | `Assets/_Projet/Art/Characters/Friends/` (19 Friends) | `[OK — STATIC]` | Los 19 Friends forman Player, Helper y Customers. Exclusión mutua dinámica verificada en `CustomerManager`. |
+| **Outfits por Rol (rnormal / rnchef / rbchef)** | Convención Oficial Propietario / CHARACTERS.md | `CharacterSO.cs`, `CharacterOutfit` | `[OK — STATIC]` | Player/Helper usan `rnchef` / `rbchef`. Customers usan estrictamente `rnormal`. |
+| **Fallback Estricto de Customer Normal** | Doc Maestro / Regla Propietario | `CharacterSO.cs`, `CharacterAppearanceController.cs` | `[OK — STATIC]` | `allowCrossOutfitFallback: false` garantizado en comensales. Si falta arte normal se marca error de datos; nunca se viste de chef. |
+| **Selector Real de Ayudante (Helper UI)** | Regla Propietario / Especificación 7.0.1 | `HelperIntroDialogUI.cs`, `StaffMenuUI.cs` | `[OK — STATIC]` | Se genera grid real de tarjetas seleccionables con preview y nombre. Excluye al protagonista y amigos comensales activos. Permite seleccionar traje (Negro/Blanco) y confirmar. Elimina auto-pick silencioso. |
+| **Menú de Personal / Relevo de Helper** | Regla Propietario / GDD Fase 7 | `StaffMenuUI.cs`, `HUDController.cs` | `[OK — STATIC]` | Botón "PERSONAL" en HUD. Permite alternar uniforme chef, relevar ayudante (el anterior reingresa al pool de clientes inmediatamente) o retirarlo. |
+| **Generación de 64 Frames (16 Filas)** | Especificación Oficial 7.0.1 | `CharacterPipelineEditor.cs` | `[OK — STATIC]` | Las 16 filas de las hojas 4x16 se exportan como clips dedicados (Idle, Walk, Cook en 4 direcciones, Think, Pickup, Carry_Serve, Celebrate). Pipeline 100% idempotente. |
+| **Animator Direccional 2D con Memoria** | Especificación Oficial 7.0.1 | `CharacterPipelineEditor.cs`, Controllers | `[OK — STATIC]` | Locomoción y cocina mediante BlendTrees SimpleDirectional2D (`MoveX`, `MoveY`). Al detenerse (`Speed = 0`), retiene el último vector direccional para mantener el Idle en la orientación correcta. |
+| **Pathfinding de Comensal sin Teletransporte** | Bug Audit Fase 7 / Problema 4 | `CustomerController.WalkToRoutine()` | `[OK — STATIC]` | Si el comensal no encuentra camino a la mesa, no se teletransporta. Libera la silla y la mesa reservada, ejecuta caminata a la salida y se despawnea de forma segura. |
+| **Reciclaje Limpio de Object Pool** | Problema 6 / Higiene Visual | `CustomerController.cs`, `CharacterAppearanceController.cs` | `[OK — STATIC]` | `OnReturnToPool()` limpia triggers de Animator, parámetros direccionales y el sprite previo (`spriteRenderer.sprite = null`), evitando persistencia de apariencia al cambiar de identidad. |
+| **Validadores de Datos Blindados** | Problema 5 / Protocolo QA | `GameDataValidatorEditor.cs` | `[OK — STATIC]` | Falta de `normalPreview` o `normalAnimator` en `canAppearAsCustomer = true` es ERROR estricto. Valida que Player y Helper cuenten con atuendos de chef completos. `ValidateAllGameData`: 0 errores. |
+| **Prólogo Reanudable (Resume)** | Doc Maestro / GDD Prólogo | `PrologueController.cs` | `[PARTIAL — PLAYMODE PENDING]` | Carga `prologueStep` guardado (1..5), restaura nombre incremental y selecciones previas al reanudar sin reiniciar forzadamente el paso 1. |
+| **Persistencia Incremental del Prólogo** | Doc Maestro / Requisito Persistencia | `PrologueController.cs` | `[PARTIAL — PLAYMODE PENDING]` | Guarda en cada hito completado (`OnSubmitName`, `OnConfirmCharacter`, `OnOutfitChosen`). |
+| **Restaurante Inicia Cerrado** | Regla Propietario / Doc Maestro | `PrologueController.cs` | `[PARTIAL — PLAYMODE PENDING]` | Al completar el prólogo se establece `restaurantOpen = false` con mensaje invitando a revisar el restaurante antes de abrir. |
+| **Control de Apertura / Cierre (Operating)** | GDD / Doc Maestro | `RestaurantOperatingManager.cs`, `HUDController.cs` | `[OK — STATIC]` | Validación defensiva en `CustomerManager`: si el restaurante está cerrado o el manager falta, no se generan comensales. Los comensales que ya estaban dentro terminan su comida normalmente. |
+| **Comerciantes Oficiales (7 NPCs)** | GDD / Doc Maestro | `Assets/_Projet/Resources/NPC/` (7 NPCs) | `[OK — STATIC]` | Puestos en `y = 20`. Preservan estado `[PENDIENTE ARTE NPC OFICIAL]`, desacoplados de los Friends. |
+| **Ciclo de Mesas y Suciedad (Dirty Tables)** | GDD Actualizado / Doc Maestro | `Table.cs`, `WorkerController.cs`, `CustomerController.cs` | `[OK — STATIC]` | Implementado: `Available` -> `Reserved` -> `Occupied` -> `WaitingFood` -> `Eating` -> `Dirty` -> `Cleaning` -> `Available`. |
+| **Entrega de Platos Atómica (Delivery)** | Doc Maestro | `WorkerController.cs`, `DeliveryCounter.cs`, `CustomerController.cs` | `[OK — STATIC]` | Sin carreras: reserva atómica de plato y mesa sucia. Mozo acciona `Pickup`, `IsCarrying` y `Serve`. |
+| **Customer Parties / Grupos en Mesas** | GDD Sección Grupos | N/A (Comensales individuales actuales) | `[DESIGN FUTURE]` | Asignado formalmente a **FASE 7.1 — CUSTOMER PARTIES Y MESAS POR GRUPO**. |
+| **Catálogo de 50 Recetas Chilenas** | GDD Catálogo Gastronómico | N/A (12 recetas base actuales) | `[DESIGN FUTURE]` | Asignado formalmente a **FASE 8 — RECETAS, DOMINIO Y MILAGROS**. |
+| **Dominio de Recetas (Mastery)** | GDD | N/A | `[DESIGN FUTURE]` | Asignado a **FASE 8**. |
+| **Milagros del Chef (Miracles)** | GDD | N/A | `[DESIGN FUTURE]` | Asignado a **FASE 8**. |
+| **Reloj de Restaurante y Franjas Horarias** | GDD | N/A | `[DESIGN FUTURE]` | Asignado a **FASE 9 — HORARIOS Y EVENTOS ESTACIONALES**. |
+| **Eventos Estacionales & Calendario** | GDD | N/A | `[DESIGN FUTURE]` | Asignado a **FASE 9**. |
+| **Multiplayer Cooperativo / Versus** | GDD | N/A | `[DESIGN FUTURE]` | Asignado a **FASE 10 — MULTIPLAYER & FUNCIONES SOCIALES**. |
 
 ---
 
-## 2. Acciones Inmediatas de Corrección y Cierre (Fase 7)
-
-1. **`CharacterSO.cs`**:
-   - Sobrecarga de `GetPreviewSprite(outfit, allowCrossOutfitFallback)` y `GetAnimator(outfit, allowCrossOutfitFallback)`.
-   - Garantizar que para `CharacterOutfit.Normal` cuando `allowCrossOutfitFallback == false`, **nunca** retorne trajes de chef.
-2. **`PrologueController.cs`**:
-   - Reanudar en el paso exacto (`ShowStep(save.prologueStep)`) si `prologueStep > 1` y `!prologueCompleted`.
-   - Persistir hitos en cada paso (`OnSubmitName` guarda paso 2; `OnConfirmCharacter` guarda paso 4; `OnOutfitChosen` guarda paso 5).
-   - En `OnEnterRestaurant`, fijar `data.restaurantOpen = false;` (el restaurante debe iniciar CERRADO tras el prólogo).
-3. **`CustomerManager.cs`**:
-   - Validar defensivamente `isOpen = RestaurantOperatingManager.Instance != null && RestaurantOperatingManager.Instance.IsOpen;`.
-   - Usar `allowCrossOutfitFallback = false` al configurar la apariencia normal del comensal.
-4. **`SocialCastIntegrationTest.cs`**:
-   - Aislar el SaveData: crear snapshot antes de la prueba y restaurarlo exactamente al finalizar.
-   - Generalizar el conteo de personajes: validar que existan al menos 2 Friends y comparar el pool dinámicamente sin hardcodear el número 19.
+## 2. Resumen de Calidad de Fase 7.0.1
+- **Compilación C#**: 0 errores, 0 advertencias en `Assembly-CSharp` y `Assembly-CSharp-Editor`.
+- **Suite de Integración Automática (`SocialCastIntegrationTest.cs`)**: 100% PASS (9/9 sub-pruebas verificadas en Unity Batchmode).
+- **Validador de Base de Datos (`GameDataValidatorEditor.cs`)**: 0 errores, 3 advertencias benignas documentadas.
+- **Validador de Personajes (`ValidateCharacterDatabaseOnly`)**: 0 errores, 1 advertencia benigna documentada.
+- **Nivel de Madurez Técnica Fase 7**: 95–98% (Completada a nivel de código, arquitectura, datos y tests; pendiente confirmación de PlayMode E2E en dispositivo/auditoría externa).

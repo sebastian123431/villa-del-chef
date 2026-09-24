@@ -560,9 +560,55 @@ ARCHIVOS MODIFICADOS:
 - `Assets/_Projet/Documentation/PROJECT_HISTORY.md`
 
 ESTADO:
-FASE 7 — IDENTIDAD Y ELENCO SOCIAL DINÁMICO COMPLETADA Y AUDITADA (100% C# limpio, tests aislados).
+FASE 7 — IDENTIDAD Y ELENCO SOCIAL DINÁMICO CERRADA A NIVEL TÉCNICO (95-98%).
 PRÓXIMO PASO:
 Auditoría externa del propietario. Detenido formalmente antes de comenzar Fase 7.1 (Customer Parties).
+------------------------------------------------------------
+FECHA: 2026-09-24
+VERSIÓN / FASE: FASE 7.0.1 — CIERRE REAL DE PERSONAJES, HELPERS, ANIMACIONES Y GAMEPLAY
+OBJETIVO:
+Cerrar al 95-100% técnico la Fase 7 sin avanzar a Fases 7.1 ni 8+: implementar selector real e interactivo de ayudantes, menú de personal en HUD (StaffMenuUI) con relevo dinámico, generación de las 16 filas (64 frames) por personaje/vestuario, Animator direccional 2D con retención de orientación, supresión definitiva de teletransporte en pathfinding de clientes, higiene de reciclaje en Object Pool, endurecimiento de validadores y ajuste de límites de expansiones para dejar 0 errores.
+
+CAMBIOS REALIZADOS:
+- HelperIntroDialogUI: Población dinámica de tarjetas reales con preview y nombre, deshabilitación de amigos que estén dentro como comensales, bloqueo de confirmación sin selección previa y delegación del fallback a StaffMenuUI (eliminado auto-pick silencioso).
+- StaffMenuUI: Nuevo menú de gestión de personal accesible desde botón "PERSONAL" en el HUD (HUDController.cs). Permite ver al ayudante activo, alternar uniforme ChefBlack/ChefWhite, relevarlo (reintegrando de inmediato al anterior al pool de clientes) o despedirlo.
+- CharacterPipelineEditor: Generación de las 16 filas (64 frames) de las hojas 4x16 como AnimationClips dedicados por vestuario. Configuración de BlendTrees SimpleDirectional2D para Idle, Walk y Cook alimentados por MoveX y MoveY. Idempotencia garantizada.
+- CustomerController & WorkerController: Control direccional 2D preservando el último vector orientado al detenerse (Speed = 0). Mozo ejecuta triggers Pickup, IsCarrying y Serve.
+- Pathfinding de Comensal: CustomerController.WalkToRoutine reporta si se alcanzó la silla. Si el camino está bloqueado, se liberan la silla y la mesa, se cancela la atención y el cliente camina a la salida sin teletransportarse.
+- Object Pooling Limpio: CustomerController.OnReturnToPool() y CharacterAppearanceController.ResetAppearance() restablecen sprites a null, limpian runtime animators y resetean triggers para evitar persistencia visual entre reasignaciones.
+- GameDataValidatorEditor: Endurecida validación de CharacterSO (falta de normalPreview/Animator en canAppearAsCustomer es ERROR estricto). Verificación de trajes de chef en Player/Helper como error. Añadido comando de menú "Validate Character Database".
+- Expansiones exp_crafting y exp_crops: Ajustadas a height = 3 para no invadir el bulevar comercial (y >= 19). Validación de datos terminada con 0 errores y 3 advertencias benignas documentadas.
+- SocialCastIntegrationTest: Suite de 9 pruebas automáticas ejecutadas en Unity Batchmode con 100% de éxito (0 errores).
+
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Scripts/UI/StaffMenuUI.cs` y `.meta`
+- 304 nuevos AnimationClips (.anim y .meta) para las 16 filas de los 19 Friends en Normal, ChefBlack y ChefWhite.
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/Core/Editor/CharacterPipelineEditor.cs`
+- `Assets/_Projet/Scripts/Characters/CharacterAppearanceController.cs`
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`
+- `Assets/_Projet/Scripts/Workers/WorkerController.cs`
+- `Assets/_Projet/Scripts/Managers/CustomerManager.cs`
+- `Assets/_Projet/Scripts/UI/HelperIntroDialogUI.cs`
+- `Assets/_Projet/Scripts/UI/HUDController.cs`
+- `Assets/_Projet/Scripts/Core/Editor/GameDataValidatorEditor.cs`
+- `Assets/_Projet/Scripts/Core/Editor/SocialCastIntegrationTest.cs`
+- `Assets/_Projet/Resources/Expansions/exp_crafting.asset`
+- `Assets/_Projet/Resources/Expansions/exp_crops.asset`
+- `Assets/_Projet/Resources/Characters/*.asset` (canAppearAsCustomer: 1 serializado explícitamente en los 19 archivos)
+- `Assembly-CSharp.csproj`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/KNOWN_ISSUES.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assets/_Projet/Documentation/PROJECT_ALIGNMENT.md`
+- `Assets/_Projet/Documentation/AI_SESSION_LOG.md`
+- `Assets/_Projet/Documentation/PROJECT_HISTORY.md`
+
+ESTADO:
+FASE 7.0.1 — CIERRE TÉCNICO DE PERSONAJES, HELPERS Y ANIMACIONES COMPLETADO (95–98%).
+PRÓXIMO PASO:
+Auditoría externa y validación en PlayMode antes de habilitar Fase 7.1 (Customer Parties).
 ------------------------------------------------------------
 
 

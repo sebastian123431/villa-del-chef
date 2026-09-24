@@ -116,11 +116,18 @@ Leyenda:
 
 ---
 
-## FASE 7 — Identidad, Prólogo y Elenco Social Dinámico
+## FASE 7 — Identidad, Prólogo, Elenco Social, Helper y Apertura del Restaurante [~] (95–98% — Verificación Técnica Completa / PlayMode E2E Pendiente)
 - [x] Unificación del elenco social: Los 19 Friends de `Assets/_Projet/Art/Characters/Friends/` constituyen el pool dinámico único de personajes del juego.
 - [x] Roles dinámicos por partida: 1 Friend como Protagonista (`selectedPlayerCharacterID`), 1 Friend como Ayudante (`selectedHelperCharacterID`) y el resto como Comensales elegibles.
 - [x] Regla estricta de vestuario: Los Comensales (Customers) utilizan estrictamente ropa normal casual (`rnormal` y `movimientos_rnormal`). Se bloquea cualquier fallback cruzado hacia atuendos de chef (`allowCrossOutfitFallback: false`).
 - [x] Helper reutiliza `WorkerController` con uniforme de chef (`rnchef` o `rbchef`).
+- [x] Selector Real de Ayudante (`HelperIntroDialogUI.cs`): Grid interactivo de tarjetas reales con preview y nombre. Excluye al protagonista y a comensales activos dentro del restaurante. Permite elegir uniforme negro o blanco y confirmar antes de guardar.
+- [x] Menú de Personal / Equipo (`StaffMenuUI.cs`): Botón "PERSONAL" en el HUD (`HUDController.cs`). Permite visualizar ayudante actual, alternar uniforme, contratar, relevar (el ayudante anterior reingresa al pool de clientes inmediatamente) o retirar ayudante.
+- [x] Generación completa de 64 frames (16 filas): `CharacterPipelineEditor.cs` genera AnimationClips para las 16 filas de las hojas 4x16 (Idle, Walk, Cook en 4 direcciones, Think, Pickup, Carry_Serve, Celebrate). Pipeline 100% idempotente.
+- [x] Animator direccional 2D con memoria: BlendTrees `SimpleDirectional2D` para Idle, Walk y Cook alimentados por `MoveX` y `MoveY`. Al frenar (`Speed = 0`), retiene el último vector de dirección.
+- [x] Pathfinding de comensales sin teletransporte: `CustomerController.WalkToRoutine` evalúa si el comensal alcanzó la silla. Si el camino está bloqueado, libera la silla y reserva de mesa de inmediato, no teletransporta y sale/despawnea limpiamente.
+- [x] Reciclaje limpio en Object Pool: `CustomerController.OnReturnToPool()` y `CharacterAppearanceController.ResetAppearance()` limpian triggers, parámetros direccionales y el sprite anterior (`spriteRenderer.sprite = null`).
+- [x] Validadores de datos blindados: Falta de `normalPreview` o `normalAnimator` en `canAppearAsCustomer = true` es ERROR estricto. Comprobación de que Player y Helper tengan atuendos de chef completos. `ValidateAllGameData` y `ValidateCharacterDatabaseOnly` con 0 errores.
 - [x] Exclusión mutua dinámica: El protagonista y el ayudante activo quedan excluidos automáticamente del pool de clientes. Al cambiar de ayudante, el anterior se reintegra de inmediato al pool de comensales.
 - [x] Separación de responsabilidades: `CharacterSO` (identidad visual, previews, animators) desacoplado de `CustomerSO` (arquetipo, paciencia, propina, reputación, XP).
 - [x] Prólogo reanudable (`PrologueController.cs`): Guardado incremental en cada hito (`prologueStep`: 1 a 5, `playerName`, `selectedPlayerCharacterID`, `selectedChefOutfit`). Al cerrar y reabrir la app, el jugador retoma el prólogo exactamente donde lo dejó.
@@ -128,7 +135,8 @@ Leyenda:
 - [x] Control defensivo de apertura: `CustomerManager.SpawnLoop` no genera comensales si el restaurante está cerrado o si `RestaurantOperatingManager.Instance == null`.
 - [x] Protección de comerciantes oficiales: Los 7 comerciantes especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) mantienen su estado independiente `[PENDIENTE ARTE NPC OFICIAL]` sin Friends asignados.
 - [x] Blindaje de herramientas Editor: `ArtAssetGenerator`, `AssetDatabasePopulator` y `SpriteAtlasSetupEditor` respetan el arte original de los Friends sin regeneración ni sobrescritura.
-- [x] Test de integración robusto (`SocialCastIntegrationTest.cs`): Verificación de exclusión, rotación de ayudantes, aislamiento con snapshot `SaveData` en `try ... finally` y verificación dinámica de amigos disponibles sin hardcodes de cantidad fija.
+- [x] Test de integración robusto (`SocialCastIntegrationTest.cs`): 9 suites automatizadas que validan exclusión, rotación, aislamiento SaveData, 19 personajes únicos, vestuario Normal estricto, reciclaje de pool y parámetros de 64 frames en AnimatorControllers. 100% PASS en Unity Batchmode.
+- [ ] Validación final de PlayMode E2E en dispositivo / auditoría externa.
 
 ---
 

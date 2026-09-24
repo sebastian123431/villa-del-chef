@@ -532,7 +532,55 @@ Pruebas ejecutadas:
 - Verificación de no regresión en esquemas de guardado ni en referencias de Unity.
 
 Estado de la sesión:
-FASE 7 — IDENTIDAD, PRÓLOGO Y ELENCO SOCIAL COMPLETADA AL 100%.
+FASE 7 — IDENTIDAD, PRÓLOGO Y ELENCO SOCIAL COMPLETADA A NIVEL TÉCNICO.
+============================================================
+FECHA:
+2026-09-24
+
+Objetivo solicitado:
+FASE 7.0.1 — CIERRE REAL DE PERSONAJES, HELPERS, ANIMACIONES Y GAMEPLAY.
+Elevar la Fase 7 al 95-100% técnico real sin avanzar a Fase 7.1 (Customer Parties), Milagros ni recetas futuras:
+1. Selector interactivo real de Helper (sin auto-picking).
+2. Menú de Personal / Equipo (StaffMenuUI) en HUD con relevo dinámico y exclusión en clientes.
+3. Generación completa de 64 frames (16 filas) por personaje y vestuario con BlendTrees direccionales 2D.
+4. Supresión definitiva de teletransporte en pathfinding de comensales.
+5. Reciclaje limpio de apariencias en Object Pool.
+6. Endurecimiento de validadores y ajuste de límites de expansiones para dejar 0 errores.
+7. Verificación completa en Unity Batchmode.
+
+Contexto leído:
+- Prompt Maestro y especificación Phase 7.0.1.
+- Documentos técnicos, GDD y CHARACTERS.md.
+- Código fuente y ScriptableObjects en Resources/.
+
+Trabajo realizado:
+1. Selector de Ayudante e Interfaz de Personal:
+   - HelperIntroDialogUI: Población dinámica de tarjetas interactivas con preview y nombre. Deshabilita amigos comensales activos. Requiere selección explícita y selección de uniforme (ChefBlack/ChefWhite).
+   - StaffMenuUI: Nueva ventana de gestión de personal con botón "PERSONAL" en HUDController. Permite alternar uniforme chef, relevar ayudante (el anterior reingresa de inmediato al pool de comensales) o retirarlo.
+2. Locomoción Direccional 2D y 64 Frames:
+   - CharacterPipelineEditor: Genera AnimationClips para las 16 filas de las hojas 4x16 en Normal, ChefBlack y ChefWhite (Idle, Walk, Cook en 4 direcciones, Think, Pickup, Carry_Serve, Celebrate).
+   - Configura BlendTrees SimpleDirectional2D para Idle, Walk y Cook alimentados por MoveX y MoveY.
+   - CustomerController y WorkerController: Actualizan MoveX, MoveY y Speed, reteniendo la última dirección cuando Speed == 0. Worker ejecuta Pickup, IsCarrying y Serve.
+3. Pathfinding sin Teletransporte:
+   - CustomerController.WalkToRoutine reporta reachedChair mediante callback. Si la mesa es inalcanzable, se liberan la silla y la mesa, se cancela la atención y el comensal sale/despawnea limpiamente sin teletransportarse.
+4. Reciclaje Limpio de Object Pool:
+   - CustomerController.OnReturnToPool() y CharacterAppearanceController.ResetAppearance() restablecen sprites a null, limpian runtime animators y resetean triggers.
+5. Endurecimiento de Validadores:
+   - GameDataValidatorEditor: canAppearAsCustomer sin normalPreview/Animator es ERROR estricto. Validación de trajes de chef en Player y Helper.
+   - Ajustadas exp_crafting y exp_crops a height = 3 (y: 16..18) para no invadir el bulevar comercial (y >= 19).
+   - Resultado: 0 errores en ValidateAllGameData y 0 errores en ValidateCharacterDatabaseOnly.
+6. Suite de Integración Automática:
+   - SocialCastIntegrationTest: 9 suites completas verificadas en Unity Batchmode con 100% de éxito.
+
+Pruebas ejecutadas:
+- Compilación C# Assembly-CSharp: 0 errores, 0 advertencias.
+- Compilación C# Assembly-CSharp-Editor: 0 errores, 0 advertencias.
+- SocialCastIntegrationTest (Unity Batchmode): 100% PASS (9/9 pruebas).
+- GameDataValidator (Unity Batchmode): 0 errores, 3 advertencias benignas documentadas.
+- ValidateCharacterDatabase (Unity Batchmode): 0 errores, 1 advertencia benigna documentada.
+
+Estado de la sesión:
+FASE 7.0.1 CERRADA EXITOSAMENTE (95–98% técnico).
 El proyecto queda detenido formalmente para auditoría externa antes de avanzar a Fase 7.1.
 ============================================================
 
