@@ -15,15 +15,13 @@ MonoBehaviour:
   furnitureID: crop_plot
   furnitureName: Sembradero
   category: 4
-  shopIcon: {fileID: 4192545544134395101, guid: f12a7667754cc6449a4ae489471530be, type: 3}
+  shopIcon: {fileID: 21300000, guid: f12a7667754cc6449a4ae489471530be, type: 3}
   prefab: {fileID: 0}
-  allowedZones:
-  - 2
-  - 4
+  allowedZones: 0200000003000000i
   sizeX: 2
   sizeY: 2
   cost: 50
   sellPrice: 25
   unlockLevel: 1
   comfortRating: 0
-  description: Parcela fertil para sembrar y cosechar cultivos frescos.
+  description: "Parcela f\xE9rtil para sembrar y cosechar cultivos frescos."

@@ -15,7 +15,7 @@ MonoBehaviour:
   expansionID: exp_terrace
   displayName: "Terraza del Jard\xEDn"
   description: Abre las puertas al patio exterior. Permite colocar mesas y sombrillas al aire libre para que los clientes disfruten del sol y la brisa.
-  icon: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
+  icon: {fileID: 21300000, guid: 286a88dd6b5dd3f428e891c97f6d6b59, type: 3}
   targetZone: 6
   gridBounds:
     x: 0

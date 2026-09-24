@@ -15,13 +15,13 @@ MonoBehaviour:
   expansionID: exp_crops
   displayName: Huerto Alto del Valle
   description: "Tierra f\xE9rtil rica en minerales para duplicar tu producci\xF3n agr\xEDcola. Desbloquea espacio para nuevas parcelas de cultivo."
-  icon: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
+  icon: {fileID: 21300000, guid: 9397a666e92f92c43ae4daccd445ea5d, type: 3}
   targetZone: 3
   gridBounds:
     x: 0
     y: 16
-    width: 8
-    height: 3
+    width: 12
+    height: 8
   requiredRestaurantLevel: 3
   costGold: 450
   rewardXP: 100

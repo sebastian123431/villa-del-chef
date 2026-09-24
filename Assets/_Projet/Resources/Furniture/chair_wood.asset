@@ -15,15 +15,13 @@ MonoBehaviour:
   furnitureID: chair_wood
   furnitureName: Silla de Madera
   category: 1
-  shopIcon: {fileID: -3709611314316307562, guid: 1c9aeeb331f79cf4baa639c6b8573973, type: 3}
+  shopIcon: {fileID: 21300000, guid: 1c9aeeb331f79cf4baa639c6b8573973, type: 3}
   prefab: {fileID: 0}
-  allowedZones:
-  - 0
-  - 3
+  allowedZones: 0100000006000000i
   sizeX: 1
   sizeY: 1
   cost: 30
   sellPrice: 15
   unlockLevel: 1
   comfortRating: 3
-  description: Silla comoda para comensales en el salon o terraza.
+  description: "Silla c\xF3moda para comensales en el sal\xF3n comedor o terraza."

@@ -15,7 +15,7 @@ MonoBehaviour:
   customerID: cust_vip
   customerTitle: Celebridad Gourmet
   archetype: 4
-  characterSprite: {fileID: 21300000, guid: d0f0ebec6291fdb4b81724c0f128b170, type: 3}
+  characterSprite: {fileID: 21300000, guid: 75720cd1c93078e47bb9b38f3e0f661c, type: 3}
   movementSpeed: 2.7
   basePatienceSeconds: 40
   tipProbability: 0.95

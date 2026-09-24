@@ -15,10 +15,9 @@ MonoBehaviour:
   furnitureID: stove_01
   furnitureName: Cocina a Gas
   category: 2
-  shopIcon: {fileID: 1303542952290531728, guid: 9a3e80c2f4cfb4941ae2210b8789fe60, type: 3}
+  shopIcon: {fileID: 21300000, guid: a9466e092fb6a0b499a4bdeb12f1efe3, type: 3}
   prefab: {fileID: 0}
-  allowedZones:
-  - 1
+  allowedZones: 00000000i
   sizeX: 2
   sizeY: 2
   cost: 150

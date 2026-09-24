@@ -16,7 +16,7 @@ MonoBehaviour:
   ingredientName: Mermelada Dulce
   description: 
   category: 2
-  icon: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  icon: {fileID: 21300000, guid: 18358790dea8efd45a0d3853cf8d1811, type: 3}
   buyPrice: 18
   sellPrice: 9
   unlockLevel: 1

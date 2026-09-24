@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6af216b743840d4f9c0b491c9ca90f5, type: 3}
+  m_Name: station_marmitadulce
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.FurnitureSO
+  furnitureID: station_marmitadulce
+  furnitureName: Marmita Dulce
+  category: 5
+  shopIcon: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  prefab: {fileID: 0}
+  allowedZones: 00000000i
+  sizeX: 2
+  sizeY: 2
+  cost: 320
+  sellPrice: 160
+  unlockLevel: 3
+  comfortRating: 5
+  description: Olla de cobre para confituras y mermeladas frutales.

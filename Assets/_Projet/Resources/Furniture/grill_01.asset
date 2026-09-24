@@ -15,14 +15,13 @@ MonoBehaviour:
   furnitureID: grill_01
   furnitureName: Parrilla de Hierro
   category: 2
-  shopIcon: {fileID: -8382931331166527122, guid: 0a44d48a2f97a4841bd2c8bcdb2b2dfe, type: 3}
+  shopIcon: {fileID: 21300000, guid: 0101ce26996fdd648ade412dd4f0ad6c, type: 3}
   prefab: {fileID: 0}
-  allowedZones:
-  - 1
+  allowedZones: 00000000i
   sizeX: 2
   sizeY: 2
   cost: 200
   sellPrice: 100
   unlockLevel: 1
   comfortRating: 0
-  description: Parrilla de carbon y hierro fundido para carnes y hamburguesas.
+  description: "Parrilla de carb\xF3n y hierro fundido para carnes y hamburguesas."

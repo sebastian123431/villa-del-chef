@@ -15,8 +15,9 @@ MonoBehaviour:
   npcID: npc_marina
   npcName: Marina
   roleTitle: Pescadora del Muelle
-  portrait: {fileID: 21300000, guid: ee6c73322811186489feada1fee4e065, type: 3}
-  worldSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 2c370626c2b280f4b9ded196d18496ba, type: 3}
+  worldSprite: {fileID: 21300000, guid: 557f113a93c667b419ad62c78d045288, type: 3}
+  animatorController: {fileID: 0}
   greetingDialogue: "\xA1Directo del agua cristalina! Salm\xF3n fresco y delicias marinas para tu men\xFA."
   vendorData: {fileID: 11400000, guid: 1fa971d8a5ecae8418db16ddfa041883, type: 2}
   unlockLevel: 2

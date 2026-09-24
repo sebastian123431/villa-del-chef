@@ -15,15 +15,13 @@ MonoBehaviour:
   furnitureID: counter_delivery
   furnitureName: Mesa de Entrega
   category: 3
-  shopIcon: {fileID: 5723590185317673180, guid: 3df561d32378dc54487a0d043f4ceead, type: 3}
+  shopIcon: {fileID: 21300000, guid: 3df561d32378dc54487a0d043f4ceead, type: 3}
   prefab: {fileID: 0}
-  allowedZones:
-  - 1
-  - 0
+  allowedZones: 0000000001000000i
   sizeX: 3
   sizeY: 1
   cost: 100
   sellPrice: 50
   unlockLevel: 1
   comfortRating: 0
-  description: Mostrador de despacho entre cocina y salon.
+  description: Mostrador de servicio donde los cocineros despachan los pedidos.

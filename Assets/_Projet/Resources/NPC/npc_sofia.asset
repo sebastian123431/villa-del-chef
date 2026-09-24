@@ -15,8 +15,9 @@ MonoBehaviour:
   npcID: npc_sofia
   npcName: "Sof\xEDa"
   roleTitle: Decoradora & Paisajista
-  portrait: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
-  worldSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: ca0db3f1680a0a047abc1e8d6b2bd00c, type: 3}
+  worldSprite: {fileID: 21300000, guid: c5e10b7af8f1b974f95349567abb5095, type: 3}
+  animatorController: {fileID: 0}
   greetingDialogue: "\xA1La est\xE9tica lo es todo! Plantas ornamentales, l\xE1mparas y faroles para enamorar a los clientes."
   vendorData: {fileID: 11400000, guid: 36fc7665936685f4b8a6902260d80fe1, type: 2}
   unlockLevel: 3

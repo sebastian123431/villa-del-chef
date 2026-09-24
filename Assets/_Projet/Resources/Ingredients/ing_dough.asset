@@ -16,7 +16,7 @@ MonoBehaviour:
   ingredientName: Masa Artesanal
   description: 
   category: 2
-  icon: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  icon: {fileID: 21300000, guid: 1ba327d654c4e4d45b3dabc7e346b0c3, type: 3}
   buyPrice: 14
   sellPrice: 7
   unlockLevel: 1

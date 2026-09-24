@@ -16,7 +16,7 @@ MonoBehaviour:
   title: Brisa en la Terraza
   description: "Adquiere la expansi\xF3n de la terraza del jard\xEDn para ofrecer mesas al aire libre."
   questType: 7
-  icon: {fileID: 21300000, guid: f8572a89f69c9534088f188d0830671f, type: 3}
+  icon: {fileID: 21300000, guid: 286a88dd6b5dd3f428e891c97f6d6b59, type: 3}
   targetID: exp_terrace
   requiredAmount: 1
   rewardCoins: 350

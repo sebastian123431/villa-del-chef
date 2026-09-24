@@ -16,7 +16,7 @@ MonoBehaviour:
   recipeName: Molienda de Harina
   description: "Muele granos y tub\xE9rculos para obtener harina blanca de reposter\xEDa."
   requiredStation: 0
-  icon: {fileID: 21300000, guid: 96f89c7fbc8731647b1975296be45103, type: 3}
+  icon: {fileID: 21300000, guid: 83608e2ec38bf5a469d5cc0bb4e9d2a5, type: 3}
   craftTimeSeconds: 8
   requiredIngredients:
   - ingredient: {fileID: 11400000, guid: de9123cd2fc562a4a899e19e24776986, type: 2}

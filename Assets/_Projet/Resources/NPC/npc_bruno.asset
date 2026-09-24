@@ -15,8 +15,9 @@ MonoBehaviour:
   npcID: npc_bruno
   npcName: Bruno
   roleTitle: Maestro Carnicero
-  portrait: {fileID: 0}
-  worldSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 92061f42f94b7444cb8c4df5c691b4e9, type: 3}
+  worldSprite: {fileID: 21300000, guid: e1d3237714174bf448bae7fb160dd95d, type: 3}
+  animatorController: {fileID: 0}
   greetingDialogue: "\xA1Buenas! Los mejores cortes de carne, costillas y tocino artesanal para tu cocina."
   vendorData: {fileID: 11400000, guid: cef7637cc413b9b49b2b8247e45d20ae, type: 2}
   unlockLevel: 1

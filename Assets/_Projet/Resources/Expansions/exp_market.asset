@@ -15,7 +15,7 @@ MonoBehaviour:
   expansionID: exp_market
   displayName: "Plaza del Mercado Gastron\xF3mico"
   description: Un amplio bulevar adoquinado donde los 7 comerciantes de la villa pueden establecer sus puestos comerciales permanentes.
-  icon: {fileID: 21300000, guid: d4ae69bc8ec416b419741d145d64ed5e, type: 3}
+  icon: {fileID: 21300000, guid: d97535f14781b714e90ffc4a10205290, type: 3}
   targetZone: 4
   gridBounds:
     x: 26

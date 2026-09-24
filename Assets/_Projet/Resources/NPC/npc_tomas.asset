@@ -15,8 +15,9 @@ MonoBehaviour:
   npcID: npc_tomas
   npcName: "Tom\xE1s"
   roleTitle: Panadero Artesanal
-  portrait: {fileID: 21300000, guid: 13772b4429730af4ab63c10011d9fdaa, type: 3}
-  worldSprite: {fileID: 0}
+  portrait: {fileID: 21300000, guid: 926b1759a334ff04abfcf961f0370f42, type: 3}
+  worldSprite: {fileID: 21300000, guid: 0fa509097157f8e42b2d20eb64b1e998, type: 3}
+  animatorController: {fileID: 0}
   greetingDialogue: "\xA1Huele a pan reci\xE9n horneado! Harina pura, quesos y panecillos dorados para tus recetas."
   vendorData: {fileID: 11400000, guid: 85343e85b6ecb5a4bb465a72a8ea0f6c, type: 2}
   unlockLevel: 1
