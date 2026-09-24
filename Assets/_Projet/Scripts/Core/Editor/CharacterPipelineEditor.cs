@@ -398,6 +398,16 @@ namespace VillaDelChef.Core.Editor
                 rootStateMachine.RemoveState(existingStates[i].state);
             }
 
+            // REGLA CRÍTICA FASE 7.0.2 (Sección 33): Limpiar sub-assets BlendTree huérfanos antes de recrear para garantizar idempotencia
+            Object[] existingSubAssets = AssetDatabase.LoadAllAssetsAtPath(controllerPath);
+            foreach (var sub in existingSubAssets)
+            {
+                if (sub is BlendTree bt && !AssetDatabase.IsMainAsset(sub))
+                {
+                    Object.DestroyImmediate(sub, true);
+                }
+            }
+
             // 1. Blend Tree: Idle (Direccional 2D con MoveX y MoveY)
             AnimatorState stateIdle = controller.CreateBlendTreeInController("Idle_Tree", out BlendTree idleTree);
             stateIdle.name = "Idle";
