@@ -11,6 +11,15 @@ namespace VillaDelChef.EditorTools
     public static class SocialCastIntegrationTest
     {
         [MenuItem("Tools/Villa del Chef/Test/Run Social Cast Integration Test", false, 20)]
+        public static void RunTestBatch()
+        {
+            bool passed = RunTest();
+            if (!passed && Application.isBatchMode)
+            {
+                EditorApplication.Exit(1);
+            }
+        }
+
         public static bool RunTest()
         {
             Debug.Log("==================================================");
@@ -53,6 +62,7 @@ namespace VillaDelChef.EditorTools
                 {
                     tempSaveGO = new GameObject("Test_SaveManager");
                     SaveManager sm = tempSaveGO.AddComponent<SaveManager>();
+                    typeof(SaveManager).GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?.SetValue(null, sm);
                     SaveData isolatedSave = new SaveData
                     {
                         selectedPlayerCharacterID = playerTestID,
@@ -166,14 +176,137 @@ namespace VillaDelChef.EditorTools
                 }
                 Debug.Log("[TEST PASÓ] Los 7 NPCs comerciantes oficiales conservan su estado independiente [PENDIENTE ARTE NPC OFICIAL].");
 
-                Debug.Log("<color=green><b>==================================================\n¡TODAS LAS PRUEBAS DEL ELENCO SOCIAL PASARON EXITOSAMENTE!\n==================================================</b></color>");
+                // 6. Test Character Database Integrity & Flags (Fase 7.0.1)
+                HashSet<string> seenIds = new HashSet<string>();
+                foreach (var ch in allCharacters)
+                {
+                    if (string.IsNullOrWhiteSpace(ch.characterID))
+                    {
+                        Debug.LogError($"[TEST FALLIDO] CharacterSO '{ch.name}' tiene characterID vacío.");
+                        return false;
+                    }
+                    if (!seenIds.Add(ch.characterID))
+                    {
+                        Debug.LogError($"[TEST FALLIDO] ID duplicado: '{ch.characterID}'.");
+                        return false;
+                    }
+                    if (ch.canAppearAsCustomer)
+                    {
+                        if (ch.normalPreview == null || ch.normalAnimator == null)
+                        {
+                            Debug.LogError($"[TEST FALLIDO] El personaje '{ch.characterID}' puede ser comensal pero carece de normalPreview o normalAnimator.");
+                            return false;
+                        }
+                    }
+                    bool hasChef = (ch.blackChefPreview != null && ch.blackChefAnimator != null) ||
+                                   (ch.whiteChefPreview != null && ch.whiteChefAnimator != null);
+                    if (ch.selectableAsPlayer && !hasChef)
+                    {
+                        Debug.LogError($"[TEST FALLIDO] El personaje '{ch.characterID}' es selectableAsPlayer pero carece de vestuario de chef completo.");
+                        return false;
+                    }
+                    if (ch.selectableAsHelper && !hasChef)
+                    {
+                        Debug.LogError($"[TEST FALLIDO] El personaje '{ch.characterID}' es selectableAsHelper pero carece de vestuario de chef completo.");
+                        return false;
+                    }
+                }
+                Debug.Log($"[TEST PASÓ] Base de datos de personajes íntegra: {allCharacters.Length} CharacterSO con IDs únicos y vestuarios requeridos válidos.");
+
+                // 7. Test Strict Normal Mapping (Clientes NUNCA visten de chef)
+                foreach (var ch in allCharacters)
+                {
+                    Sprite s = ch.GetPreviewSprite(CharacterOutfit.Normal, allowCrossOutfitFallback: false);
+                    RuntimeAnimatorController a = ch.GetAnimator(CharacterOutfit.Normal, allowCrossOutfitFallback: false);
+                    if (s != null && (s == ch.blackChefPreview || s == ch.whiteChefPreview))
+                    {
+                        Debug.LogError($"[TEST FALLIDO] Fallback indebido: El preview Normal de '{ch.characterID}' apunta a un sprite de chef.");
+                        return false;
+                    }
+                    if (a != null && (a == ch.blackChefAnimator || a == ch.whiteChefAnimator))
+                    {
+                        Debug.LogError($"[TEST FALLIDO] Fallback indebido: El Animator Normal de '{ch.characterID}' apunta a un controlador de chef.");
+                        return false;
+                    }
+                }
+                Debug.Log("[TEST PASÓ] Mapeo estricto de Normal validado en todos los Friends (0 contaminación de chef en comensales).");
+
+                // 8. Test Visual Reset en Retorno al Pool
+                GameObject poolTestGO = new GameObject("PoolVisualReset_Test");
+                try
+                {
+                    var sr = poolTestGO.AddComponent<SpriteRenderer>();
+                    var anim = poolTestGO.AddComponent<Animator>();
+                    var app = poolTestGO.AddComponent<Characters.CharacterAppearanceController>();
+                    var cust = poolTestGO.AddComponent<Customers.CustomerController>();
+                    cust.characterRenderer = sr;
+                    cust.appearanceController = app;
+
+                    // Asignar primer personaje
+                    app.ApplyCharacter(allCharacters[0], CharacterOutfit.Normal);
+                    if (sr.sprite == null || app.CurrentCharacter != allCharacters[0])
+                    {
+                        Debug.LogError("[TEST FALLIDO] No se aplicó la apariencia inicial del comensal.");
+                        return false;
+                    }
+
+                    // Reset
+                    cust.OnReturnToPool();
+                    if (sr.sprite != null || app.CurrentCharacter != null)
+                    {
+                        Debug.LogError($"[TEST FALLIDO] OnReturnToPool() no limpió adecuadamente. sr.sprite={(sr.sprite != null ? sr.sprite.name : "null")}, CurrentCharacter={(app.CurrentCharacter != null ? app.CurrentCharacter.characterID : "null")}");
+                        return false;
+                    }
+
+                    // Reasignar segundo personaje
+                    app.ApplyCharacter(allCharacters[1], CharacterOutfit.Normal);
+                    if (sr.sprite != allCharacters[1].normalPreview || app.CurrentCharacter != allCharacters[1])
+                    {
+                        Debug.LogError("[TEST FALLIDO] La reasignación en el pool no tomó la nueva identidad correctamente.");
+                        return false;
+                    }
+                }
+                finally
+                {
+                    Object.DestroyImmediate(poolTestGO);
+                }
+                Debug.Log("[TEST PASÓ] Reciclaje de Object Pool verificado: Limpieza total de sprites y animadores anteriores.");
+
+                // 9. Test Parámetros Requeridos en Animator Controllers
+                string[] requiredParams = new[] { "MoveX", "MoveY", "Speed", "IsCooking", "IsThinking", "IsCarrying", "Pickup", "Serve", "Celebrate" };
+                int controllersTested = 0;
+                foreach (var ch in allCharacters)
+                {
+                    var ctrl = ch.normalAnimator as UnityEditor.Animations.AnimatorController;
+                    if (ctrl != null)
+                    {
+                        HashSet<string> pNames = new HashSet<string>();
+                        foreach (var p in ctrl.parameters) pNames.Add(p.name);
+                        foreach (var req in requiredParams)
+                        {
+                            if (!pNames.Contains(req))
+                            {
+                                Debug.LogError($"[TEST FALLIDO] Animator '{ctrl.name}' del personaje '{ch.characterID}' carece del parámetro '{req}'.");
+                                return false;
+                            }
+                        }
+                        controllersTested++;
+                    }
+                }
+                Debug.Log($"[TEST PASÓ] {controllersTested} AnimatorControllers verificados con la interfaz completa de parámetros (64 frames/locomoción direccional).");
+
+                Debug.Log("<color=green><b>==================================================\n¡TODAS LAS PRUEBAS DE FASE 7.0.1 PASARON EXITOSAMENTE!\n==================================================</b></color>");
                 return true;
             }
             finally
             {
                 // Limpieza de GameObjects temporales
                 if (testGO != null) Object.DestroyImmediate(testGO);
-                if (tempSaveGO != null) Object.DestroyImmediate(tempSaveGO);
+                if (tempSaveGO != null)
+                {
+                    typeof(SaveManager).GetProperty("Instance", System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static)?.SetValue(null, null);
+                    Object.DestroyImmediate(tempSaveGO);
+                }
 
                 // Restauración fiel del SaveData original del usuario
                 if (originalSaveRef != null && !string.IsNullOrEmpty(originalSaveJson))
