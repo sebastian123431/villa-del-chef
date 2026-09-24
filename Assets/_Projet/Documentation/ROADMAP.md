@@ -114,3 +114,50 @@ Leyenda:
 - [x] Blindaje de escenas en el Editor: `AutoSetupScenesOnEditorLoad` no destructivo; preserva arte y ajustes manuales en Git.
 - [ ] Validación física en dispositivo Android / APK build.
 
+---
+
+## FASE 7 — Identidad, Prólogo y Elenco Social Dinámico
+- [x] Unificación del elenco social: Los 19 Friends de `Assets/_Projet/Art/Characters/Friends/` constituyen el pool dinámico único de personajes del juego.
+- [x] Roles dinámicos por partida: 1 Friend como Protagonista (`selectedPlayerCharacterID`), 1 Friend como Ayudante (`selectedHelperCharacterID`) y el resto como Comensales elegibles.
+- [x] Regla estricta de vestuario: Los Comensales (Customers) utilizan estrictamente ropa normal casual (`rnormal` y `movimientos_rnormal`). Se bloquea cualquier fallback cruzado hacia atuendos de chef (`allowCrossOutfitFallback: false`).
+- [x] Helper reutiliza `WorkerController` con uniforme de chef (`rnchef` o `rbchef`).
+- [x] Exclusión mutua dinámica: El protagonista y el ayudante activo quedan excluidos automáticamente del pool de clientes. Al cambiar de ayudante, el anterior se reintegra de inmediato al pool de comensales.
+- [x] Separación de responsabilidades: `CharacterSO` (identidad visual, previews, animators) desacoplado de `CustomerSO` (arquetipo, paciencia, propina, reputación, XP).
+- [x] Prólogo reanudable (`PrologueController.cs`): Guardado incremental en cada hito (`prologueStep`: 1 a 5, `playerName`, `selectedPlayerCharacterID`, `selectedChefOutfit`). Al cerrar y reabrir la app, el jugador retoma el prólogo exactamente donde lo dejó.
+- [x] Inicio de restaurante cerrado: Al completar el prólogo, `restaurantOpen = false` para permitir al jugador inspeccionar la cocina y comprar insumos antes de abrir las puertas al público.
+- [x] Control defensivo de apertura: `CustomerManager.SpawnLoop` no genera comensales si el restaurante está cerrado o si `RestaurantOperatingManager.Instance == null`.
+- [x] Protección de comerciantes oficiales: Los 7 comerciantes especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) mantienen su estado independiente `[PENDIENTE ARTE NPC OFICIAL]` sin Friends asignados.
+- [x] Blindaje de herramientas Editor: `ArtAssetGenerator`, `AssetDatabasePopulator` y `SpriteAtlasSetupEditor` respetan el arte original de los Friends sin regeneración ni sobrescritura.
+- [x] Test de integración robusto (`SocialCastIntegrationTest.cs`): Verificación de exclusión, rotación de ayudantes, aislamiento con snapshot `SaveData` en `try ... finally` y verificación dinámica de amigos disponibles sin hardcodes de cantidad fija.
+
+---
+
+## FASE 7.1 — Customer Parties & Mesas por Grupo [DISEÑO APROBADO — PENDIENTE]
+- [ ] Implementación de `CustomerPartyController` y gestión de grupos (1, 2, 3, 4, 5+ comensales).
+- [ ] Mesas por capacidad y asignación de la mesa más pequeña compatible.
+- [ ] Exclusión de comensales desconocidos en la misma mesa.
+- [ ] Consumo y facturación consolidada por grupo.
+
+---
+
+## FASE 8 — Catálogo Gastronómico, Dominio de Recetas y Milagros [DISEÑO APROBADO / CONTENIDO FUTURO]
+- [ ] Catálogo de 50 recetas chilenas por categorías (sándwiches, olla, horno, parrilla, costa, postres, estación fría).
+- [ ] Sistema de dominio de recetas por repetición (`Principiante`, `Conocido`, `Experimentado`, `Especialista`, `Maestro`) con bonificaciones.
+- [ ] Comerciante de recetas especiales y regionales.
+- [ ] Sistema de Milagros del Chef (`MiracleSO` - Enfoque, Manos Rápidas, Tiempo Lento, Servicio Impecable) sin energía ni monedas premium.
+
+---
+
+## FASE 9 — Reloj del Restaurante, Franjas Horarias y Eventos Estacionales [FUTURO]
+- [ ] `RestaurantClock`: Madrugada, Desayuno, Pre-almuerzo, Almuerzo, Once, Cena, Noche.
+- [ ] Modificadores dinámicos de demanda y grupos según franja horaria.
+- [ ] Sistema de eventos de calendario (`SeasonalEventSO` - Fiestas Patrias, Halloween, Navidad, Cumpleaños NPC) con mitigación de solapamiento.
+- [ ] Sistema de música ambiental interna y diseño acústico.
+
+---
+
+## FASE 10 — Multijugador & Funciones Sociales [FUTURO]
+- [ ] Modelo de autoridad de red y arquitectura de sincronización.
+- [ ] Modos cooperativo, visitas de restaurantes, Chef VS Chef (competencia normalizada) e intercambio de recetas.
+
+

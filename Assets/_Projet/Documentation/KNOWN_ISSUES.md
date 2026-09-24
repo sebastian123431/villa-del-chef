@@ -360,6 +360,67 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 - **Solución Aplicada**: En `DeliveryCounter.cs`, `TakeNextDish()` itera sobre la lista y solo extrae un plato si `!dish.isReserved`, garantizando exclusión mutua atómica entre trabajadores.
 - **Fecha**: 2026-09-24.
 
+---
+
+### ISSUE #032
+- **Título**: Fallback indeseado a atuendos de chef en comensales de la villa.
+- **Severidad**: ALTA (Violación visual de diseño).
+- **Sistema**: Personajes / Clientes (`CharacterSO.cs`, `CharacterAppearanceController.cs`, `CustomerController.cs`).
+- **Descripción**: `CharacterSO.GetPreviewSprite()` y `GetAnimator()` utilizaban un fallback universal donde si `normalPreview` o `normalAnimator` no estaban presentes, se devolvían las variantes de chef (`blackChefPreview` / `whiteChefPreview`). Esto causaba que comensales en el restaurante aparecieran vestidos con uniformes de cocina en lugar de ropa casual (`rnormal`).
+- **Solución Propuesta**: Incorporar el parámetro `allowCrossOutfitFallback` en `GetPreviewSprite` y `GetAnimator`, con valor forzado en `false` para todo comensal instanciado o configurado en `CustomerController`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se implementó `allowCrossOutfitFallback = true` (por defecto) y `false` estricto en comensales. Si falta el atuendo normal, se retorna `null` y se registra un error explícito en consola (`Debug.LogError`), prohibiendo rotundamente vestir comensales como chefs.
+- **Fecha**: 2026-09-24 (Fase 7).
+
+---
+
+### ISSUE #033
+- **Título**: Pérdida de progreso del prólogo al salir de la aplicación antes de finalizar.
+- **Severidad**: MEDIA.
+- **Sistema**: Prólogo / Persistencia (`PrologueController.cs`, `SaveData.cs`).
+- **Descripción**: Si el usuario introducía su nombre o seleccionaba a su personaje en el prólogo y cerraba la app antes de completar el último paso, la siguiente sesión reiniciaba el prólogo desde el paso 1 sin recordar el nombre ni la elección.
+- **Solución Propuesta**: Persistencia incremental en cada transición de paso (`prologueStep`: 1 a 5, `playerName`, `selectedPlayerCharacterID`, `selectedChefOutfit`) y detección de reanudación automática en `Start()`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se implementaron llamadas a `SaveGame()` en `OnSubmitName()` (paso 2), `OnConfirmCharacter()` (paso 4) y `OnOutfitChosen()` (paso 5). `Start()` detecta si `prologueStep > 1 && !prologueCompleted` para reanudar la UI en el paso guardado restaurando nombre, personaje seleccionado y uniforme.
+- **Fecha**: 2026-09-24 (Fase 7).
+
+---
+
+### ISSUE #034
+- **Título**: El restaurante iniciaba en estado abierto (`restaurantOpen = true`) tras concluir el prólogo.
+- **Severidad**: ALTA (Diseño de bucle jugable).
+- **Sistema**: Flujo de Juego / Ciclo de Operación (`PrologueController.cs`).
+- **Descripción**: Al hacer clic en "Comenzar Aventura" en el paso 5 del prólogo, el código asignaba `data.restaurantOpen = true`. Esto violaba la regla de diseño oficial según la cual el jugador debe ingresar con el restaurante cerrado para familiarizarse con la cocina, sembrar o abastecerse antes de abrir manualmente las puertas.
+- **Solución Propuesta**: Cambiar a `data.restaurantOpen = false` al concluir el prólogo.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: En `PrologueController.OnEnterRestaurant()`, se asigna de manera explícita `data.restaurantOpen = false;`.
+- **Fecha**: 2026-09-24 (Fase 7).
+
+---
+
+### ISSUE #035
+- **Título**: `CustomerManager.SpawnLoop()` generaba clientes cuando `RestaurantOperatingManager.Instance == null`.
+- **Severidad**: ALTA.
+- **Sistema**: Clientes / Spawner (`CustomerManager.cs`).
+- **Descripción**: La evaluación booleana `isOpen` utilizaba `RestaurantOperatingManager.Instance == null || RestaurantOperatingManager.Instance.IsOpen`. En entornos de test o si el manager no se había inicializado, asumía por defecto que el restaurante estaba abierto y generaba comensales descontroladamente.
+- **Solución Propuesta**: Aplicar evaluación defensiva: solo generar comensales si la instancia existe y `IsOpen == true`. Registrar advertencia si el manager está ausente.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: En `CustomerManager.cs`, se modificó a `bool isOpen = RestaurantOperatingManager.Instance != null && RestaurantOperatingManager.Instance.IsOpen;` con advertencia preventiva si la instancia es nula, asegurando que el restaurante permanezca cerrado por seguridad.
+- **Fecha**: 2026-09-24 (Fase 7).
+
+---
+
+### ISSUE #036
+- **Título**: Test de integración de elenco social mutaba permanentemente el archivo de guardado del usuario y hardcodeaba conteo de personajes.
+- **Severidad**: MEDIA (QA y testing).
+- **Sistema**: Tests de Editor (`SocialCastIntegrationTest.cs`).
+- **Descripción**: El test modificaba `SaveManager.Instance.SaveData` para asignar player y helper pero no restauraba los valores previos del jugador al terminar. Además, fallaba si el número de Friends en disco era distinto de exactamente 19.
+- **Solución Propuesta**: Utilizar `try ... finally` con snapshot de `SaveData` mediante `JsonUtility.ToJson` / `FromJsonOverwrite` para aislar el test y evaluar conteo dinámico (`allCharacters.Length >= 2`).
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `SocialCastIntegrationTest.cs` encapsula toda la prueba en un bloque `try ... finally`, restaura el JSON original íntegramente al terminar, destruye los GameObjects temporales y valida dinámicamente la exclusión y rotación de personajes sin hardcodear el total de amigos.
+- **Fecha**: 2026-09-24 (Fase 7).
+
+
 
 
 

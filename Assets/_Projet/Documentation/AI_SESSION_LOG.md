@@ -483,6 +483,60 @@ Cómo continuar (Instrucciones para el próximo desarrollador o agente):
 4. El proyecto queda preparado para comenzar la **Fase 7 (Contenido Avanzado: Minijuegos de Cocina QTE, Pistas de Audio Cozy y Progresión Avanzada)**.
 ============================================================
 
+============================================================
+AI SESSION 007
+
+Fecha:
+2026-09-24
+
+Objetivo solicitado:
+Ejecución del PROMPT MAESTRO: Auditoría integral de HEAD, autocorrección rigurosa, sincronización documental y desarrollo de la FASE 7 (Identidad, Prólogo y Elenco Social Dinámico).
+Garantizar la regla de oro: comensales estrictamente con ropa normal (`rnormal`) sin fallback cruzado a atuendos de chef, prólogo reanudable con persistencia incremental de hitos, inicio del restaurante cerrado, aislamiento de tests con snapshots de SaveData y creación de la Matriz Maestra de Alineación de Fases 1 a 10.
+
+Contexto leído:
+- Prompt Maestro y reglas de arquitectura.
+- `Villa_del_Chef_Documento_Maestro_Diseno_Metodologia_v1.docx`.
+- `Villa_del_Chef_GDD.docx`.
+- `AGENTS.md`.
+- `Assets/_Projet/Art/Characters/Friends/CHARACTERS.md`.
+- `Assets/_Projet/Documentation/` (todos los archivos).
+- `Assets/_Projet/Scripts/ScriptableObjects/CharacterSO.cs`.
+- `Assets/_Projet/Scripts/Characters/CharacterAppearanceController.cs`.
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`.
+- `Assets/_Projet/Scripts/Managers/CustomerManager.cs`.
+- `Assets/_Projet/Scripts/UI/PrologueController.cs`.
+- `Assets/_Projet/Scripts/Core/Editor/SocialCastIntegrationTest.cs`.
+
+Trabajo realizado:
+1. Matriz Maestra de Alineación (`PROJECT_ALIGNMENT.md`):
+   - Mapeadas todas las fases (1 a 10), requisitos de diseño, estado en código, problemas detectados y acciones correctivas.
+2. Prohibición de Fallback Cruzado a Chef (`CharacterSO.cs`, `CharacterAppearanceController.cs`, `CustomerController.cs`):
+   - Se añadió `allowCrossOutfitFallback` con valor obligatorio `false` para todo comensal (`CustomerController.Setup`).
+   - Si no existe `rnormal`, se registra `Debug.LogError` y jamás se recurre a `rnchef` ni `rbchef`.
+3. Prólogo Reanudable y Persistencia Incremental (`PrologueController.cs`):
+   - Guardado en cada hito: `playerName` (paso 2), `selectedPlayerCharacterID` (paso 4), `selectedChefOutfit` (paso 5).
+   - Reanudación en `Start()` si `prologueStep > 1 && !prologueCompleted`.
+   - Modificado `OnEnterRestaurant()` para que `data.restaurantOpen = false;` (el restaurante inicia cerrado).
+4. Seguridad en Operación del Restaurante (`CustomerManager.cs`):
+   - Spawner condicionado a `RestaurantOperatingManager.Instance != null && IsOpen`.
+5. Test de Integración Blindado (`SocialCastIntegrationTest.cs`):
+   - Snapshot y restauración completa de `SaveData` en bloque `try ... finally` vía JsonUtility.
+   - Evaluación dinámica de comensales elegibles sin hardcodear 19 personajes.
+   - Comprobación de exclusión mutua de Player y Helper, y reingreso al pool tras rotación de ayudantes.
+6. Actualización de Documentación:
+   - Sincronizados `ROADMAP.md`, `KNOWN_ISSUES.md` (Issues 032-036), `TECHNICAL_DECISIONS.md` (Decisiones 025 y 026), `PROJECT_HISTORY.md` y `AGENTS.md`.
+
+Pruebas ejecutadas:
+- Compilación C# de `Assembly-CSharp.csproj`: 0 advertencias, 0 errores.
+- Compilación C# de `Assembly-CSharp-Editor.csproj`: 0 advertencias, 0 errores.
+- Verificación de no regresión en esquemas de guardado ni en referencias de Unity.
+
+Estado de la sesión:
+FASE 7 — IDENTIDAD, PRÓLOGO Y ELENCO SOCIAL COMPLETADA AL 100%.
+El proyecto queda detenido formalmente para auditoría externa antes de avanzar a Fase 7.1.
+============================================================
+
+
 
 
 

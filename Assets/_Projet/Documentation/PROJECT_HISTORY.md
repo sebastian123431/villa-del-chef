@@ -526,5 +526,44 @@ FASE 6.1 — CONSOLIDACIÓN GENERAL Y MUEBLES DATA-DRIVEN COMPLETADOS CON ÉXITO
 PRÓXIMO PASO:
 Pruebas en runtime (PlayMode) de comensales y mozos, verificación de flujo de monedas/reputación en móviles y preparación de Fase 7 (Contenido Avanzado).
 ------------------------------------------------------------
+FECHA: 2026-09-24
+VERSIÓN / FASE: FASE 7 — IDENTIDAD, PRÓLOGO Y ELENCO SOCIAL DINÁMICO
+OBJETIVO:
+Implementar el elenco social unificado de Friends como pool dinámico de personajes (Player, Helper, Customers), prohibir atuendos de chef en comensales sin fallback cruzado, asegurar la persistencia incremental y reanudación del prólogo, iniciar el restaurante cerrado tras el prólogo, aislar los tests de integración con snapshots de SaveData y sincronizar la matriz general de alineación.
+
+CAMBIOS REALIZADOS:
+- CharacterSO: Implementado parámetro `allowCrossOutfitFallback` en `GetPreviewSprite` y `GetAnimator`. Si es `false`, comensales con ropa normal no caen en atuendos de chef, registrando error explícito.
+- CharacterAppearanceController: Soporte para `allowCrossOutfitFallback` en `ApplyCharacter`.
+- CustomerController: Asignación forzada de `allowCrossOutfitFallback: false` en `Setup()`.
+- CustomerManager: Spawner defensivo que verifica `RestaurantOperatingManager.Instance != null && IsOpen`.
+- PrologueController: Persistencia inmediata en `OnSubmitName()`, `OnConfirmCharacter()`, `OnOutfitChosen()`. Reanudación automática en `Start()` según `prologueStep`. Asignación de `restaurantOpen = false` al concluir el prólogo.
+- SocialCastIntegrationTest: Encapsulación en `try ... finally` con snapshot y restauración íntegra de `SaveData`. Validación dinámica de conteo sin hardcode de 19 personajes.
+- Project Alignment Matrix: Creado `Assets/_Projet/Documentation/PROJECT_ALIGNMENT.md` con trazabilidad completa de Fases 1 a 10.
+- Compilación: Validados `Assembly-CSharp.csproj` y `Assembly-CSharp-Editor.csproj` con `dotnet build` (0 errores, 0 advertencias).
+
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Documentation/PROJECT_ALIGNMENT.md`
+- `Assets/_Projet/Scripts/Core/Editor/SocialCastIntegrationTest.cs`
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/ScriptableObjects/CharacterSO.cs`
+- `Assets/_Projet/Scripts/Characters/CharacterAppearanceController.cs`
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`
+- `Assets/_Projet/Scripts/Managers/CustomerManager.cs`
+- `Assets/_Projet/Scripts/UI/PrologueController.cs`
+- `Assets/_Projet/Art/Characters/Friends/CHARACTERS.md`
+- `AGENTS.md`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/KNOWN_ISSUES.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assets/_Projet/Documentation/AI_SESSION_LOG.md`
+- `Assets/_Projet/Documentation/PROJECT_HISTORY.md`
+
+ESTADO:
+FASE 7 — IDENTIDAD Y ELENCO SOCIAL DINÁMICO COMPLETADA Y AUDITADA (100% C# limpio, tests aislados).
+PRÓXIMO PASO:
+Auditoría externa del propietario. Detenido formalmente antes de comenzar Fase 7.1 (Customer Parties).
+------------------------------------------------------------
+
 
 

@@ -364,4 +364,40 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Desacoplamiento estricto con exclusión mutua y persistencia data-driven).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.1/6.2).
 
+---
+
+### DECISIÓN 025
+- **Título**: Elenco Social Dinámico y Prohibición de Fallback Cruzado a Uniformes de Chef en Clientes.
+- **Problema**: Los Friends representan personajes con personalidad que pueden ser seleccionados como Jugador, contratados como Ayudantes o visitar el restaurante como Comensales. Si se permitía que `CustomerController` vistiera atuendos de chef por fallback cuando faltara `normalPreview`, los comensales aparecían vestidos de chefs dentro del comedor, arruinando la narrativa y el aspecto visual.
+- **Decisión**:
+  1. Un único `CharacterSO` por personaje Friend (en `Assets/_Projet/Art/Characters/Friends/`).
+  2. Los roles se definen dinámicamente en runtime: 1 Player, 1 Helper, y el resto Customers.
+  3. `CustomerSO` define únicamente el arquetipo de comportamiento (paciencia, propina, bonus XP, etc.).
+  4. Los Comensales usan estrictamente `rnormal` + `movimientos_rnormal` con `allowCrossOutfitFallback: false`. Si falta, se registra un `Debug.LogError` y jamás se recurre a atuendos de cocina.
+- **Alternativas consideradas**:
+  1. Crear ScriptableObjects triplicados (`dafne_player.asset`, `dafne_helper.asset`, `dafne_customer.asset`). Descartada por redundancia masiva y desincronización de identidad.
+  2. Permitir fallback a chef si no hay ropa normal. Descartada por violar la regla de vestuario.
+  3. Separación data-driven con `CharacterSO` (identidad visual) y asignación estricta de `CharacterOutfit.Normal` sin fallback cruzado.
+- **Elegida**: 3 (Separación data-driven con asignación estricta y sin fallback cruzado).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7).
+
+---
+
+### DECISIÓN 026
+- **Título**: Persistencia Incremental de Hitos del Prólogo y Restaurante Inicialmente Cerrado.
+- **Problema**:
+  1. Si el jugador cerraba el juego a mitad del prólogo (después de escribir su nombre o elegir a su protagonista), debía empezar desde cero al volver a abrir.
+  2. Al entrar al restaurante, este iniciaba abierto (`restaurantOpen = true`), impidiendo que el jugador inspeccionara el establecimiento o gestionara sus recursos con calma antes de recibir comensales.
+- **Decisión**:
+  1. `PrologueController` guarda incrementalmente cada hito en `SaveData` (`playerName`, `selectedPlayerCharacterID`, `selectedChefOutfit`, `prologueStep`). Al reiniciar, `Start()` reanuda directamente en el paso pendiente.
+  2. Al completar el prólogo, se asigna `restaurantOpen = false`. El restaurante inicia cerrado y el jugador debe pulsar el botón de apertura conscientemente cuando esté listo.
+  3. `CustomerManager.SpawnLoop()` adopta comprobación defensiva: no genera clientes si `RestaurantOperatingManager.Instance == null` o si `IsOpen == false`.
+- **Alternativas consideradas**:
+  1. Guardar todo únicamente al presionar el último botón del prólogo (riesgo de frustración y abandono si la app se suspende).
+  2. Abrir el restaurante inmediatamente (abruma al jugador novato con clientes antes de entender la cocina).
+  3. Persistencia incremental con arranque cerrado y apertura voluntaria.
+- **Elegida**: 3 (Persistencia incremental con arranque cerrado).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7).
+
+
 
