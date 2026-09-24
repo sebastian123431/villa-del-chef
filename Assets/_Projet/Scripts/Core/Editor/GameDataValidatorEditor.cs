@@ -197,64 +197,7 @@ namespace VillaDelChef.Core.Editor
             }
 
             // 9. Characters (Fase 7)
-            var characters = Resources.LoadAll<CharacterSO>("Characters");
-            var charIds = new HashSet<string>();
-            foreach (var ch in characters)
-            {
-                if (ch == null) continue;
-                if (string.IsNullOrWhiteSpace(ch.characterID))
-                {
-                    Debug.LogError($"[GameDataValidator] CharacterSO '{ch.name}' no tiene characterID asignado.", ch);
-                    errorCount++;
-                }
-                else if (!charIds.Add(ch.characterID))
-                {
-                    Debug.LogError($"[GameDataValidator] ID duplicado en CharacterSO: '{ch.characterID}' en asset '{ch.name}'.", ch);
-                    errorCount++;
-                }
-
-                if (string.IsNullOrWhiteSpace(ch.displayName))
-                {
-                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene displayName asignado.", ch);
-                    warningCount++;
-                }
-
-                if (ch.normalPreview == null)
-                {
-                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene normalPreview (_rnormal).", ch);
-                    warningCount++;
-                }
-
-                if (ch.blackChefPreview == null)
-                {
-                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene blackChefPreview (_rnchef).", ch);
-                    warningCount++;
-                }
-
-                if (ch.whiteChefPreview == null)
-                {
-                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene whiteChefPreview (_rbchef).", ch);
-                    warningCount++;
-                }
-
-                if (ch.normalAnimator == null && ch.normalPreview != null)
-                {
-                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene normalAnimator configurado.", ch);
-                    warningCount++;
-                }
-
-                if (ch.blackChefAnimator == null && ch.blackChefPreview != null)
-                {
-                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene blackChefAnimator configurado.", ch);
-                    warningCount++;
-                }
-
-                if (ch.whiteChefAnimator == null && ch.whiteChefPreview != null)
-                {
-                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene whiteChefAnimator configurado.", ch);
-                    warningCount++;
-                }
-            }
+            ValidateCharacters(ref errorCount, ref warningCount);
 
             // 10. Friends Art Directory Audit (Check ambiguous files without touching PNGs)
             string friendsPath = "Assets/_Projet/Art/Characters/Friends";
@@ -292,6 +235,116 @@ namespace VillaDelChef.Core.Editor
                 if (!Application.isBatchMode)
                 {
                     EditorUtility.DisplayDialog("Validación de Datos", $"Validación finalizada con:\n• {errorCount} errores\n• {warningCount} advertencias\n\nRevisa la Consola para ver los detalles.", "Aceptar");
+                }
+            }
+        }
+
+        [MenuItem("Tools/Villa del Chef/Characters/Validate Character Database", priority = 11)]
+        public static void ValidateCharacterDatabaseOnly()
+        {
+            int errorCount = 0;
+            int warningCount = 0;
+            Debug.Log("<color=cyan><b>[GameDataValidator] Validando Base de Datos de Personajes (Fase 7)...</b></color>");
+            ValidateCharacters(ref errorCount, ref warningCount);
+
+            if (errorCount == 0 && warningCount == 0)
+            {
+                Debug.Log("<color=green><b>[GameDataValidator] Todos los CharacterSO son válidos. 0 errores, 0 advertencias.</b></color>");
+                if (!Application.isBatchMode)
+                {
+                    EditorUtility.DisplayDialog("Validación de Personajes", "Base de datos de personajes válida.\n0 errores encontrados.", "Aceptar");
+                }
+            }
+            else
+            {
+                Debug.LogWarning($"<color=yellow><b>[GameDataValidator] Validación de Personajes finalizada con {errorCount} error(es) y {warningCount} advertencia(s).</b></color>");
+                if (!Application.isBatchMode)
+                {
+                    EditorUtility.DisplayDialog("Validación de Personajes", $"Resultado:\n• {errorCount} errores\n• {warningCount} advertencias\n\nRevisa la Consola.", "Aceptar");
+                }
+            }
+        }
+
+        public static void ValidateCharacters(ref int errorCount, ref int warningCount)
+        {
+            var characters = Resources.LoadAll<CharacterSO>("Characters");
+            var charIds = new HashSet<string>();
+            foreach (var ch in characters)
+            {
+                if (ch == null) continue;
+
+                // 1. characterID
+                if (string.IsNullOrWhiteSpace(ch.characterID))
+                {
+                    Debug.LogError($"[GameDataValidator] CharacterSO '{ch.name}' no tiene characterID asignado.", ch);
+                    errorCount++;
+                }
+                else if (!charIds.Add(ch.characterID))
+                {
+                    Debug.LogError($"[GameDataValidator] ID duplicado en CharacterSO: '{ch.characterID}' en asset '{ch.name}'.", ch);
+                    errorCount++;
+                }
+
+                // 2. displayName
+                if (string.IsNullOrWhiteSpace(ch.displayName))
+                {
+                    Debug.LogError($"[GameDataValidator] ERROR: CharacterSO '{ch.characterID}' no tiene displayName asignado.", ch);
+                    errorCount++;
+                }
+
+                // 3. Customer validations (REGLA CRÍTICA: ERROR estricto si canAppearAsCustomer)
+                if (ch.canAppearAsCustomer)
+                {
+                    if (ch.normalPreview == null)
+                    {
+                        Debug.LogError($"[GameDataValidator] ERROR ESTRICTO: CharacterSO '{ch.characterID}' tiene canAppearAsCustomer=true pero le falta normalPreview (_rnormal). Los clientes no pueden usar chefs.", ch);
+                        errorCount++;
+                    }
+                    if (ch.normalAnimator == null)
+                    {
+                        Debug.LogError($"[GameDataValidator] ERROR ESTRICTO: CharacterSO '{ch.characterID}' tiene canAppearAsCustomer=true pero le falta normalAnimator (movimientos_rnormal).", ch);
+                        errorCount++;
+                    }
+                }
+
+                // 4. Chef outfits check
+                bool hasCompleteBlackChef = ch.blackChefPreview != null && ch.blackChefAnimator != null;
+                bool hasCompleteWhiteChef = ch.whiteChefPreview != null && ch.whiteChefAnimator != null;
+
+                if (!hasCompleteBlackChef)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene outfit completo ChefBlack (_rnchef).", ch);
+                    warningCount++;
+                }
+                if (!hasCompleteWhiteChef)
+                {
+                    Debug.LogWarning($"[GameDataValidator] CharacterSO '{ch.characterID}' no tiene outfit completo ChefWhite (_rbchef).", ch);
+                    warningCount++;
+                }
+
+                // 5. Player validations: debe tener Normal + al menos UN outfit chef completo
+                if (ch.selectableAsPlayer)
+                {
+                    if (ch.normalPreview == null || ch.normalAnimator == null)
+                    {
+                        Debug.LogError($"[GameDataValidator] ERROR: CharacterSO '{ch.characterID}' es selectableAsPlayer pero carece de vestuario Normal completo.", ch);
+                        errorCount++;
+                    }
+                    if (!hasCompleteBlackChef && !hasCompleteWhiteChef)
+                    {
+                        Debug.LogError($"[GameDataValidator] ERROR: CharacterSO '{ch.characterID}' es selectableAsPlayer pero no tiene ningún outfit de chef completo.", ch);
+                        errorCount++;
+                    }
+                }
+
+                // 6. Helper validations: debe tener al menos UN outfit chef completo
+                if (ch.selectableAsHelper)
+                {
+                    if (!hasCompleteBlackChef && !hasCompleteWhiteChef)
+                    {
+                        Debug.LogError($"[GameDataValidator] ERROR: CharacterSO '{ch.characterID}' es selectableAsHelper pero no tiene ningún outfit de chef completo.", ch);
+                        errorCount++;
+                    }
                 }
             }
         }

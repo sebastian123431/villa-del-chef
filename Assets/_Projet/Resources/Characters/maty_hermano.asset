@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Maty Hermano
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: e06d284abd7283642b9f79f136749c7b, type: 3}
   blackChefPreview: {fileID: 21300000, guid: a9be902fe0ed1aa478c4470c8fe937c6, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 771fa7c1852a1f3468bee241795f425f, type: 3}

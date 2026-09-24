@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Andrea
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: e62a918fc63f7d1478c6f0e0b0488706, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 5b9bfa6b1350961488586ee0950435ad, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 685cd37f8c9ec344e8dddd8627185181, type: 3}

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Duvan
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: c92d030f603ad2b46a7d04d64c33381c, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 1acf08de6328e494c813fdf72fb5bc5a, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 7101524a8401fb8499075c19e5d318de, type: 3}

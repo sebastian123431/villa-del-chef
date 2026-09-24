@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Belial
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: f321761b9ea43534995d4ec7aa893640, type: 3}
   blackChefPreview: {fileID: 21300000, guid: e8946a45eedac524481dbfce76630874, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: d2b87fe3b5334c5469d51d5e45e1a99a, type: 3}

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Bastian
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 4effdb47a8cac7649a5009c3e19d8151, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 7bc1fbc82c411a84c8861a0c2dcc13f3, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 06451298d82d7424b9a740078c194f90, type: 3}

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Carlos
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 793632ac65f3c64448332c111dd5fe34, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 5c4c17ad17466734a9ff9583d634ee02, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: ea8d77cb7566d4142a43f61c33573c72, type: 3}

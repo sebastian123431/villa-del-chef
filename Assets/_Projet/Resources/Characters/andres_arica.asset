@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Andres Arica
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: cc86d4573c06e0347b6b46def25c1d0d, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 5e4d9091f7d842248b0ddd4df54ff2e8, type: 3}
   whiteChefPreview: {fileID: 0}

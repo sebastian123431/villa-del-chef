@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Juan
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 2b3e5a0f4b861c54e80e59b3569fecc7, type: 3}
   blackChefPreview: {fileID: 21300000, guid: bbd6de76420c3ea449d11227fd9f70cc, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: d49e8d5b58385674baca6215c3dc4805, type: 3}

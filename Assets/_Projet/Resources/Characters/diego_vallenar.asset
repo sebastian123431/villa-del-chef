@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Diego Vallenar
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 849595d17f70f6342a5b0c5ee522c6fc, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 3994019f2a64ced4287b89232b16f848, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 9d27e6db7930d1e449e36141c408eac3, type: 3}

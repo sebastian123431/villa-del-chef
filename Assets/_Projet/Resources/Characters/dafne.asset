@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Dafne
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 53cb5eb86a063e44fa7c7a486005328c, type: 3}
   blackChefPreview: {fileID: 21300000, guid: d78d8710f3be1dd4f91ec29f5ac1dbe5, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 5ee4a2275a7637f47b81f492eb1b0c5e, type: 3}

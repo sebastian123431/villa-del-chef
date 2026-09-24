@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Dana
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 017327858468d7c4fbce738a807d4dfd, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 24c7b07fe1371a7449f8fd5f65893305, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 6d1ad59f89096244b956b33e66b46947, type: 3}

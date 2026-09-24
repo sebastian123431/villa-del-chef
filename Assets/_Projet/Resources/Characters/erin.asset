@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Erin
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 814223033023fd84cb5882d63e1fba7a, type: 3}
   blackChefPreview: {fileID: 21300000, guid: aba4a84451da26047865fdc0bafc7331, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 0d62489b358d23444999fbcd9f454bfc, type: 3}

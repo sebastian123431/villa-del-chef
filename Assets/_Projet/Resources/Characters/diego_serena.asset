@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Diego Serena
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: abb1377dbc19f7241bd57e1f16e2991f, type: 3}
   blackChefPreview: {fileID: 21300000, guid: a297429a6d158b34a917c4f4b994d984, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 534ed28173cee404bb4684919fb8f961, type: 3}

@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Mario
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: efcb1c6d1d3917142bb300c3742bedfb, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 713db75bf93e5134d98bfa2fe9073a45, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: 30b83bc4da507c64da87c99ce2c8eb14, type: 3}

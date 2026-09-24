@@ -16,6 +16,7 @@ MonoBehaviour:
   displayName: Alex
   selectableAsPlayer: 1
   selectableAsHelper: 1
+  canAppearAsCustomer: 1
   normalPreview: {fileID: 21300000, guid: 89d47ff743aa58c4ab56dcbb6f94550d, type: 3}
   blackChefPreview: {fileID: 21300000, guid: 3b62279d4e2592e4d9855a38b3c7cd46, type: 3}
   whiteChefPreview: {fileID: 21300000, guid: b5748b2193f36f5478ae32b2518d0256, type: 3}
