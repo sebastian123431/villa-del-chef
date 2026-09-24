@@ -43,11 +43,18 @@ namespace VillaDelChef.Workers
 
         [Header("Visuals")]
         public SpriteRenderer characterRenderer;
+        private Animator animator;
 
         private float moveSpeed = 3.2f;
         private Coroutine activeTaskRoutine;
         private DishInstance currentlyReservedDish;
         private Table currentlyReservedTable;
+
+        private void Awake()
+        {
+            if (characterRenderer == null) characterRenderer = GetComponentInChildren<SpriteRenderer>();
+            if (animator == null) animator = GetComponent<Animator>();
+        }
 
         private void OnDisable()
         {
@@ -128,6 +135,7 @@ namespace VillaDelChef.Workers
                 }
             }
 
+            if (animator == null) animator = GetComponent<Animator>();
             idleGridPos = GridManager.Instance != null ? GridManager.Instance.WorldToGrid(transform.position) : Vector2Int.zero;
             StartCoroutine(WorkerThinkRoutine());
         }
@@ -250,6 +258,12 @@ namespace VillaDelChef.Workers
                 yield break;
             }
 
+            if (animator != null && animator.enabled)
+            {
+                animator.SetTrigger("Pickup");
+                animator.SetBool("IsCarrying", true);
+            }
+
             carryingDish.isReserved = false;
             currentlyReservedDish = null; // Handled directly via carryingDish now
             carryingDish.transform.SetParent(carrySocket != null ? carrySocket : transform);
@@ -287,6 +301,11 @@ namespace VillaDelChef.Workers
                 bool accepted = targetTable.currentCustomer.ReceiveDish(carryingDish);
                 if (accepted)
                 {
+                    if (animator != null && animator.enabled)
+                    {
+                        animator.SetTrigger("Serve");
+                        animator.SetBool("IsCarrying", false);
+                    }
                     GameEvents.TriggerDishDelivered(carryingDish, targetTable);
                     carryingDish = null;
                 }
@@ -361,7 +380,9 @@ namespace VillaDelChef.Workers
             // Cleaning in progress once reached
             targetTable.StartCleaning();
             currentState = WorkerState.Cleaning;
+            if (animator != null && animator.enabled) animator.SetBool("IsThinking", true);
             yield return new WaitForSeconds(cleanDuration);
+            if (animator != null && animator.enabled) animator.SetBool("IsThinking", false);
 
             targetTable.FinishCleaning();
             currentlyReservedTable = null;
@@ -390,13 +411,35 @@ namespace VillaDelChef.Workers
                 Vector3 targetWorld = GridManager.Instance.GridToWorld(path[i]);
                 while (Vector3.Distance(transform.position, targetWorld) > 0.05f)
                 {
+                    Vector3 moveDir = (targetWorld - transform.position).normalized;
                     transform.position = Vector3.MoveTowards(transform.position, targetWorld, moveSpeed * Time.deltaTime);
-                    if (characterRenderer != null && (targetWorld.x - transform.position.x) != 0)
+
+                    if (animator != null && animator.enabled)
+                    {
+                        if (moveDir.sqrMagnitude > 0.01f)
+                        {
+                            float ax = Mathf.Abs(moveDir.x);
+                            float ay = Mathf.Abs(moveDir.y);
+                            float dirX = (ax >= ay) ? (moveDir.x > 0 ? 1f : -1f) : 0f;
+                            float dirY = (ax < ay) ? (moveDir.y > 0 ? 1f : -1f) : 0f;
+                            animator.SetFloat("MoveX", dirX);
+                            animator.SetFloat("MoveY", dirY);
+                            animator.SetFloat("Speed", 1f);
+                        }
+                        animator.SetBool("IsCarrying", carryingDish != null);
+                    }
+                    else if (characterRenderer != null && (targetWorld.x - transform.position.x) != 0)
                     {
                         characterRenderer.flipX = (targetWorld.x - transform.position.x) < 0;
                     }
                     yield return null;
                 }
+            }
+
+            if (animator != null && animator.enabled)
+            {
+                animator.SetFloat("Speed", 0f);
+                animator.SetBool("IsCarrying", carryingDish != null);
             }
 
             onComplete?.Invoke(true);

@@ -276,10 +276,14 @@ namespace VillaDelChef.Core.Editor
 
                 if (isNew)
                 {
+                    charSO.canAppearAsCustomer = true;
+                    charSO.selectableAsPlayer = true;
+                    charSO.selectableAsHelper = true;
                     AssetDatabase.CreateAsset(charSO, soPath);
                 }
                 else
                 {
+                    // Preservar valores manuales existentes de canAppearAsCustomer/selectableAsPlayer/selectableAsHelper
                     EditorUtility.SetDirty(charSO);
                 }
 
@@ -328,7 +332,7 @@ namespace VillaDelChef.Core.Editor
             string outfitFolder = $"{animDir}/{outfitName}";
             if (!Directory.Exists(outfitFolder)) Directory.CreateDirectory(outfitFolder);
 
-            // Generar o actualizar AnimationClips
+            // Generar o actualizar los 16 AnimationClips (64 frames exactos: 4 columnas x 16 filas)
             // Fila 1: Idle Down (0..3)
             var clipIdleDown = GetOrCreateClip($"{outfitFolder}/Idle_Down.anim", GetFramesSlice(frames, 0, 4), 6f, true);
             // Fila 2: Walk Down (4..7)
@@ -347,8 +351,18 @@ namespace VillaDelChef.Core.Editor
             var clipWalkRight = GetOrCreateClip($"{outfitFolder}/Walk_Right.anim", GetFramesSlice(frames, 28, 4), 8f, true);
             // Fila 9: Cook Down (32..35)
             var clipCookDown = GetOrCreateClip($"{outfitFolder}/Cook_Down.anim", GetFramesSlice(frames, 32, 4), 8f, true);
-            // Fila 13: Think (48..51)
+            // Fila 10: Cook Up (36..39)
+            var clipCookUp = GetOrCreateClip($"{outfitFolder}/Cook_Up.anim", GetFramesSlice(frames, 36, 4), 8f, true);
+            // Fila 11: Cook Left (40..43)
+            var clipCookLeft = GetOrCreateClip($"{outfitFolder}/Cook_Left.anim", GetFramesSlice(frames, 40, 4), 8f, true);
+            // Fila 12: Cook Right (44..47)
+            var clipCookRight = GetOrCreateClip($"{outfitFolder}/Cook_Right.anim", GetFramesSlice(frames, 44, 4), 8f, true);
+            // Fila 13: Think / Wait (48..51)
             var clipThink = GetOrCreateClip($"{outfitFolder}/Think.anim", GetFramesSlice(frames, 48, 4), 6f, true);
+            // Fila 14: Pickup (52..55)
+            var clipPickup = GetOrCreateClip($"{outfitFolder}/Pickup.anim", GetFramesSlice(frames, 52, 4), 8f, false);
+            // Fila 15: Carry / Serve (56..59)
+            var clipCarryServe = GetOrCreateClip($"{outfitFolder}/Carry_Serve.anim", GetFramesSlice(frames, 56, 4), 8f, true);
             // Fila 16: Celebrate (60..63)
             var clipCelebrate = GetOrCreateClip($"{outfitFolder}/Celebrate.anim", GetFramesSlice(frames, 60, 4), 8f, false);
 
@@ -358,62 +372,190 @@ namespace VillaDelChef.Core.Editor
             if (controller == null)
             {
                 controller = AnimatorController.CreateAnimatorControllerAtPath(controllerPath);
-
-                // Agregar parámetros estándar (Regla 40)
-                controller.AddParameter("MoveX", AnimatorControllerParameterType.Float);
-                controller.AddParameter("MoveY", AnimatorControllerParameterType.Float);
-                controller.AddParameter("Speed", AnimatorControllerParameterType.Float);
-                controller.AddParameter("IsCooking", AnimatorControllerParameterType.Bool);
-                controller.AddParameter("IsThinking", AnimatorControllerParameterType.Bool);
-                controller.AddParameter("IsCarrying", AnimatorControllerParameterType.Bool);
-                controller.AddParameter("Pickup", AnimatorControllerParameterType.Trigger);
-                controller.AddParameter("Serve", AnimatorControllerParameterType.Trigger);
-                controller.AddParameter("Celebrate", AnimatorControllerParameterType.Trigger);
-
-                var rootStateMachine = controller.layers[0].stateMachine;
-
-                // Crear Estados
-                var stateIdle = rootStateMachine.AddState("Idle_Down");
-                stateIdle.motion = clipIdleDown;
-                rootStateMachine.defaultState = stateIdle;
-
-                var stateWalk = rootStateMachine.AddState("Walk_Down");
-                stateWalk.motion = clipWalkDown;
-
-                var stateCook = rootStateMachine.AddState("Cook");
-                stateCook.motion = clipCookDown;
-
-                var stateThink = rootStateMachine.AddState("Think");
-                stateThink.motion = clipThink;
-
-                var stateCelebrate = rootStateMachine.AddState("Celebrate");
-                stateCelebrate.motion = clipCelebrate;
-
-                // Transición Idle -> Walk
-                var toWalk = stateIdle.AddTransition(stateWalk);
-                toWalk.AddCondition(AnimatorConditionMode.Greater, 0.1f, "Speed");
-                toWalk.hasExitTime = false;
-                toWalk.duration = 0.1f;
-
-                // Transición Walk -> Idle
-                var toIdle = stateWalk.AddTransition(stateIdle);
-                toIdle.AddCondition(AnimatorConditionMode.Less, 0.1f, "Speed");
-                toIdle.hasExitTime = false;
-                toIdle.duration = 0.1f;
-
-                // Transición AnyState -> Cook
-                var toCook = rootStateMachine.AddAnyStateTransition(stateCook);
-                toCook.AddCondition(AnimatorConditionMode.If, 0, "IsCooking");
-                toCook.hasExitTime = false;
-                toCook.duration = 0.1f;
-
-                var fromCook = stateCook.AddTransition(stateIdle);
-                fromCook.AddCondition(AnimatorConditionMode.IfNot, 0, "IsCooking");
-                fromCook.hasExitTime = false;
-                fromCook.duration = 0.1f;
             }
 
+            // Asegurar parámetros requeridos (Regla 29)
+            EnsureControllerParameter(controller, "MoveX", AnimatorControllerParameterType.Float, 0f);
+            EnsureControllerParameter(controller, "MoveY", AnimatorControllerParameterType.Float, -1f); // Default mirando hacia abajo
+            EnsureControllerParameter(controller, "Speed", AnimatorControllerParameterType.Float, 0f);
+            EnsureControllerParameter(controller, "IsCooking", AnimatorControllerParameterType.Bool, 0f);
+            EnsureControllerParameter(controller, "IsThinking", AnimatorControllerParameterType.Bool, 0f);
+            EnsureControllerParameter(controller, "IsCarrying", AnimatorControllerParameterType.Bool, 0f);
+            EnsureControllerParameter(controller, "Pickup", AnimatorControllerParameterType.Trigger, 0f);
+            EnsureControllerParameter(controller, "Serve", AnimatorControllerParameterType.Trigger, 0f);
+            EnsureControllerParameter(controller, "Celebrate", AnimatorControllerParameterType.Trigger, 0f);
+
+            var rootStateMachine = controller.layers[0].stateMachine;
+
+            // Limpiar estados y transiciones previas para reconstruir arquitectura direccional limpia
+            while (rootStateMachine.anyStateTransitions.Length > 0)
+            {
+                rootStateMachine.RemoveAnyStateTransition(rootStateMachine.anyStateTransitions[0]);
+            }
+            var existingStates = rootStateMachine.states;
+            for (int i = existingStates.Length - 1; i >= 0; i--)
+            {
+                rootStateMachine.RemoveState(existingStates[i].state);
+            }
+
+            // 1. Blend Tree: Idle (Direccional 2D con MoveX y MoveY)
+            AnimatorState stateIdle = controller.CreateBlendTreeInController("Idle_Tree", out BlendTree idleTree);
+            stateIdle.name = "Idle";
+            idleTree.name = "Idle_Tree";
+            idleTree.blendType = BlendTreeType.SimpleDirectional2D;
+            idleTree.blendParameter = "MoveX";
+            idleTree.blendParameterY = "MoveY";
+            idleTree.AddChild(clipIdleDown, new Vector2(0f, -1f));
+            idleTree.AddChild(clipIdleUp, new Vector2(0f, 1f));
+            idleTree.AddChild(clipIdleLeft, new Vector2(-1f, 0f));
+            idleTree.AddChild(clipIdleRight, new Vector2(1f, 0f));
+
+            rootStateMachine.defaultState = stateIdle;
+
+            // 2. Blend Tree: Walk (Direccional 2D con MoveX y MoveY)
+            AnimatorState stateWalk = controller.CreateBlendTreeInController("Walk_Tree", out BlendTree walkTree);
+            stateWalk.name = "Walk";
+            walkTree.name = "Walk_Tree";
+            walkTree.blendType = BlendTreeType.SimpleDirectional2D;
+            walkTree.blendParameter = "MoveX";
+            walkTree.blendParameterY = "MoveY";
+            walkTree.AddChild(clipWalkDown, new Vector2(0f, -1f));
+            walkTree.AddChild(clipWalkUp, new Vector2(0f, 1f));
+            walkTree.AddChild(clipWalkLeft, new Vector2(-1f, 0f));
+            walkTree.AddChild(clipWalkRight, new Vector2(1f, 0f));
+
+            // 3. Blend Tree: Cook (Direccional 2D según dirección orientada)
+            AnimatorState stateCook = controller.CreateBlendTreeInController("Cook_Tree", out BlendTree cookTree);
+            stateCook.name = "Cook";
+            cookTree.name = "Cook_Tree";
+            cookTree.blendType = BlendTreeType.SimpleDirectional2D;
+            cookTree.blendParameter = "MoveX";
+            cookTree.blendParameterY = "MoveY";
+            cookTree.AddChild(clipCookDown, new Vector2(0f, -1f));
+            cookTree.AddChild(clipCookUp, new Vector2(0f, 1f));
+            cookTree.AddChild(clipCookLeft, new Vector2(-1f, 0f));
+            cookTree.AddChild(clipCookRight, new Vector2(1f, 0f));
+
+            // 4. Estados adicionales
+            var stateCarry = rootStateMachine.AddState("Carry");
+            stateCarry.motion = clipCarryServe;
+
+            var stateThink = rootStateMachine.AddState("Think");
+            stateThink.motion = clipThink;
+
+            var statePickup = rootStateMachine.AddState("Pickup");
+            statePickup.motion = clipPickup;
+
+            var stateServe = rootStateMachine.AddState("Serve");
+            stateServe.motion = clipCarryServe;
+
+            var stateCelebrate = rootStateMachine.AddState("Celebrate");
+            stateCelebrate.motion = clipCelebrate;
+
+            // Transiciones Locomoción: Idle <-> Walk
+            var toWalk = stateIdle.AddTransition(stateWalk);
+            toWalk.AddCondition(AnimatorConditionMode.Greater, 0.05f, "Speed");
+            toWalk.hasExitTime = false;
+            toWalk.duration = 0.05f;
+
+            var toIdle = stateWalk.AddTransition(stateIdle);
+            toIdle.AddCondition(AnimatorConditionMode.Less, 0.05f, "Speed");
+            toIdle.hasExitTime = false;
+            toIdle.duration = 0.05f;
+
+            // Transiciones de Carga de Platos (Carry)
+            var idleToCarry = stateIdle.AddTransition(stateCarry);
+            idleToCarry.AddCondition(AnimatorConditionMode.If, 0, "IsCarrying");
+            idleToCarry.hasExitTime = false;
+            idleToCarry.duration = 0.05f;
+
+            var walkToCarry = stateWalk.AddTransition(stateCarry);
+            walkToCarry.AddCondition(AnimatorConditionMode.If, 0, "IsCarrying");
+            walkToCarry.hasExitTime = false;
+            walkToCarry.duration = 0.05f;
+
+            var carryToIdle = stateCarry.AddTransition(stateIdle);
+            carryToIdle.AddCondition(AnimatorConditionMode.IfNot, 0, "IsCarrying");
+            carryToIdle.AddCondition(AnimatorConditionMode.Less, 0.05f, "Speed");
+            carryToIdle.hasExitTime = false;
+            carryToIdle.duration = 0.05f;
+
+            var carryToWalk = stateCarry.AddTransition(stateWalk);
+            carryToWalk.AddCondition(AnimatorConditionMode.IfNot, 0, "IsCarrying");
+            carryToWalk.AddCondition(AnimatorConditionMode.Greater, 0.05f, "Speed");
+            carryToWalk.hasExitTime = false;
+            carryToWalk.duration = 0.05f;
+
+            // Transiciones AnyState -> Cocina
+            var toCook = rootStateMachine.AddAnyStateTransition(stateCook);
+            toCook.AddCondition(AnimatorConditionMode.If, 0, "IsCooking");
+            toCook.hasExitTime = false;
+            toCook.duration = 0.05f;
+
+            var fromCook = stateCook.AddTransition(stateIdle);
+            fromCook.AddCondition(AnimatorConditionMode.IfNot, 0, "IsCooking");
+            fromCook.hasExitTime = false;
+            fromCook.duration = 0.05f;
+
+            // Transiciones AnyState -> Think
+            var toThink = rootStateMachine.AddAnyStateTransition(stateThink);
+            toThink.AddCondition(AnimatorConditionMode.If, 0, "IsThinking");
+            toThink.hasExitTime = false;
+            toThink.duration = 0.05f;
+
+            var fromThink = stateThink.AddTransition(stateIdle);
+            fromThink.AddCondition(AnimatorConditionMode.IfNot, 0, "IsThinking");
+            fromThink.hasExitTime = false;
+            fromThink.duration = 0.05f;
+
+            // Triggers: Pickup, Serve, Celebrate
+            var toPickup = rootStateMachine.AddAnyStateTransition(statePickup);
+            toPickup.AddCondition(AnimatorConditionMode.If, 0, "Pickup");
+            toPickup.hasExitTime = false;
+            toPickup.duration = 0.05f;
+
+            var fromPickup = statePickup.AddTransition(stateIdle);
+            fromPickup.hasExitTime = true;
+            fromPickup.exitTime = 1f;
+            fromPickup.duration = 0.05f;
+
+            var toServe = rootStateMachine.AddAnyStateTransition(stateServe);
+            toServe.AddCondition(AnimatorConditionMode.If, 0, "Serve");
+            toServe.hasExitTime = false;
+            toServe.duration = 0.05f;
+
+            var fromServe = stateServe.AddTransition(stateIdle);
+            fromServe.hasExitTime = true;
+            fromServe.exitTime = 1f;
+            fromServe.duration = 0.05f;
+
+            var toCelebrate = rootStateMachine.AddAnyStateTransition(stateCelebrate);
+            toCelebrate.AddCondition(AnimatorConditionMode.If, 0, "Celebrate");
+            toCelebrate.hasExitTime = false;
+            toCelebrate.duration = 0.05f;
+
+            var fromCelebrate = stateCelebrate.AddTransition(stateIdle);
+            fromCelebrate.hasExitTime = true;
+            fromCelebrate.exitTime = 1f;
+            fromCelebrate.duration = 0.05f;
+
+            EditorUtility.SetDirty(controller);
             return controller;
+        }
+
+        private static void EnsureControllerParameter(AnimatorController ctrl, string name, AnimatorControllerParameterType type, float defaultFloat = 0f)
+        {
+            foreach (var p in ctrl.parameters)
+            {
+                if (p.name == name) return;
+            }
+
+            ctrl.AddParameter(new AnimatorControllerParameter
+            {
+                name = name,
+                type = type,
+                defaultFloat = defaultFloat
+            });
         }
 
         private static AnimationClip GetOrCreateClip(string clipPath, List<Sprite> spriteFrames, float sampleRate, bool loop)
