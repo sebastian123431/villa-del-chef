@@ -67,6 +67,10 @@ namespace VillaDelChef.Managers
             spawnRoutine = StartCoroutine(SpawnLoop());
         }
 
+        [Header("Progression Thresholds")]
+        [SerializeField] private int helperIntroCustomersRequired = 3;
+        public int HelperIntroCustomersRequired => helperIntroCustomersRequired;
+
         private void OnDestroy()
         {
             GameEvents.OnCustomerLeft -= HandleCustomerLeft;
@@ -81,12 +85,30 @@ namespace VillaDelChef.Managers
                 Save.SaveManager.Instance.SaveData.customersServedTotal++;
                 Save.SaveManager.Instance.SaveGame();
 
-                if (Save.SaveManager.Instance.SaveData.customersServedTotal >= 3 &&
+                if (Save.SaveManager.Instance.SaveData.customersServedTotal >= helperIntroCustomersRequired &&
                     !Save.SaveManager.Instance.SaveData.helperIntroTriggered)
                 {
                     UI.HelperIntroDialogUI.ShowIfAvailable();
                 }
             }
+        }
+
+        /// <summary>
+        /// Comprueba si un personaje Friend específico se encuentra actualmente en el restaurante como cliente activo.
+        /// Previene asignarlo como ayudante mientras aún está en una mesa (Sección 56-57).
+        /// </summary>
+        public bool IsFriendCurrentlyCustomer(string charID)
+        {
+            if (string.IsNullOrEmpty(charID)) return false;
+            foreach (var active in activeCustomers)
+            {
+                if (active != null && active.characterAppearance != null &&
+                    active.characterAppearance.characterID.Equals(charID, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private IEnumerator SpawnLoop()

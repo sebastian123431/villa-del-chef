@@ -23,6 +23,7 @@ namespace VillaDelChef.UI
         public Button marketButton;
         public Button openCloseButton;
         public Text openCloseText;
+        public Button staffButton;
 
         [Header("Panels")]
         public GameObject buildPanel;
@@ -70,6 +71,19 @@ namespace VillaDelChef.UI
             else
             {
                 CreateFallbackOpenCloseButton();
+            }
+
+            if (staffButton != null)
+            {
+                staffButton.onClick.AddListener(() =>
+                {
+                    if (StaffMenuUI.Instance != null) StaffMenuUI.Instance.Toggle();
+                    else StaffMenuUI.CreateFallbackModal();
+                });
+            }
+            else
+            {
+                CreateFallbackStaffButton();
             }
 
             if (Managers.RestaurantOperatingManager.Instance != null)
@@ -172,6 +186,45 @@ namespace VillaDelChef.UI
             {
                 UpdateOperatingStateDisplay(Managers.RestaurantOperatingManager.Instance.IsOpen);
             }
+        }
+
+        private void CreateFallbackStaffButton()
+        {
+            Canvas canvas = GetComponentInParent<Canvas>();
+            if (canvas == null) return;
+
+            GameObject btnGO = new GameObject("Btn_StaffMenu");
+            btnGO.transform.SetParent(canvas.transform, false);
+
+            RectTransform rt = btnGO.AddComponent<RectTransform>();
+            rt.anchorMin = new Vector2(0f, 1f);
+            rt.anchorMax = new Vector2(0f, 1f);
+            rt.pivot = new Vector2(0f, 1f);
+            rt.anchoredPosition = new Vector2(160f, -80f);
+            rt.sizeDelta = new Vector2(120, 42);
+
+            Image img = btnGO.AddComponent<Image>();
+            img.color = new Color(0.24f, 0.45f, 0.72f);
+
+            staffButton = btnGO.AddComponent<Button>();
+            staffButton.onClick.AddListener(() =>
+            {
+                if (StaffMenuUI.Instance != null) StaffMenuUI.Instance.Toggle();
+                else StaffMenuUI.CreateFallbackModal();
+            });
+
+            GameObject textGO = new GameObject("Label");
+            textGO.transform.SetParent(btnGO.transform, false);
+            Text t = textGO.AddComponent<Text>();
+            t.text = "PERSONAL";
+            t.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            t.fontSize = 15;
+            t.fontStyle = FontStyle.Bold;
+            t.alignment = TextAnchor.MiddleCenter;
+            t.color = Color.white;
+
+            RectTransform trt = textGO.GetComponent<RectTransform>();
+            trt.sizeDelta = rt.sizeDelta;
         }
 
         private void UpdateCoins(int coins)

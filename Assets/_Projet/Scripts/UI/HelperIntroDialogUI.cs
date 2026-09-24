@@ -117,6 +117,11 @@ namespace VillaDelChef.UI
         private void LoadAvailableFriends()
         {
             availableFriends.Clear();
+            selectedHelperCharacter = null;
+            if (selectedFriendNameText != null) selectedFriendNameText.text = "Selecciona un amigo";
+            if (previewImage != null) previewImage.sprite = null;
+            if (confirmHelperBtn != null) confirmHelperBtn.interactable = false;
+
             var allCharacters = Resources.LoadAll<CharacterSO>("Characters");
 
             string playerID = SaveManager.Instance != null && SaveManager.Instance.SaveData != null
@@ -133,9 +138,78 @@ namespace VillaDelChef.UI
                 availableFriends.Add(ch);
             }
 
-            if (availableFriends.Count > 0)
+            PopulateGrid();
+        }
+
+        private void PopulateGrid()
+        {
+            if (characterGridContainer == null) return;
+
+            // Limpiar tarjetas previas
+            foreach (Transform child in characterGridContainer)
             {
-                SelectCharacter(availableFriends[0]);
+                Destroy(child.gameObject);
+            }
+
+            foreach (var ch in availableFriends)
+            {
+                bool isVisiting = CustomerManager.Instance != null && CustomerManager.Instance.IsFriendCurrentlyCustomer(ch.characterID);
+
+                GameObject cardGO = null;
+                if (characterCardPrefab != null)
+                {
+                    cardGO = Instantiate(characterCardPrefab, characterGridContainer);
+                }
+                else
+                {
+                    // Fallback dinámico de tarjeta
+                    cardGO = new GameObject($"Card_{ch.characterID}");
+                    cardGO.transform.SetParent(characterGridContainer, false);
+
+                    Image cardBg = cardGO.AddComponent<Image>();
+                    cardBg.color = new Color(0.18f, 0.22f, 0.28f);
+
+                    var cardRT = cardGO.GetComponent<RectTransform>();
+                    cardRT.sizeDelta = new Vector2(100f, 130f);
+
+                    // Imagen preview
+                    GameObject iconGO = new GameObject("Icon");
+                    iconGO.transform.SetParent(cardGO.transform, false);
+                    Image icon = iconGO.AddComponent<Image>();
+                    icon.sprite = ch.GetPreviewSprite(CharacterOutfit.Normal);
+                    icon.preserveAspect = true;
+                    var iconRT = iconGO.GetComponent<RectTransform>();
+                    iconRT.anchorMin = new Vector2(0.5f, 0.6f);
+                    iconRT.anchorMax = new Vector2(0.5f, 0.6f);
+                    iconRT.sizeDelta = new Vector2(64f, 64f);
+
+                    // Nombre
+                    GameObject nameGO = new GameObject("Name");
+                    nameGO.transform.SetParent(cardGO.transform, false);
+                    Text nameTxt = nameGO.AddComponent<Text>();
+                    nameTxt.text = isVisiting ? $"{ch.displayName}\n<size=10>(En restaurante)</size>" : ch.displayName;
+                    nameTxt.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+                    nameTxt.fontSize = 12;
+                    nameTxt.alignment = TextAnchor.MiddleCenter;
+                    nameTxt.color = isVisiting ? Color.gray : Color.white;
+                    var nameRT = nameGO.GetComponent<RectTransform>();
+                    nameRT.anchorMin = new Vector2(0f, 0f);
+                    nameRT.anchorMax = new Vector2(1f, 0.35f);
+                    nameRT.sizeDelta = Vector2.zero;
+                }
+
+                Button btn = cardGO.GetComponent<Button>();
+                if (btn == null) btn = cardGO.AddComponent<Button>();
+
+                if (isVisiting)
+                {
+                    btn.interactable = false;
+                }
+                else
+                {
+                    var targetCh = ch;
+                    btn.onClick.AddListener(() => SelectCharacter(targetCh));
+                }
             }
         }
 
@@ -145,6 +219,10 @@ namespace VillaDelChef.UI
             if (selectedFriendNameText != null && character != null)
             {
                 selectedFriendNameText.text = character.displayName;
+            }
+            if (confirmHelperBtn != null)
+            {
+                confirmHelperBtn.interactable = (character != null);
             }
             UpdatePreview();
         }
@@ -301,30 +379,23 @@ namespace VillaDelChef.UI
 
             cBtn.onClick.AddListener(() =>
             {
-                // Auto-pick first available friend who is not player
-                var allChars = Resources.LoadAll<CharacterSO>("Characters");
-                string playerID = SaveManager.Instance?.SaveData?.selectedPlayerCharacterID ?? "";
-                CharacterSO helper = null;
-                foreach (var ch in allChars)
-                {
-                    if (ch != null && ch.characterID != playerID)
-                    {
-                        helper = ch;
-                        break;
-                    }
-                }
-                if (helper != null)
-                {
-                    ApplyHelperToRestaurant(helper, CharacterOutfit.ChefWhite);
-                    if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
-                    {
-                        SaveManager.Instance.SaveData.selectedHelperCharacterID = helper.characterID;
-                        SaveManager.Instance.SaveData.helperChefOutfit = CharacterOutfit.ChefWhite;
-                        SaveManager.Instance.SaveData.helperIntroTriggered = true;
-                        SaveManager.Instance.SaveGame();
-                    }
-                }
                 Object.Destroy(root);
+                if (StaffMenuUI.Instance != null)
+                {
+                    StaffMenuUI.Instance.OpenHelperSelection();
+                }
+                else
+                {
+                    StaffMenuUI.CreateFallbackModal();
+                    if (StaffMenuUI.Instance != null)
+                    {
+                        StaffMenuUI.Instance.OpenHelperSelection();
+                    }
+                    else
+                    {
+                        Debug.LogError("[HelperIntroDialogUI] ERROR: No fue posible abrir el menú de selección de personal.");
+                    }
+                }
             });
 
             sBtn.onClick.AddListener(() =>
