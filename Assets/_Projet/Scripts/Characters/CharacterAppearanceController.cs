@@ -51,9 +51,13 @@ namespace VillaDelChef.Characters
             {
                 spriteRenderer.sprite = previewSprite;
             }
-            else if (!allowCrossOutfitFallback && spriteRenderer != null)
+            else if (spriteRenderer != null)
             {
-                Debug.LogError($"[CharacterAppearanceController] El personaje '{character.displayName}' no tiene vestuario Normal (rnormal) válido. Se rechaza fallback a chef.");
+                if (!allowCrossOutfitFallback)
+                {
+                    Debug.LogError($"[CharacterAppearanceController] El personaje '{character.displayName}' no tiene vestuario Normal (rnormal) válido. Se rechaza fallback a chef.");
+                }
+                spriteRenderer.sprite = null;
             }
 
             // 2. Asignar Animator Controller emparejado exactamente
@@ -66,8 +70,27 @@ namespace VillaDelChef.Characters
             }
             else if (animator != null)
             {
+                animator.runtimeAnimatorController = null;
                 animator.enabled = false;
             }
+        }
+
+        /// <summary>
+        /// Limpia cualquier vestigio visual previo (sprites, animators o identidades anteriores).
+        /// Obligatorio al retornar o extraer comensales del ObjectPool.
+        /// </summary>
+        public void ResetAppearance()
+        {
+            if (spriteRenderer == null) spriteRenderer = GetComponent<SpriteRenderer>();
+            if (animator == null) animator = GetComponent<Animator>();
+
+            if (spriteRenderer != null) spriteRenderer.sprite = null;
+            if (animator != null)
+            {
+                animator.runtimeAnimatorController = null;
+                animator.enabled = false;
+            }
+            currentCharacter = null;
         }
 
         /// <summary>

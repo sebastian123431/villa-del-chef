@@ -86,6 +86,19 @@ namespace VillaDelChef.Customers
             {
                 animator.SetFloat("Speed", 0f);
                 animator.SetBool("IsThinking", false);
+                animator.SetBool("IsCooking", false);
+                animator.SetBool("IsCarrying", false);
+                animator.ResetTrigger("Pickup");
+                animator.ResetTrigger("Serve");
+                animator.ResetTrigger("Celebrate");
+            }
+            if (appearanceController != null)
+            {
+                appearanceController.ResetAppearance();
+            }
+            if (characterRenderer != null)
+            {
+                characterRenderer.sprite = null;
             }
             characterAppearance = null;
         }
@@ -162,7 +175,7 @@ namespace VillaDelChef.Customers
             if (foundTable == null)
             {
                 // No tables available -> Leave
-                yield return StartCoroutine(WalkToRoutine(exitGridPos));
+                yield return StartCoroutine(WalkToRoutine(exitGridPos, null));
                 GameEvents.TriggerCustomerLeft(this);
                 DespawnCustomer();
                 yield break;
@@ -176,9 +189,25 @@ namespace VillaDelChef.Customers
             // 2. Walk to Table
             currentState = CustomerState.WalkingToTable;
             Vector2Int chairGrid = assignedChair != null ? assignedChair.gridPosition : assignedTable.gridPosition;
-            yield return StartCoroutine(WalkToRoutine(chairGrid));
+            bool reachedChair = false;
+            yield return StartCoroutine(WalkToRoutine(chairGrid, success => reachedChair = success));
 
-            // Snap to chair position
+            if (!reachedChair)
+            {
+                // REGLA CRÍTICA: Si no hay camino a la mesa, NUNCA teletransportar
+                Debug.LogWarning($"[CustomerController] No se pudo alcanzar la mesa en {chairGrid}. Cancelando atención de comensal de forma segura.");
+                ReleaseTableReference();
+                if (assignedTable != null)
+                {
+                    assignedTable.ClearTable();
+                }
+                yield return StartCoroutine(WalkToRoutine(exitGridPos, null));
+                GameEvents.TriggerCustomerLeft(this);
+                DespawnCustomer();
+                yield break;
+            }
+
+            // Snap to chair position SOLO si se alcanzó la silla exitosamente
             if (assignedChair != null)
             {
                 transform.position = assignedChair.GetSitPosition();
@@ -342,7 +371,14 @@ namespace VillaDelChef.Customers
                 }
                 ReleaseTableReference();
             }
-            yield return StartCoroutine(WalkToRoutine(exitGridPos));
+
+            bool reachedExit = false;
+            yield return StartCoroutine(WalkToRoutine(exitGridPos, success => reachedExit = success));
+            if (!reachedExit)
+            {
+                Debug.LogWarning("[CustomerController] No se pudo alcanzar la salida transitando. Despawn seguro sin teletransporte visual.");
+            }
+
             GameEvents.TriggerCustomerLeft(this);
             DespawnCustomer();
         }
@@ -360,17 +396,18 @@ namespace VillaDelChef.Customers
             }
         }
 
-        private IEnumerator WalkToRoutine(Vector2Int targetGrid)
+        private IEnumerator WalkToRoutine(Vector2Int targetGrid, System.Action<bool> onComplete = null)
         {
             Vector2Int startGrid = GridManager.Instance != null ? GridManager.Instance.WorldToGrid(transform.position) : Vector2Int.zero;
             currentPath = GridPathfinding.FindPath(startGrid, targetGrid);
 
             if (currentPath == null || currentPath.Count == 0)
             {
-                Debug.LogWarning($"[CustomerController] No se encontró ruta caminable desde {startGrid} hasta {targetGrid}. Esperando sin teletransporte.");
+                Debug.LogWarning($"[CustomerController] No se encontró ruta caminable desde {startGrid} hasta {targetGrid}. Deteniendo movimiento sin teletransporte.");
+                if (animator != null && animator.enabled) animator.SetFloat("Speed", 0f);
+                onComplete?.Invoke(false);
                 yield break;
             }
-
 
             currentPathIndex = 0;
             while (currentPathIndex < currentPath.Count)
@@ -383,9 +420,16 @@ namespace VillaDelChef.Customers
 
                     if (animator != null && animator.enabled)
                     {
-                        animator.SetFloat("MoveX", moveDir.x);
-                        animator.SetFloat("MoveY", moveDir.y);
-                        animator.SetFloat("Speed", 1f);
+                        if (moveDir.sqrMagnitude > 0.01f)
+                        {
+                            float ax = Mathf.Abs(moveDir.x);
+                            float ay = Mathf.Abs(moveDir.y);
+                            float dirX = (ax >= ay) ? (moveDir.x > 0 ? 1f : -1f) : 0f;
+                            float dirY = (ax < ay) ? (moveDir.y > 0 ? 1f : -1f) : 0f;
+                            animator.SetFloat("MoveX", dirX);
+                            animator.SetFloat("MoveY", dirY);
+                            animator.SetFloat("Speed", 1f);
+                        }
                     }
                     else if (characterRenderer != null && moveDir.x != 0)
                     {
@@ -400,6 +444,8 @@ namespace VillaDelChef.Customers
             {
                 animator.SetFloat("Speed", 0f);
             }
+
+            onComplete?.Invoke(true);
         }
 
         private Table FindAvailableTable()
