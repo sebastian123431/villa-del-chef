@@ -63,6 +63,11 @@ namespace VillaDelChef.UI
         private string validatedPlayerName = "Chef";
         private CharacterSO selectedCharacter;
         private CharacterOutfit selectedOutfit = CharacterOutfit.ChefBlack;
+        private bool outfitConfirmedThisSession = false;
+
+        public CharacterSO SelectedCharacter => selectedCharacter;
+        public CharacterOutfit SelectedOutfit => selectedOutfit;
+        public bool OutfitConfirmedThisSession => outfitConfirmedThisSession;
 
         private void Awake()
         {
@@ -100,31 +105,96 @@ namespace VillaDelChef.UI
 
                 selectedOutfit = save.selectedChefOutfit;
 
-                // Validación defensiva del uniforme guardado si reanuda en paso 4 o 5 (Fase 7.0.3)
-                if (selectedCharacter != null)
-                {
-                    if (!selectedCharacter.HasCompleteOutfit(selectedOutfit))
-                    {
-                        Debug.LogWarning($"[PrologueController] El uniforme guardado '{selectedOutfit}' no está completo para '{selectedCharacter.characterID}'. Buscando alternativa disponible.");
-                        if (selectedCharacter.HasCompleteOutfit(CharacterOutfit.ChefBlack))
-                        {
-                            selectedOutfit = CharacterOutfit.ChefBlack;
-                        }
-                        else if (selectedCharacter.HasCompleteOutfit(CharacterOutfit.ChefWhite))
-                        {
-                            selectedOutfit = CharacterOutfit.ChefWhite;
-                        }
-                    }
-                }
+                // Resolución centralizada y determinista del paso al reanudar (Fase 7.0.4)
+                targetStep = ResolveResumeStep(save, selectedCharacter);
+                Debug.Log($"[PrologueController] Reanudando prólogo en paso resuelto: {targetStep}.");
 
-                if (!save.prologueCompleted && save.prologueStep > 1)
-                {
-                    targetStep = Mathf.Clamp(save.prologueStep, 1, 5);
-                    Debug.Log($"[PrologueController] Reanudando prólogo en paso guardado: {targetStep}.");
-                }
+                outfitConfirmedThisSession = (targetStep == 5);
             }
 
             ShowStep(targetStep);
+        }
+
+        /// <summary>
+        /// Resuelve de forma pura y determinista a qué paso del prólogo debe reanudar la partida.
+        /// Si el prólogo ya está completado o no hay guardado, retorna 1.
+        /// Si el paso guardado es 5 pero el uniforme guardado no está completo para el personaje actual,
+        /// FORZAR retorno a paso 4 para que el jugador elija explícitamente un uniforme disponible (Fase 7.0.4 — Secciones 4–6).
+        /// </summary>
+        public static int ResolveResumeStep(SaveData save, CharacterSO selectedChar)
+        {
+            if (save == null || save.prologueCompleted || save.prologueStep <= 1)
+            {
+                return 1;
+            }
+
+            int step = Mathf.Clamp(save.prologueStep, 1, 5);
+
+            if (step >= 2 && string.IsNullOrEmpty(save.playerName))
+            {
+                return 1;
+            }
+
+            if (step >= 4 && selectedChar == null)
+            {
+                return 2;
+            }
+
+            if (step == 5)
+            {
+                if (selectedChar == null) return 2;
+
+                if (!selectedChar.HasCompleteOutfit(save.selectedChefOutfit))
+                {
+                    Debug.LogWarning($"[PrologueController] El uniforme guardado '{save.selectedChefOutfit}' ya no está completo para '{selectedChar.characterID}'. Forzando regreso al Paso 4 para selección explícita.");
+                    return 4;
+                }
+            }
+
+            return step;
+        }
+
+        /// <summary>
+        /// Valida de forma estricta si es seguro ingresar al restaurante sin corromper la identidad ni guardar atuendos inválidos.
+        /// Elimina cualquier fallback silencioso hacia 'alex' cuando el personaje es nulo o inconsistente (Fase 7.0.4 — Secciones 8–10).
+        /// </summary>
+        public static bool CanEnterRestaurant(SaveData save, CharacterSO selectedChar, CharacterOutfit outfit, out string reason)
+        {
+            if (save == null)
+            {
+                reason = "SaveData nulo.";
+                return false;
+            }
+
+            if (selectedChar == null)
+            {
+                reason = "Ningún personaje seleccionado (selectedCharacter es null).";
+                return false;
+            }
+
+            if (save.playerCharacterLocked)
+            {
+                if (string.IsNullOrEmpty(save.selectedPlayerCharacterID))
+                {
+                    reason = "Partida bloqueada sin ID de personaje registrado en guardado.";
+                    return false;
+                }
+
+                if (!save.selectedPlayerCharacterID.Equals(selectedChar.characterID, System.StringComparison.OrdinalIgnoreCase))
+                {
+                    reason = $"Discrepancia de identidad: Personaje bloqueado es '{save.selectedPlayerCharacterID}' pero se intentó ingresar con '{selectedChar.characterID}'.";
+                    return false;
+                }
+            }
+
+            if (!selectedChar.HasCompleteOutfit(outfit))
+            {
+                reason = $"El personaje '{selectedChar.characterID}' no posee el uniforme '{outfit}' completo.";
+                return false;
+            }
+
+            reason = string.Empty;
+            return true;
         }
 
         private void LoadAvailableCharacters()
@@ -330,6 +400,7 @@ namespace VillaDelChef.UI
             }
 
             selectedOutfit = outfit;
+            outfitConfirmedThisSession = true;
 
             if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
             {
@@ -356,27 +427,23 @@ namespace VillaDelChef.UI
         // ==========================================
         private void OnEnterRestaurant()
         {
-            if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
+            var saveData = SaveManager.Instance != null ? SaveManager.Instance.SaveData : null;
+
+            // Validación estricta sin fallback silencioso a "alex" (Fase 7.0.4 — Secciones 8–10)
+            if (!CanEnterRestaurant(saveData, selectedCharacter, selectedOutfit, out string failureReason))
             {
-                var data = SaveManager.Instance.SaveData;
-
-                // REGLA CRÍTICA FASE 7.0.3 (Sección 11):
-                // Si el personaje está bloqueado pero selectedCharacter es null, no continuar para evitar sobreescritura accidental con "alex".
-                if (data.playerCharacterLocked && selectedCharacter == null)
-                {
-                    Debug.LogError("[PrologueController] Partida con personaje bloqueado pero selectedCharacter es null. Abortando ingreso al restaurante para proteger identidad.");
-                    return;
-                }
-
-                data.playerName = validatedPlayerName;
-                data.selectedPlayerCharacterID = selectedCharacter != null ? selectedCharacter.characterID : "alex";
-                data.selectedChefOutfit = selectedOutfit;
-                data.playerCharacterLocked = true;
-                data.prologueCompleted = true;
-                data.prologueStep = 5;
-                data.restaurantOpen = false; // REGLA OFICIAL: El restaurante inicia CERRADO tras el prólogo
-                SaveManager.Instance.SaveGame();
+                Debug.LogError($"[PrologueController] No se puede ingresar al restaurante: {failureReason}. Abortando ingreso.");
+                return;
             }
+
+            saveData.playerName = validatedPlayerName;
+            saveData.selectedPlayerCharacterID = selectedCharacter.characterID; // Estrictamente el personaje confirmado
+            saveData.selectedChefOutfit = selectedOutfit;
+            saveData.playerCharacterLocked = true;
+            saveData.prologueCompleted = true;
+            saveData.prologueStep = 5;
+            saveData.restaurantOpen = false; // REGLA OFICIAL: El restaurante inicia CERRADO tras el prólogo
+            SaveManager.Instance.SaveGame();
 
             SceneManager.LoadScene(restaurantSceneName);
         }
