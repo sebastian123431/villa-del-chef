@@ -309,9 +309,24 @@ namespace VillaDelChef.EditorTools
             CreateOrUpdateQuest("quest_sofia_prestige", "Villa de Prestigio", "Genera 600 monedas deleitando a clientes de todos los rincones.",
                 QuestType.EarnCoins, "", 600, 300, 70, FindSpriteByName("coins"), 12, "Sofía");
 
+            // 9. MUEBLES Y ESTACIONES DATA-DRIVEN (FASE 6.1)
+            CreateOrUpdateFurniture("stove_01", "Cocina a Gas", FurnitureCategory.Cocina, 2, 2, 150, 75, 1, FindSpriteByName("station_stove_pro") ?? FindSpriteByName("stove_kitchen"), new List<ZoneType> { ZoneType.Kitchen }, "Cocina profesional a gas para hervir y saltear alimentos.");
+            CreateOrUpdateFurniture("grill_01", "Parrilla de Hierro", FurnitureCategory.Cocina, 2, 2, 200, 100, 1, FindSpriteByName("station_grill_iron") ?? FindSpriteByName("grill_iron"), new List<ZoneType> { ZoneType.Kitchen }, "Parrilla de carbón y hierro fundido para carnes y hamburguesas.");
+            CreateOrUpdateFurniture("counter_delivery", "Mesa de Entrega", FurnitureCategory.MesaEntrega, 3, 1, 100, 50, 1, FindSpriteByName("counter_delivery") ?? FindSpriteByName("tools"), new List<ZoneType> { ZoneType.Kitchen, ZoneType.Dining }, "Mostrador de servicio donde los cocineros despachan los pedidos.");
+            CreateOrUpdateFurniture("table_wood", "Mesa de Madera", FurnitureCategory.Mesa, 2, 2, 80, 40, 1, FindSpriteByName("table_wood"), new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace }, "Mesa rústica de madera noble para cuatro comensales.");
+            CreateOrUpdateFurniture("chair_wood", "Silla de Madera", FurnitureCategory.Silla, 1, 1, 30, 15, 1, FindSpriteByName("chair_wood"), new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace }, "Silla cómoda para comensales en el salón comedor o terraza.");
+            CreateOrUpdateFurniture("crop_plot", "Sembradero", FurnitureCategory.Sembradero, 2, 2, 50, 25, 1, FindSpriteByName("crop_plot"), new List<ZoneType> { ZoneType.Exterior, ZoneType.Farming }, "Parcela fértil para sembrar y cosechar cultivos frescos.");
+
+            // Estaciones de crafteo como muebles colocables en grilla
+            CreateOrUpdateFurniture("station_molino", "Molino de Grano", FurnitureCategory.EstacionCrafting, 2, 2, 250, 125, 1, FindSpriteByName("station_mill") ?? FindSpriteByName("tools"), new List<ZoneType> { ZoneType.Exterior, ZoneType.Kitchen }, "Molino de piedra para transformar granos en harina blanca.");
+            CreateOrUpdateFurniture("station_mesaamasado", "Mesa de Amasado", FurnitureCategory.EstacionCrafting, 2, 2, 200, 100, 2, FindSpriteByName("table_round") ?? FindSpriteByName("table_wood"), new List<ZoneType> { ZoneType.Kitchen }, "Mesa de trabajo para amasar masas tradicionales.");
+            CreateOrUpdateFurniture("station_procesador", "Procesador de Alimentos", FurnitureCategory.EstacionCrafting, 2, 2, 300, 150, 3, FindSpriteByName("tools"), new List<ZoneType> { ZoneType.Kitchen }, "Triturador y procesador para salsas rústicas.");
+            CreateOrUpdateFurniture("station_prensalactea", "Prensa Láctea", FurnitureCategory.EstacionCrafting, 2, 2, 280, 140, 2, FindSpriteByName("24_cheese") ?? FindSpriteByName("tools"), new List<ZoneType> { ZoneType.Kitchen, ZoneType.Exterior }, "Prensa tradicional para cuajar y madurar quesos.");
+            CreateOrUpdateFurniture("station_marmitadulce", "Marmita Dulce", FurnitureCategory.EstacionCrafting, 2, 2, 320, 160, 3, FindSpriteByName("tools"), new List<ZoneType> { ZoneType.Kitchen }, "Olla de cobre para confituras y mermeladas frutales.");
+
             AssetDatabase.SaveAssets();
             AssetDatabase.Refresh();
-            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects, NPCs, Crafting, Expansiones, Clientes y Misiones han sido creados!");
+            Debug.Log("[AssetDatabasePopulator] ¡Todos los ScriptableObjects, NPCs, Crafting, Expansiones, Muebles, Clientes y Misiones han sido creados!");
         }
 
         private static void EnsureDirectories()
@@ -605,6 +620,30 @@ namespace VillaDelChef.EditorTools
             so.rewardXP = xp;
             so.worldSignPosition = signPos;
             so.icon = icon;
+            EditorUtility.SetDirty(so);
+            return so;
+        }
+
+        private static FurnitureSO CreateOrUpdateFurniture(string id, string name, FurnitureCategory cat, int sizeX, int sizeY, int cost, int sellPrice, int unlockLevel, Sprite icon, List<ZoneType> allowedZones, string description = "")
+        {
+            string path = $"Assets/_Projet/Resources/Furniture/{id}.asset";
+            FurnitureSO so = AssetDatabase.LoadAssetAtPath<FurnitureSO>(path);
+            if (so == null)
+            {
+                so = ScriptableObject.CreateInstance<FurnitureSO>();
+                AssetDatabase.CreateAsset(so, path);
+            }
+            so.furnitureID = id;
+            so.furnitureName = name;
+            so.category = cat;
+            so.sizeX = sizeX;
+            so.sizeY = sizeY;
+            so.cost = cost;
+            so.sellPrice = sellPrice;
+            so.unlockLevel = unlockLevel;
+            so.shopIcon = icon;
+            so.allowedZones = allowedZones ?? new List<ZoneType>();
+            so.description = description;
             EditorUtility.SetDirty(so);
             return so;
         }

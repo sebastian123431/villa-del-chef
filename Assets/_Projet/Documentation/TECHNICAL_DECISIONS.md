@@ -346,3 +346,22 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Método centralizado idempotente con comprobación exhaustiva).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.2).
 
+---
+
+### DECISIÓN 024
+- **Título**: Desacoplamiento de Ciclo de Vida de Mesas Sucias y Reserva Atómica de Platos en Mostrador.
+- **Problema**:
+  1. Al reciclar comensales mediante `ObjectPoolManager.Instance.Despawn()`, si `CustomerController` invocaba `ClearTable()`, la mesa sucia (`Dirty`) se reiniciaba inmediatamente a `TableState.Available`, cancelando la necesidad de limpieza por parte del camarero y rompiendo el bucle de simulación de restaurante.
+  2. Si dos mozos consultaban tareas simultáneamente en `DeliveryCounter`, `TakeNextDish()` extraía el primer plato sin comprobar si `isReserved == true`, provocando que un trabajador tomara el plato que ya estaba reservado para otra mesa.
+- **Decisión**:
+  1. En `CustomerController.OnReturnToPool()`, se ejecuta exclusivamente `ReleaseTableReference()`. La mesa retiene su estado `TableState.Dirty` y solo el trabajador que ejecute la rutina de limpieza con `FinishCleaning()` puede restaurarla a `Available`. `Table.ClearTable()` cuenta además con guardas de seguridad que impiden restablecer `Available` si la mesa requiere aseo.
+  2. En `DeliveryCounter.TakeNextDish()`, se añade validación estricta descartando platos con `isReserved == true`, garantizando exclusión mutua entre trabajadores.
+  3. Los muebles se materializan como assets ScriptableObject físicos en `Assets/_Projet/Resources/Furniture/`, y `BuildUI` se alimenta dinámicamente mediante `Resources.LoadAll<FurnitureSO>("Furniture")`, eliminando dependencias de instancias volátiles creadas en memoria.
+- **Alternativas consideradas**:
+  1. Mantener la limpieza automática de mesa al despawnear comensal (anula el rol de los mozos y el ciclo de servicio).
+  2. Recorrer todas las mesas en cada frame con comparaciones dinámicas (costoso en CPU móvil).
+  3. Desacoplamiento estricto entre pooling de clientes y ciclo de vida de la mesa con exclusión mutua de platos.
+- **Elegida**: 3 (Desacoplamiento estricto con exclusión mutua y persistencia data-driven).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 6.1/6.2).
+
+

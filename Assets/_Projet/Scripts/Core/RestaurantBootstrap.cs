@@ -364,68 +364,99 @@ namespace VillaDelChef.Core
             workerSO.characterSprite = workerSprite;
             workerSO.movementSpeed = 3.5f;
 
-            // 7. Place Initial Furniture on Grid
-            // Stove & Grill in Kitchen (bottom rows)
-            var stoveSO = ScriptableObject.CreateInstance<FurnitureSO>();
-            stoveSO.furnitureID = "stove_01";
-            stoveSO.furnitureName = "Cocina a Gas";
-            stoveSO.category = FurnitureCategory.Cocina;
-            stoveSO.sizeX = 2;
-            stoveSO.sizeY = 2;
-            stoveSO.cost = 150;
-            stoveSO.shopIcon = stoveSprite;
+            // 7. Load or Fallback Initial Furniture on Grid
+            var stoveSO = Resources.Load<FurnitureSO>("Furniture/stove_01");
+            if (stoveSO == null)
+            {
+                stoveSO = ScriptableObject.CreateInstance<FurnitureSO>();
+                stoveSO.furnitureID = "stove_01";
+                stoveSO.furnitureName = "Cocina a Gas";
+                stoveSO.category = FurnitureCategory.Cocina;
+                stoveSO.sizeX = 2;
+                stoveSO.sizeY = 2;
+                stoveSO.cost = 150;
+                stoveSO.shopIcon = stoveSprite;
+            }
 
-            var grillSO = ScriptableObject.CreateInstance<FurnitureSO>();
-            grillSO.furnitureID = "grill_01";
-            grillSO.furnitureName = "Parrilla de Hierro";
-            grillSO.category = FurnitureCategory.Cocina;
-            grillSO.sizeX = 2;
-            grillSO.sizeY = 2;
-            grillSO.cost = 200;
-            grillSO.shopIcon = grillSprite;
+            var grillSO = Resources.Load<FurnitureSO>("Furniture/grill_01");
+            if (grillSO == null)
+            {
+                grillSO = ScriptableObject.CreateInstance<FurnitureSO>();
+                grillSO.furnitureID = "grill_01";
+                grillSO.furnitureName = "Parrilla de Hierro";
+                grillSO.category = FurnitureCategory.Cocina;
+                grillSO.sizeX = 2;
+                grillSO.sizeY = 2;
+                grillSO.cost = 200;
+                grillSO.shopIcon = grillSprite;
+            }
 
-            var counterSO = ScriptableObject.CreateInstance<FurnitureSO>();
-            counterSO.furnitureID = "counter_delivery";
-            counterSO.furnitureName = "Mesa de Entrega";
-            counterSO.category = FurnitureCategory.MesaEntrega;
-            counterSO.sizeX = 3;
-            counterSO.sizeY = 1;
-            counterSO.cost = 100;
-            counterSO.shopIcon = counterSprite;
+            var counterSO = Resources.Load<FurnitureSO>("Furniture/counter_delivery");
+            if (counterSO == null)
+            {
+                counterSO = ScriptableObject.CreateInstance<FurnitureSO>();
+                counterSO.furnitureID = "counter_delivery";
+                counterSO.furnitureName = "Mesa de Entrega";
+                counterSO.category = FurnitureCategory.MesaEntrega;
+                counterSO.sizeX = 3;
+                counterSO.sizeY = 1;
+                counterSO.cost = 100;
+                counterSO.shopIcon = counterSprite;
+            }
 
-            var tableSO = ScriptableObject.CreateInstance<FurnitureSO>();
-            tableSO.furnitureID = "table_wood";
-            tableSO.furnitureName = "Mesa de Madera";
-            tableSO.category = FurnitureCategory.Mesa;
-            tableSO.sizeX = 2;
-            tableSO.sizeY = 2;
-            tableSO.cost = 80;
-            tableSO.shopIcon = tableSprite;
-            tableSO.allowedZones = new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace };
+            var tableSO = Resources.Load<FurnitureSO>("Furniture/table_wood");
+            if (tableSO == null)
+            {
+                tableSO = ScriptableObject.CreateInstance<FurnitureSO>();
+                tableSO.furnitureID = "table_wood";
+                tableSO.furnitureName = "Mesa de Madera";
+                tableSO.category = FurnitureCategory.Mesa;
+                tableSO.sizeX = 2;
+                tableSO.sizeY = 2;
+                tableSO.cost = 80;
+                tableSO.shopIcon = tableSprite;
+                tableSO.allowedZones = new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace };
+            }
 
-            var chairSO = ScriptableObject.CreateInstance<FurnitureSO>();
-            chairSO.furnitureID = "chair_wood";
-            chairSO.furnitureName = "Silla de Madera";
-            chairSO.category = FurnitureCategory.Silla;
-            chairSO.sizeX = 1;
-            chairSO.sizeY = 1;
-            chairSO.cost = 30;
-            chairSO.shopIcon = chairSprite;
-            chairSO.allowedZones = new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace };
+            var chairSO = Resources.Load<FurnitureSO>("Furniture/chair_wood");
+            if (chairSO == null)
+            {
+                chairSO = ScriptableObject.CreateInstance<FurnitureSO>();
+                chairSO.furnitureID = "chair_wood";
+                chairSO.furnitureName = "Silla de Madera";
+                chairSO.category = FurnitureCategory.Silla;
+                chairSO.sizeX = 1;
+                chairSO.sizeY = 1;
+                chairSO.cost = 30;
+                chairSO.shopIcon = chairSprite;
+                chairSO.allowedZones = new List<ZoneType> { ZoneType.Dining, ZoneType.Terrace };
+            }
 
-            var plotSO = ScriptableObject.CreateInstance<FurnitureSO>();
-            plotSO.furnitureID = "crop_plot";
-            plotSO.furnitureName = "Sembradero";
-            plotSO.category = FurnitureCategory.Sembradero;
-            plotSO.sizeX = 2;
-            plotSO.sizeY = 2;
-            plotSO.cost = 50;
-            plotSO.shopIcon = cropPlotSprite;
-            plotSO.allowedZones = new List<ZoneType> { ZoneType.Exterior, ZoneType.Farming };
+            var plotSO = Resources.Load<FurnitureSO>("Furniture/crop_plot");
+            if (plotSO == null)
+            {
+                plotSO = ScriptableObject.CreateInstance<FurnitureSO>();
+                plotSO.furnitureID = "crop_plot";
+                plotSO.furnitureName = "Sembradero";
+                plotSO.category = FurnitureCategory.Sembradero;
+                plotSO.sizeX = 2;
+                plotSO.sizeY = 2;
+                plotSO.cost = 50;
+                plotSO.shopIcon = cropPlotSprite;
+                plotSO.allowedZones = new List<ZoneType> { ZoneType.Exterior, ZoneType.Farming };
+            }
 
             if (BuildUI.Instance != null)
             {
-                BuildUI.Instance.catalogItems = new List<FurnitureSO> { stoveSO, grillSO, counterSO, tableSO, chairSO, plotSO };
+                var loadedCatalog = Resources.LoadAll<FurnitureSO>("Furniture");
+                if (loadedCatalog != null && loadedCatalog.Length > 0)
+                {
+                    BuildUI.Instance.catalogItems = new List<FurnitureSO>(loadedCatalog);
+                }
+                else
+                {
+                    BuildUI.Instance.catalogItems = new List<FurnitureSO> { stoveSO, grillSO, counterSO, tableSO, chairSO, plotSO };
+                }
                 BuildUI.Instance.PopulateCatalog();
             }
 
@@ -906,12 +937,17 @@ namespace VillaDelChef.Core
             var col = go.AddComponent<BoxCollider2D>();
             col.size = new Vector2(2f, 2f);
 
-            var stationSO = ScriptableObject.CreateInstance<FurnitureSO>();
-            stationSO.furnitureID = $"station_{type.ToString().ToLower()}";
-            stationSO.furnitureName = name;
-            stationSO.category = FurnitureCategory.EstacionCrafting;
-            stationSO.sizeX = 2;
-            stationSO.sizeY = 2;
+            string stationID = $"station_{type.ToString().ToLower()}";
+            var stationSO = Resources.Load<FurnitureSO>($"Furniture/{stationID}");
+            if (stationSO == null)
+            {
+                stationSO = ScriptableObject.CreateInstance<FurnitureSO>();
+                stationSO.furnitureID = stationID;
+                stationSO.furnitureName = name;
+                stationSO.category = FurnitureCategory.EstacionCrafting;
+                stationSO.sizeX = 2;
+                stationSO.sizeY = 2;
+            }
 
             CraftingStation station = go.AddComponent<CraftingStation>();
             station.stationType = type;

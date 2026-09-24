@@ -92,10 +92,17 @@ namespace VillaDelChef.Restaurant
         {
             if (readyDishes.Count == 0) return null;
 
-            DishInstance dish = readyDishes[0];
-            readyDishes.RemoveAt(0);
-            RealignDishes();
-            return dish;
+            for (int i = 0; i < readyDishes.Count; i++)
+            {
+                if (readyDishes[i] != null && !readyDishes[i].isReserved)
+                {
+                    DishInstance dish = readyDishes[i];
+                    readyDishes.RemoveAt(i);
+                    RealignDishes();
+                    return dish;
+                }
+            }
+            return null;
         }
 
         private void RealignDishes()

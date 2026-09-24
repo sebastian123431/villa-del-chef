@@ -336,5 +336,30 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 - **Solución Aplicada**: `AutoSetupScenesOnEditorLoad` verifica si alguna de las 3 escenas (`00_Boot.unity`, `01_MainMenu.unity`, `02_Restaurant.unity`) no existe en disco antes de ejecutar `SetupAllScenes()`. Las escenas ya versionadas en Git se preservan intactas.
 - **Fecha**: 2026-09-22 (Fase 6.2).
 
+---
+
+### ISSUE #030
+- **Título**: Ausencia de ScriptableObjects físicos de muebles en `Resources/Furniture/` causaba fallback en memoria y sobreescritura de catálogo en BuildUI.
+- **Severidad**: MEDIA.
+- **Sistema**: Construcción / Data-Driven (`RestaurantBootstrap.cs`, `AssetDatabasePopulator.cs`, `BuildUI.cs`).
+- **Descripción**: La carpeta `Assets/_Projet/Resources/Furniture/` no contenía archivos `.asset` serializados físicamente. `RestaurantBootstrap.cs` creaba instancias en memoria con `ScriptableObject.CreateInstance<FurnitureSO>()` y sobrescribía `BuildUI.Instance.catalogItems` con una lista fija hardcodeada de 6 items, ignorando estaciones de crafteo y otros assets data-driven.
+- **Solución Propuesta**: Crear método `CreateOrUpdateFurniture` en `AssetDatabasePopulator.cs`, materializar los `.asset` y `.meta` físicos de `table_wood`, `chair_wood`, `counter_delivery`, `stove_01`, `grill_01`, `crop_plot` en `Resources/Furniture/`, y hacer que `RestaurantBootstrap` cargue desde `Resources.LoadAll<FurnitureSO>("Furniture")`.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Se crearon los 6 assets físicos `.asset` con sus respectivos `.meta` en `Assets/_Projet/Resources/Furniture/`. Se implementó `CreateOrUpdateFurniture` en `AssetDatabasePopulator.cs`. En `RestaurantBootstrap.cs`, la inicialización consulta `Resources.Load<FurnitureSO>` con fallback defensivo, y `BuildUI.Instance.catalogItems` prioriza `Resources.LoadAll<FurnitureSO>("Furniture")` respetando la arquitectura data-driven.
+- **Fecha**: 2026-09-24.
+
+---
+
+### ISSUE #031
+- **Título**: `DeliveryCounter.TakeNextDish()` permitía que dos mozos compitieran por un plato reservado.
+- **Severidad**: ALTA.
+- **Sistema**: Mozos y Mostrador (`DeliveryCounter.cs`, `WorkerController.cs`).
+- **Descripción**: Si múltiples trabajadores buscaban tareas simultáneamente, `DeliveryCounter.TakeNextDish()` tomaba el primer plato en el mostrador sin validar si `isReserved == true`, provocando que un trabajador retirara el plato que otro ya tenía asignado para una comanda.
+- **Solución Propuesta**: Modificar `TakeNextDish()` para ignorar cualquier plato con `isReserved == true`, retornando únicamente platos disponibles sin reserva activa.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: En `DeliveryCounter.cs`, `TakeNextDish()` itera sobre la lista y solo extrae un plato si `!dish.isReserved`, garantizando exclusión mutua atómica entre trabajadores.
+- **Fecha**: 2026-09-24.
+
+
 
 

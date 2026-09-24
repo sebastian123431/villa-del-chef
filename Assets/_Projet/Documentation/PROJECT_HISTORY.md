@@ -489,4 +489,42 @@ FASE 6.2 — INTEGRACIÓN TÉCNICA CERRADA (97%). Compilación 0 errores, 0 warn
 PRÓXIMO PASO:
 Auditoría externa / Pruebas en Play Mode y compilación APK física para Android antes de comenzar Fase 7.
 ------------------------------------------------------------
+FECHA: 2026-09-24
+VERSIÓN / FASE: FASE 6.1 — CONSOLIDACIÓN GENERAL & DATA-DRIVEN FURNITURE ASSETS
+OBJETIVO:
+Completar la materialización data-driven de los assets de muebles en disco, corregir la concurrencia en reservas del mostrador de entrega, desacoplar el retorno de clientes al ObjectPool de la máquina de estados de las mesas sucias, y asegurar la persistencia limpia con 0 errores y 0 warnings de compilación.
+
+CAMBIOS REALIZADOS:
+- CustomerController: Desacoplado `OnReturnToPool()` para invocar exclusivamente `ReleaseTableReference()`, evitando que una mesa en estado Dirty sea limpiada prematuramente por el reciclaje del comensal.
+- DeliveryCounter: Protegido `TakeNextDish()` para verificar `!dish.isReserved`, impidiendo que dos trabajadores tomen simultáneamente el mismo plato reservado.
+- AssetDatabasePopulator: Añadido método `CreateOrUpdateFurniture(...)` y poblados los 6 tipos de muebles principales más las estaciones de crafteo en la base de datos data-driven.
+- Resources/Furniture: Creados físicamente en disco los ScriptableObjects `.asset` y `.meta` para `table_wood`, `chair_wood`, `counter_delivery`, `stove_01`, `grill_01` y `crop_plot` con coordenadas, tamaños y zonas permitidas.
+- RestaurantBootstrap: Actualizado para cargar `FurnitureSO` directamente desde `Resources.Load<FurnitureSO>` y alimentar `BuildUI.Instance.catalogItems` con `Resources.LoadAll<FurnitureSO>("Furniture")` de forma transparente.
+- Compilación: Validados `Assembly-CSharp.csproj` y `Assembly-CSharp-Editor.csproj` con `dotnet build` (0 errores, 0 advertencias).
+
+ARCHIVOS CREADOS:
+- `Assets/_Projet/Resources/Furniture/table_wood.asset` y `.meta`
+- `Assets/_Projet/Resources/Furniture/chair_wood.asset` y `.meta`
+- `Assets/_Projet/Resources/Furniture/counter_delivery.asset` y `.meta`
+- `Assets/_Projet/Resources/Furniture/stove_01.asset` y `.meta`
+- `Assets/_Projet/Resources/Furniture/grill_01.asset` y `.meta`
+- `Assets/_Projet/Resources/Furniture/crop_plot.asset` y `.meta`
+
+ARCHIVOS MODIFICADOS:
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`
+- `Assets/_Projet/Scripts/Restaurant/DeliveryCounter.cs`
+- `Assets/_Projet/Scripts/Core/Editor/AssetDatabasePopulator.cs`
+- `Assets/_Projet/Scripts/Core/RestaurantBootstrap.cs`
+- `Assets/_Projet/Documentation/KNOWN_ISSUES.md`
+- `Assets/_Projet/Documentation/TECHNICAL_DECISIONS.md`
+- `Assets/_Projet/Documentation/ROADMAP.md`
+- `Assets/_Projet/Documentation/AI_SESSION_LOG.md`
+- `Assets/_Projet/Documentation/PROJECT_HISTORY.md`
+
+ESTADO:
+FASE 6.1 — CONSOLIDACIÓN GENERAL Y MUEBLES DATA-DRIVEN COMPLETADOS CON ÉXITO (0 errores, 0 advertencias).
+PRÓXIMO PASO:
+Pruebas en runtime (PlayMode) de comensales y mozos, verificación de flujo de monedas/reputación en móviles y preparación de Fase 7 (Contenido Avanzado).
+------------------------------------------------------------
+
 

@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a6af216b743840d4f9c0b491c9ca90f5, type: 3}
+  m_Name: stove_01
+  m_EditorClassIdentifier: Assembly-CSharp::VillaDelChef.ScriptableObjects.FurnitureSO
+  furnitureID: stove_01
+  furnitureName: Cocina a Gas
+  category: 2
+  shopIcon: {fileID: 1303542952290531728, guid: 9a3e80c2f4cfb4941ae2210b8789fe60, type: 3}
+  prefab: {fileID: 0}
+  allowedZones:
+  - 1
+  sizeX: 2
+  sizeY: 2
+  cost: 150
+  sellPrice: 75
+  unlockLevel: 1
+  comfortRating: 0
+  description: Cocina profesional a gas para hervir y saltear alimentos.

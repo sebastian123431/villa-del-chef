@@ -415,6 +415,75 @@ FASE 6.2 — CIERRE DE INTEGRACIÓN COMPLETADO [~].
 Madurez técnica: 95% - 98% (físicamente listo para pruebas en dispositivo móvil).
 ============================================================
 
+============================================================
+AI SESSION 006
+
+Fecha:
+2026-09-24
+
+Objetivo solicitado:
+Ejecutar la FASE 6.1 — CONSOLIDACIÓN GENERAL de forma exhaustiva, dejando documentado cada cambio para que cualquier agente o desarrollador sepa con exactitud el estado del proyecto y cómo continuar.
+Resolver el desacoplamiento de mesas sucias y reciclaje en ObjectPool, concurrencia en DeliveryCounter, materialización de assets físicos de muebles en Resources/Furniture/, y verificación de 0 errores y 0 warnings de compilación.
+
+Contexto leído:
+- Reglas del proyecto en `AGENTS.md`.
+- `Assets/_Projet/Scripts/Customers/CustomerController.cs`.
+- `Assets/_Projet/Scripts/Restaurant/DeliveryCounter.cs`.
+- `Assets/_Projet/Scripts/Restaurant/Table.cs`.
+- `Assets/_Projet/Scripts/Workers/WorkerController.cs`.
+- `Assets/_Projet/Scripts/Core/RestaurantBootstrap.cs`.
+- `Assets/_Projet/Scripts/Core/Editor/AssetDatabasePopulator.cs`.
+- `Assets/_Projet/Documentation/` (`KNOWN_ISSUES.md`, `TECHNICAL_DECISIONS.md`, `PROJECT_HISTORY.md`, `ROADMAP.md`).
+
+Trabajo realizado:
+1. Desacoplamiento de Retorno al ObjectPool y Ciclo de Mesas Sucias (`CustomerController.cs`, `Table.cs`):
+   - Se refactorizó `OnReturnToPool()` para invocar exclusivamente `ReleaseTableReference()`, eliminando cualquier posibilidad de que el reciclaje de un cliente limpie prematuramente una mesa sucia (`Dirty`).
+   - Se validó que `Table.ClearTable()` mantenga sus guardas de seguridad contra reseteos si la mesa requiere limpieza (`tableState == TableState.Dirty` o `needsCleaning`).
+   - Se garantizó que únicamente el trabajador asignado mediante `FinishCleaning()` pueda restaurar la mesa al estado `Available`.
+2. Exclusión Mutua en Mostrador de Entrega (`DeliveryCounter.cs`):
+   - En `TakeNextDish()`, se protegió la selección de platos para ignorar cualquier plato con `isReserved == true`, evitando carreras de datos cuando múltiples mozos buscan tareas a la vez.
+3. Materialización Data-Driven de Muebles (`Assets/_Projet/Resources/Furniture/`):
+   - Se crearon físicamente en disco los ScriptableObjects `.asset` y sus respectivos `.meta` para todos los muebles base:
+     - `table_wood.asset` (Mesa de Madera 2x2, Dining / Terrace)
+     - `chair_wood.asset` (Silla de Madera 1x1, Dining / Terrace)
+     - `counter_delivery.asset` (Mesa de Entrega 3x1, Kitchen / Dining)
+     - `stove_01.asset` (Cocina a Gas 2x2, Kitchen)
+     - `grill_01.asset` (Parrilla de Hierro 2x2, Kitchen)
+     - `crop_plot.asset` (Sembradero 2x2, Exterior / Farming)
+4. Herramientas de Editor Data-Driven (`AssetDatabasePopulator.cs`):
+   - Se implementó el método `CreateOrUpdateFurniture(...)` para automatizar la creación y actualización de muebles y estaciones de crafteo como ScriptableObjects en `Resources/Furniture/`.
+5. Bootstrap Limpio y Desacoplado (`RestaurantBootstrap.cs`):
+   - Se modificó la inicialización para cargar muebles reales mediante `Resources.Load<FurnitureSO>("Furniture/...")` con fallback en memoria únicamente si el asset físico no estuviera presente.
+   - Se actualizó `BuildUI.Instance.catalogItems` para nutrirse de `Resources.LoadAll<FurnitureSO>("Furniture")`, eliminando listas hardcodeadas en tiempo de ejecución.
+   - Se actualizó `SpawnCraftingStation` para cargar el ScriptableObject de mueble correspondiente desde Resources.
+6. Actualización Exhaustiva de Documentación:
+   - `KNOWN_ISSUES.md`: Registrados y cerrados Issue #030 (muebles físicos en Resources) e Issue #031 (concurrencia en TakeNextDish).
+   - `TECHNICAL_DECISIONS.md`: Registrada Decisión 024 detallando la arquitectura de ciclo de vida de mesas, reserva atómica y persistencia data-driven de muebles.
+   - `PROJECT_HISTORY.md`: Registrada sesión de consolidación Fase 6.1.
+   - `ROADMAP.md`: Actualizada la lista de control de Fases 1 a 6.1.
+   - `AI_SESSION_LOG.md`: Registro completo de la sesión con directrices operativas.
+
+Pruebas ejecutadas:
+- Compilación C# con `dotnet build Assembly-CSharp.csproj`: 0 errores, 0 advertencias.
+- Compilación C# con `dotnet build Assembly-CSharp-Editor.csproj`: 0 errores, 0 advertencias.
+- Comprobación de integridad de archivos `.meta` y GUIDs asociados.
+
+Estado de la sesión:
+FASE 6.1 — CONSOLIDACIÓN GENERAL COMPLETADA CON ÉXITO.
+Todos los sistemas están integrados, desacoplados y respaldados por assets reales en disco.
+
+Cómo continuar (Instrucciones para el próximo desarrollador o agente):
+1. Abrir el proyecto en Unity 6 / Unity 6000.x.
+2. Si se desea re-poblar o regenerar assets en cualquier momento, usar el menú superior: `Tools > Villa del Chef > Populate ScriptableObjects from Sprites`.
+3. Ejecutar la escena `00_Boot` o `02_Restaurant` en Play Mode:
+   - Probar que un comensal llegue, coma, se retire y deje la mesa en estado sucia (oscura / icono de suciedad).
+   - Observar que el mozo acuda a la mesa, ejecute la rutina de limpieza y la vuelva a dejar disponible.
+   - Probar la interacción táctil con los 7 puestos comerciales de los especialistas en `y = 20`.
+   - Probar el modo construcción abriendo el menú de muebles para verificar que el catálogo liste todos los ítems de `Resources/Furniture`.
+4. El proyecto queda preparado para comenzar la **Fase 7 (Contenido Avanzado: Minijuegos de Cocina QTE, Pistas de Audio Cozy y Progresión Avanzada)**.
+============================================================
+
+
 
 
 

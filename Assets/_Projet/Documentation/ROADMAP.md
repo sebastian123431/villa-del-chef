@@ -77,9 +77,11 @@ Leyenda:
 ## FASE 6.1 — Consolidación General & Integración Real (Fases 1–6)
 - [x] Bug crítico corregido: Retorno de cliente al ObjectPool ya no libera mesas en estado `Dirty` o `Cleaning` (`ReleaseTableReference()` desacoplado de `ClearTable()`)
 - [x] Prevención de carreras en mozos: Reserva atómica de plato (`isReserved`) y de mesa sucia (`isCleaningReserved`)
+- [x] Exclusión mutua atómica en `DeliveryCounter.TakeNextDish()` evitando toma concurrente de platos ya reservados por otros mozos
 - [x] Eliminación de fallbacks aleatorios en entrega de platos (camarero cancela a Idle de forma segura)
 - [x] Refactor de `RestaurantBootstrap`: `useDevelopmentFallbackData = false` en producción; preserva catálogos completos en Resources (recetas, clientes, cultivos)
 - [x] Generación y versionado en Git de todos los ScriptableObjects y Sprites en `Assets/_Projet/Resources/`
+- [x] Materialización de assets físicos de muebles en `Assets/_Projet/Resources/Furniture/` (`table_wood`, `chair_wood`, `counter_delivery`, `stove_01`, `grill_01`, `crop_plot`) y enlace automático data-driven con `BuildUI.Instance.catalogItems`
 - [x] Locales y puestos físicos de los 7 especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) implementados en el mapa exterior con `VendorBuilding.cs` (`IInteractable`)
 - [x] Crafting offline con marcas de tiempo UTC (`craftStartTimestampSeconds`, `craftFinishTimestampSeconds`), cálculo de segundos transcurridos y tick centralizado en `CraftingManager` (0.5s)
 - [x] Restauración exacta de transitabilidad (`previousWalkability`) en `BuildManager.ValidateNavigationSafety` con validación de 3 rutas críticas

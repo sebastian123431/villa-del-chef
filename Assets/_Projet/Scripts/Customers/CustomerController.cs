@@ -67,26 +67,7 @@ namespace VillaDelChef.Customers
         public void OnReturnToPool()
         {
             StopAllCoroutines();
-            if (assignedChair != null)
-            {
-                assignedChair.SetOccupied(false);
-                assignedChair = null;
-            }
-            if (assignedTable != null)
-            {
-                if (assignedTable.tableState == TableState.Dirty || assignedTable.tableState == TableState.Cleaning || assignedTable.needsCleaning)
-                {
-                    if (assignedTable.currentCustomer == this)
-                    {
-                        assignedTable.currentCustomer = null;
-                    }
-                }
-                else
-                {
-                    assignedTable.ClearTable();
-                }
-                assignedTable = null;
-            }
+            ReleaseTableReference();
             orderedDish = null;
             currentPath = null;
             if (orderBubble != null) orderBubble.SetActive(false);
