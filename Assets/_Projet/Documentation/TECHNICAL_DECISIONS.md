@@ -438,6 +438,61 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Pipeline completo de 16 filas, cancelación segura de comensales y limpieza estricta de pool).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.1).
 
+---
+
+### DECISIÓN 029
+- **Título**: Liberación Atómica de Reserva de Mesa (`CancelCustomerReservation`) y Protección Inviolable de Mesas Sucias / Limpieza.
+- **Problema**:
+  1. Si un comensal no lograba llegar a la silla por obstáculos de navegación, `ReleaseTableReference()` anulaba la referencia `assignedTable = null`, provocando que el posterior `ClearTable()` no se ejecutara y la mesa quedara perpetuamente reservada (`tableState = TableState.Reserved`).
+  2. Si se llamaba a limpieza indiscriminadamente al salir, existía el riesgo de mutar mesas que ya estaban en `Dirty` o `Cleaning` hacia `Available` de forma prematura.
+- **Decisión**:
+  1. Crear `Table.CancelCustomerReservation(CustomerController customer)`. Esta función verifica si la mesa está `Dirty`, `Cleaning` o tiene `needsCleaning = true`, y en tales casos solo desasocia la referencia al cliente sin alterar el estado sucio.
+  2. Si la mesa estaba en `Reserved` o `Available`, resetea `currentCustomer = null`, `isReserved = false`, `tableState = TableState.Available`, `currentOrder = null`, y desocupa todas las sillas de la mesa.
+  3. En `CustomerController.cs`, ante cualquier fallo en alcanzar la silla o retiro prematuro, se retienen referencias en variables locales (`failedTable`, `failedChair`), se ejecuta `CancelCustomerReservation` atómicamente y luego se anulan las variables de instancia.
+- **Alternativas consideradas**:
+  1. Forzar `ClearTable()` sin condiciones (destruye el ciclo de Dirty / Cleaning de los camareros).
+  2. Teletransportar al cliente a la mesa (rompe la inmersión visual y genera superposición de entidades).
+  3. Método atómico de cancelación de reserva con guardia estricta para estados sucios.
+- **Elegida**: 3 (Método atómico de cancelación de reserva con guardia defensiva).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.2).
+
+---
+
+### DECISIÓN 030
+- **Título**: Componente Reutilizable `CharacterCardUI`, Seguridad de Contratación sin Preselección y Cero Duplicación de Identidad Social.
+- **Problema**:
+  1. La preselección automática en `StaffMenuUI` (`pendingSelectedFriend = availableFriends[0]`) permitía confirmar la contratación de un comensal que estuviera activo dentro del restaurante.
+  2. Si un amigo disponible era seleccionado y antes de pulsar Confirmar aparecía como cliente, ocurría una condición de carrera que permitía tener a la misma persona como ayudante y comensal.
+  3. Las tarjetas en `HelperIntroDialogUI` ignoraban el data-binding si se utilizaba un prefab externo.
+  4. Si todos los amigos elegibles ya estaban comiendo en el restaurante, `CustomerManager` recurría a la lista completa y duplicaba visualmente amigos en mesas distintas.
+- **Decisión**:
+  1. Crear `CharacterCardUI.cs` con método `Bind(character, isUnavailable, onSelected)` que controla imagen, nombre, etiqueta ("En restaurante"), interactabilidad y callbacks de manera uniforme tanto en prefabs como en instanciación por código.
+  2. En `StaffMenuUI.LoadEligibleFriends()`, inicializar `pendingSelectedFriend = null` y deshabilitar el botón de confirmar hasta una selección explícita sobre una tarjeta habilitada.
+  3. En `OnConfirmSelectionClicked()`, volver a validar en tiempo real `!CustomerManager.Instance.IsFriendCurrentlyCustomer()` para abortar si el amigo ingresó como cliente durante la navegación en el menú.
+  4. Si `notInRestaurant.Count == 0`, `CustomerManager.SelectEligibleFriendAppearance()` retorna estrictamente `null`. El sistema utiliza el sprite/comportamiento legacy de `CustomerSO` y nunca clona la identidad de ningún amigo.
+- **Alternativas consideradas**:
+  1. Mantener auto-preselección y arriesgar duplicación de personajes en el restaurante.
+  2. Bloquear totalmente la generación de clientes si el roster está lleno (podría vaciar el restaurante si el jugador no amplía el elenco).
+  3. Requerir selección explícita, doble validación en tiempo real y fallback procedural a clientes legacy sin duplicar Friends.
+- **Elegida**: 3 (Selección explícita, doble validación y cero duplicación social).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.2).
+
+---
+
+### DECISIÓN 031
+- **Título**: Idempotencia Absoluta en Pipelines de Animación con Destrucción Preventiva de Sub-Assets BlendTree.
+- **Problema**:
+  En Unity Editor, `AnimatorController.CreateBlendTreeInController()` crea sub-assets de tipo `BlendTree` en el archivo `.controller`. Al reconstruir el controlador borrando estados con `RemoveState()`, los sub-assets de BlendTree antiguos quedaban embebidos en el asset, acumulando objetos huérfanos con cada ejecución del pipeline y generando fuga de sub-assets.
+- **Decisión**:
+  En `CharacterPipelineEditor.BuildOutfitAnimator()`, antes de crear los 3 BlendTrees direccionales (`Idle_Tree`, `Walk_Tree`, `Cook_Tree`), se cargan todos los sub-assets del `.controller` mediante `AssetDatabase.LoadAllAssetsAtPath()` y se destruyen explícitamente aquellos de tipo `BlendTree` con `Object.DestroyImmediate(sub, true)`. Esto garantiza que el tamaño y contenido de los `.controller` sea 100% idéntico e invariable entre múltiples ejecuciones sucesivas.
+- **Alternativas consideradas**:
+  1. Borrar y recrear el `.controller` entero en cada ejecución (cambia el GUID del asset en `.meta`, rompiendo referencias en escenas y prefabs).
+  2. Ignorar los sub-assets viejos (causa archivos `.controller` inflados y posible corrupción interna).
+  3. Destruir selectivamente los sub-assets de BlendTree antes de reconstruir la máquina de estados.
+- **Elegida**: 3 (Destrucción selectiva de sub-assets BlendTree garantizando preservación de GUID).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.2).
+
+
 
 
 

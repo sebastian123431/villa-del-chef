@@ -116,16 +116,22 @@ Leyenda:
 
 ---
 
-## FASE 7 — Identidad, Prólogo, Elenco Social, Helper y Apertura del Restaurante [~] (95–98% — Verificación Técnica Completa / PlayMode E2E Pendiente)
+## FASE 7 — Identidad, Prólogo, Elenco Social, Helper y Apertura del Restaurante [~] (98–99% — Cierre Técnico Completo / PlayMode E2E Pendiente)
 - [x] Unificación del elenco social: Los 19 Friends de `Assets/_Projet/Art/Characters/Friends/` constituyen el pool dinámico único de personajes del juego.
 - [x] Roles dinámicos por partida: 1 Friend como Protagonista (`selectedPlayerCharacterID`), 1 Friend como Ayudante (`selectedHelperCharacterID`) y el resto como Comensales elegibles.
 - [x] Regla estricta de vestuario: Los Comensales (Customers) utilizan estrictamente ropa normal casual (`rnormal` y `movimientos_rnormal`). Se bloquea cualquier fallback cruzado hacia atuendos de chef (`allowCrossOutfitFallback: false`).
 - [x] Helper reutiliza `WorkerController` con uniforme de chef (`rnchef` o `rbchef`).
 - [x] Selector Real de Ayudante (`HelperIntroDialogUI.cs`): Grid interactivo de tarjetas reales con preview y nombre. Excluye al protagonista y a comensales activos dentro del restaurante. Permite elegir uniforme negro o blanco y confirmar antes de guardar.
 - [x] Menú de Personal / Equipo (`StaffMenuUI.cs`): Botón "PERSONAL" en el HUD (`HUDController.cs`). Permite visualizar ayudante actual, alternar uniforme, contratar, relevar (el ayudante anterior reingresa al pool de clientes inmediatamente) o retirar ayudante.
-- [x] Generación completa de 64 frames (16 filas): `CharacterPipelineEditor.cs` genera AnimationClips para las 16 filas de las hojas 4x16 (Idle, Walk, Cook en 4 direcciones, Think, Pickup, Carry_Serve, Celebrate). Pipeline 100% idempotente.
+- [x] Selección explícita sin preselección: `StaffMenuUI` abre en `null` ("Selecciona un amigo") con confirmación bloqueada, impidiendo contratar silenciosamente a comensales activos (Fase 7.0.2).
+- [x] Guardia en tiempo real contra condición de carrera: Validación en `OnConfirmSelectionClicked` que rechaza la contratación si el amigo pasó a ser comensal activo (Fase 7.0.2).
+- [x] Componente `CharacterCardUI.cs` unificado: Enlace coherente de sprites, nombres, estado "En restaurante" y callbacks compartidos entre prefab y generación dinámica (Fase 7.0.2).
+- [x] Validación estricta de uniformes: `CharacterSO.HasCompleteOutfit()` deshabilita botones de trajes incompletos (ej. ChefWhite en Andrés Arica) y `ApplyHelperToRestaurant` rechaza asignaciones de atuendos incompletos (Fase 7.0.2).
+- [x] Retiro limpio de ayudante: Despawn del trabajador en `OnDismissHelperClicked()` eliminando huérfanos visuales y reintegrando al amigo al pool de comensales (Fase 7.0.2).
+- [x] Generación completa de 64 frames (16 filas): `CharacterPipelineEditor.cs` genera AnimationClips para las 16 filas de las hojas 4x16 (Idle, Walk, Cook en 4 direcciones, Think, Pickup, Carry_Serve, Celebrate). Pipeline 100% idempotente con destrucción preventiva de sub-assets `BlendTree` huérfanos (Fase 7.0.2).
 - [x] Animator direccional 2D con memoria: BlendTrees `SimpleDirectional2D` para Idle, Walk y Cook alimentados por `MoveX` y `MoveY`. Al frenar (`Speed = 0`), retiene el último vector de dirección.
-- [x] Pathfinding de comensales sin teletransporte: `CustomerController.WalkToRoutine` evalúa si el comensal alcanzó la silla. Si el camino está bloqueado, libera la silla y reserva de mesa de inmediato, no teletransporta y sale/despawnea limpiamente.
+- [x] Recuperación atómica de mesa ante fallo de pathfinding: `Table.CancelCustomerReservation(this)` libera silla y reserva de mesa a `Available` sin afectar mesas `Dirty`/`Cleaning` y sin teletransporte de emergencia (Fase 7.0.2).
+- [x] Cero duplicación de identidad social: `CustomerManager.SelectEligibleFriendAppearance()` retorna estrictamente `null` si el roster disponible está lleno dentro del restaurante, recurriendo al fallback procedural de `CustomerSO` (Fase 7.0.2).
 - [x] Reciclaje limpio en Object Pool: `CustomerController.OnReturnToPool()` y `CharacterAppearanceController.ResetAppearance()` limpian triggers, parámetros direccionales y el sprite anterior (`spriteRenderer.sprite = null`).
 - [x] Validadores de datos blindados: Falta de `normalPreview` o `normalAnimator` en `canAppearAsCustomer = true` es ERROR estricto. Comprobación de que Player y Helper tengan atuendos de chef completos. `ValidateAllGameData` y `ValidateCharacterDatabaseOnly` con 0 errores.
 - [x] Exclusión mutua dinámica: El protagonista y el ayudante activo quedan excluidos automáticamente del pool de clientes. Al cambiar de ayudante, el anterior se reintegra de inmediato al pool de comensales.
@@ -135,8 +141,8 @@ Leyenda:
 - [x] Control defensivo de apertura: `CustomerManager.SpawnLoop` no genera comensales si el restaurante está cerrado o si `RestaurantOperatingManager.Instance == null`.
 - [x] Protección de comerciantes oficiales: Los 7 comerciantes especialistas (Elena, Bruno, Tomás, Marina, Amelia, Lucas, Sofía) mantienen su estado independiente `[PENDIENTE ARTE NPC OFICIAL]` sin Friends asignados.
 - [x] Blindaje de herramientas Editor: `ArtAssetGenerator`, `AssetDatabasePopulator` y `SpriteAtlasSetupEditor` respetan el arte original de los Friends sin regeneración ni sobrescritura.
-- [x] Test de integración robusto (`SocialCastIntegrationTest.cs`): 9 suites automatizadas que validan exclusión, rotación, aislamiento SaveData, 19 personajes únicos, vestuario Normal estricto, reciclaje de pool y parámetros de 64 frames en AnimatorControllers. 100% PASS en Unity Batchmode.
-- [ ] Validación final de PlayMode E2E en dispositivo / auditoría externa.
+- [x] Test de integración integral (`SocialCastIntegrationTest.cs`): 16 suites automatizadas que validan exclusión, rotación, aislamiento SaveData, 19 personajes únicos, vestuario Normal estricto, reciclaje de pool, 64 frames en animators, liberación de mesa por fallo de pathfinding, protección de Dirty Table, guardia de ayudante activo, cero duplicación de clientes, rechazo de traje incompleto, data-binding de `CharacterCardUI` y retiro limpio de ayudante. 100% PASS en Unity Batchmode.
+- [ ] Validación final de PlayMode E2E interactivo en dispositivo móvil / auditoría externa.
 
 ---
 

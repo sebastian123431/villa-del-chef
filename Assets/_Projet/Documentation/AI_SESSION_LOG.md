@@ -583,6 +583,72 @@ Estado de la sesión:
 FASE 7.0.1 CERRADA EXITOSAMENTE (95–98% técnico).
 El proyecto queda detenido formalmente para auditoría externa antes de avanzar a Fase 7.1.
 ============================================================
+FECHA:
+2026-09-24
+
+Objetivo solicitado:
+FASE 7.0.2 — CIERRE FINAL DE BUGS, HELPER SAFETY Y PLAYMODE E2E.
+Resolver los últimos bugs de auditoría externa y consolidar la Fase 7 en un 98-99% técnico real antes de avanzar a fases futuras:
+1. Bug Crítico #1: Mesa reservada de forma permanente tras fallo de pathfinding (crear CancelCustomerReservation atómico en Table.cs sin tocar mesas Dirty/Cleaning).
+2. Bug Crítico #2: StaffMenuUI auto-preseleccionaba al primer amigo y permitía contratar a un comensal activo (eliminar auto-pick, validar en tiempo real en Confirmar contra comensales activos y carreras).
+3. Bug UI #3: Falta de data-binding en prefab de tarjeta (crear componente unificado CharacterCardUI.cs con método Bind y reutilizarlo en HelperIntroDialogUI y StaffMenuUI).
+4. Guardias de uniformes incompletos (CharacterSO.HasCompleteOutfit(), deshabilitar botones de trajes incompletos como ChefWhite en Andrés Arica, y rechazar asignaciones inválidas).
+5. Cero duplicación social en comensales (CustomerManager.SelectEligibleFriendAppearance retorna null si todo el roster elegible está en el restaurante, recurriendo al fallback legacy sin clonar ningún Friend).
+6. Limpieza en retiro de ayudante (WorkerManager.DespawnWorker sin huérfanos visuales y reincorporación inmediata a comensales).
+7. Idempotencia en pipeline de animación (CharacterPipelineEditor destruye preventivamente sub-assets BlendTree huérfanos para evitar acumulación).
+8. Expansión de suite de pruebas automatizadas en SocialCastIntegrationTest.cs a 16 suites y validación en Unity Batchmode.
+
+Contexto leído:
+- ROADMAP.md, KNOWN_ISSUES.md, PROJECT_ALIGNMENT.md, TECHNICAL_DECISIONS.md, AI_SESSION_LOG.md.
+- CustomerController.cs, CustomerManager.cs, Table.cs, Chair.cs, HelperIntroDialogUI.cs, StaffMenuUI.cs, CharacterSO.cs, WorkerManager.cs, CharacterPipelineEditor.cs, GameDataValidatorEditor.cs, SocialCastIntegrationTest.cs.
+
+Trabajo realizado:
+1. Liberación Atómica de Mesa (Bug Crítico #1):
+   - Table.cs: Añadido CancelCustomerReservation(CustomerController customer) con guardia estricta para no modificar mesas en Dirty o Cleaning. Libera sillas y retorna la mesa a Available.
+   - CustomerController.cs: Al fallar la caminata a la silla (!reachedChair), almacena failedTable y failedChair, ejecuta la cancelación atómica y libera referencias locales sin teletransporte visual.
+2. Seguridad de Ayudante sin Auto-Preselección (Bug Crítico #2):
+   - StaffMenuUI.cs: LoadEligibleFriends inicializa pendingSelectedFriend = null y bloquea confirmSelectionBtn ("Selecciona un amigo").
+   - OnConfirmSelectionClicked(): Validación en tiempo real con CustomerManager.Instance.IsFriendCurrentlyCustomer(). Si el amigo está comiendo en el restaurante, cancela la contratación y muestra aviso.
+3. Componente Reutilizable CharacterCardUI (Bug UI #3):
+   - CharacterCardUI.cs: Creado componente con método Bind(CharacterSO character, bool isUnavailable, Action<CharacterSO> onSelected).
+   - HelperIntroDialogUI.cs y StaffMenuUI.cs: Ambos delegan el enlace visual a CharacterCardUI tanto para prefabs serializados como para tarjetas generadas por código.
+4. Validación Estricta de Outfits Incompletos:
+   - CharacterSO.cs: Añadido HasCompleteOutfit(CharacterOutfit outfit).
+   - StaffMenuUI y HelperIntroDialogUI: Deshabilitan botones de trajes incompletos (Andrés Arica con ChefBlack disponible y ChefWhite deshabilitado).
+   - HelperIntroDialogUI.ApplyHelperToRestaurant: Registra Debug.LogError y aborta si el traje solicitado está incompleto.
+5. Cero Duplicación Social de Comensales:
+   - CustomerManager.SelectEligibleFriendAppearance(): Si notInRestaurant.Count == 0, retorna estrictamente null. CustomerController utiliza la apariencia procedural legacy de CustomerSO, garantizando un personaje = una identidad social activa.
+6. Retiro Limpio de Ayudante:
+   - WorkerManager.cs: Añadido DespawnWorker(WorkerController worker) con manejo seguro según Application.isPlaying.
+   - StaffMenuUI.OnDismissHelperClicked(): Despawnea el worker activo, eliminando huérfanos visuales y reintegrando al amigo al pool de comensales.
+7. Idempotencia en CharacterPipelineEditor:
+   - Destrucción selectiva de sub-assets BlendTree huérfanos antes de reconstruir las máquinas de estados. Confirmado: conteo de líneas de .controller constante y 0 fuga de assets.
+8. Expansión de Tests (SocialCastIntegrationTest.cs):
+   - Nuevas suites añadidas:
+     * Test 10: Failed Table Reservation Release.
+     * Test 11: Dirty Table Regression Protection.
+     * Test 12: No Active Customer Can Be Helper.
+     * Test 13: No Duplicate Active Friend Customer.
+     * Test 14: Incomplete Helper Outfit Rejected (Andrés Arica).
+     * Test 15: Character Card UI Explicit Selection & Binding.
+     * Test 16: Helper Dismissal Worker Clean & Customer Pool Re-entry.
+   - Resultado: 16/16 suites pasadas con éxito en Unity Batchmode (100% PASS).
+9. Actualización Documental:
+   - ROADMAP.md, KNOWN_ISSUES.md (Issues 042-045), TECHNICAL_DECISIONS.md (Decisiones 029-031), PROJECT_ALIGNMENT.md, PROJECT_HISTORY.md.
+
+Pruebas ejecutadas:
+- Compilación C# Assembly-CSharp: 0 errores, 0 advertencias.
+- Compilación C# Assembly-CSharp-Editor: 0 errores, 0 advertencias.
+- SocialCastIntegrationTest (Unity Batchmode): 16/16 PASS (100% éxito).
+- ValidateCharacterDatabaseOnly (Unity Batchmode): 0 errores, 1 advertencia de arte benigna (Andrés Arica ChefWhite incompleto).
+- ValidateAllGameData (Unity Batchmode): 0 errores, 3 advertencias benignas documentadas.
+- Idempotencia Pipeline (Unity Batchmode): Ejecutado 2 veces consecutivas; tamaño de controladores idéntico, 3 BlendTrees exactos por controller.
+- Android Build: Reportado ANDROID BUILD NOT RUN — MODULE UNAVAILABLE (módulo Android no instalado en esta instancia local).
+
+Estado de la sesión:
+FASE 7.0.2 CERRADA EXITOSAMENTE (98–99% técnico real).
+Detenido formalmente sin avanzar a Fase 7.1 ni fases posteriores.
+============================================================
 
 
 

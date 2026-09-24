@@ -477,8 +477,54 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 - **Descripción**: Aunque la decisión técnica había estipulado reducir la altura de estas expansiones a 3 filas (`height = 3`, `y: 16..18`), los archivos `.asset` en disco aún mantenían `height: 8`, invadiendo las filas del bulevar comercial público y disparando errores en `GameDataValidatorEditor`.
 - **Solución Propuesta**: Ajustar `height: 3` en `exp_crafting.asset` y `exp_crops.asset`.
 - **Estado**: RESUELTO.
-- **Solución Aplicada**: Se corrigió `height: 3` en ambos assets YAML, eliminando todo solapamiento con la zona comercial y logrando 0 errores en `GameDataValidatorEditor`.
-- **Fecha**: 2026-09-24 (Fase 7.0.1).
+---
+
+### ISSUE #042
+- **Título**: Mesa quedaba bloqueada en `TableState.Reserved` tras fallo de pathfinding del comensal.
+- **Severidad**: CRÍTICA (Bloqueo de flujo de juego y mesas inutilizables).
+- **Sistema**: Restaurante / Mesas (`Table.cs`, `CustomerController.cs`).
+- **Descripción**: Cuando un cliente no alcanzaba la silla (`!reachedChair`), llamaba a `ReleaseTableReference()` antes de `if (assignedTable != null) assignedTable.ClearTable()`. Como `ReleaseTableReference()` fijaba `assignedTable = null`, la llamada a `ClearTable()` nunca se ejecutaba, y la mesa quedaba permanentemente con `isReserved = true` y `tableState = TableState.Reserved`, impidiendo que ningún otro cliente volviera a ocuparla.
+- **Solución Propuesta**: Crear en `Table.cs` el método `CancelCustomerReservation(CustomerController customer)` que libere atómicamente la reserva, la silla y retorne la mesa a `Available` sin afectar mesas `Dirty` o en `Cleaning`. En `CustomerController.cs`, preservar referencias a mesa y silla antes de limpiarlas y llamar a la cancelación segura.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Implementado `Table.CancelCustomerReservation(CustomerController customer)` con guardia defensiva para mesas sucias/en limpieza. `CustomerController.cs` almacena `failedTable` y `failedChair`, ejecuta la cancelación atómica y libera referencias limpiamente sin teletransporte. Validado con Suite 10 y Suite 11 de tests.
+- **Fecha**: 2026-09-24 (Fase 7.0.2).
+
+---
+
+### ISSUE #043
+- **Título**: `StaffMenuUI` auto-preseleccionaba comensales activos y permitía contratarlos por condición de carrera.
+- **Severidad**: ALTA (Duplicación de identidad social).
+- **Sistema**: UI de Personal / Seguridad de Elenco (`StaffMenuUI.cs`).
+- **Descripción**: Al abrir el panel de selección, `pendingSelectedFriend` se inicializaba con `availableFriends[0]`. Si ese personaje estaba comiendo en el restaurante, su tarjeta se mostraba deshabilitada pero la variable interna ya lo tenía seleccionado, habilitando la confirmación si no se tocaba nada. Además, si un amigo disponible era seleccionado y entraba al restaurante antes de confirmar, no existía validación final al hacer clic en "Confirmar".
+- **Solución Propuesta**: Eliminar la preselección automática (`pendingSelectedFriend = null`, `confirmSelectionBtn.interactable = false`, "Selecciona un amigo"). En `OnConfirmSelectionClicked()`, revalidar en tiempo real con `CustomerManager.Instance.IsFriendCurrentlyCustomer()` para rechazar la contratación y emitir advertencia.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: `StaffMenuUI.LoadEligibleFriends()` inicializa en `null` la selección pendiente y bloquea confirmación hasta una pulsación explícita sobre una tarjeta disponible. `OnConfirmSelectionClicked()` valida identidad, disponibilidad y estado comensal en tiempo real evitando cualquier carrera.
+- **Fecha**: 2026-09-24 (Fase 7.0.2).
+
+---
+
+### ISSUE #044
+- **Título**: Falta de data-binding en prefab de tarjeta de personaje y trajes incompletos seleccionables.
+- **Severidad**: ALTA.
+- **Sistema**: UI de Personajes y Selector de Ayudante (`CharacterCardUI.cs`, `HelperIntroDialogUI.cs`, `StaffMenuUI.cs`, `CharacterSO.cs`).
+- **Descripción**: Si se asignaba `characterCardPrefab` en `HelperIntroDialogUI`, solo se instanciaba sin enlazar sprite, nombre, estado ni callback. Además, no se verificaba si el traje de chef elegido estaba completo en el CharacterSO (como en Andrés Arica, que carece de `whiteChefPreview`), permitiendo aplicar trajes rotos o con fallback silencioso a ropa normal.
+- **Solución Propuesta**: Crear el componente reutilizable `CharacterCardUI.cs` con método `Bind()`. Agregar `CharacterSO.HasCompleteOutfit()` y deshabilitar los botones de atuendo incompleto en la UI, garantizando `allowCrossOutfitFallback: false` en la selección.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Creado `CharacterCardUI.cs` reutilizado tanto en prefab como en generación dinámica en `HelperIntroDialogUI.cs` y `StaffMenuUI.cs`. Implementado `HasCompleteOutfit(outfit)` en `CharacterSO.cs`. Botones de traje en la UI se deshabilitan si el traje no está completo y `ApplyHelperToRestaurant` rechaza con `LogError` cualquier solicitud de atuendo incompleto. Al retirar ayudante (`OnDismissHelperClicked`), se despawnea el worker evitando huérfanos visuales.
+- **Fecha**: 2026-09-24 (Fase 7.0.2).
+
+---
+
+### ISSUE #045
+- **Título**: Duplicación de Friends en comensales cuando todo el roster elegible ya estaba dentro del restaurante.
+- **Severidad**: ALTA (Unicidad social).
+- **Sistema**: Gestión de Clientes (`CustomerManager.cs`).
+- **Descripción**: Si la lista `notInRestaurant` quedaba vacía porque todos los amigos elegibles ya se encontraban sentados en mesas, `SelectEligibleFriendAppearance()` usaba `pool = notInRestaurant.Count > 0 ? notInRestaurant : eligible;`, duplicando comensales con la misma identidad en el restaurante.
+- **Solución Propuesta**: Si `notInRestaurant.Count == 0`, retornar estrictamente `null`. El llamador en `CustomerManager.SpawnCustomer()` usa entonces el sprite y comportamiento procedural/legacy del `CustomerSO` sin clonar ningún amigo.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Modificado `CustomerManager.SelectEligibleFriendAppearance()` para retornar `null` de forma estricta ante saturación de comensales. Verificado en Test de Integración Suite 13 (0 duplicaciones).
+- **Fecha**: 2026-09-24 (Fase 7.0.2).
+
 
 
 
