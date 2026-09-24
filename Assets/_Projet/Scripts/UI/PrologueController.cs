@@ -100,6 +100,23 @@ namespace VillaDelChef.UI
 
                 selectedOutfit = save.selectedChefOutfit;
 
+                // Validación defensiva del uniforme guardado si reanuda en paso 4 o 5 (Fase 7.0.3)
+                if (selectedCharacter != null)
+                {
+                    if (!selectedCharacter.HasCompleteOutfit(selectedOutfit))
+                    {
+                        Debug.LogWarning($"[PrologueController] El uniforme guardado '{selectedOutfit}' no está completo para '{selectedCharacter.characterID}'. Buscando alternativa disponible.");
+                        if (selectedCharacter.HasCompleteOutfit(CharacterOutfit.ChefBlack))
+                        {
+                            selectedOutfit = CharacterOutfit.ChefBlack;
+                        }
+                        else if (selectedCharacter.HasCompleteOutfit(CharacterOutfit.ChefWhite))
+                        {
+                            selectedOutfit = CharacterOutfit.ChefWhite;
+                        }
+                    }
+                }
+
                 if (!save.prologueCompleted && save.prologueStep > 1)
                 {
                     targetStep = Mathf.Clamp(save.prologueStep, 1, 5);
@@ -270,21 +287,48 @@ namespace VillaDelChef.UI
         {
             if (selectedCharacter == null) return;
 
-            // Mostrar el sprite de uniforme negro (rnchef)
+            bool blackAvailable = selectedCharacter.HasCompleteOutfit(CharacterOutfit.ChefBlack);
+            bool whiteAvailable = selectedCharacter.HasCompleteOutfit(CharacterOutfit.ChefWhite);
+
+            if (chooseBlackOutfitBtn != null) chooseBlackOutfitBtn.interactable = blackAvailable;
+            if (chooseWhiteOutfitBtn != null) chooseWhiteOutfitBtn.interactable = whiteAvailable;
+
+            // Mostrar el sprite de uniforme negro (rnchef) estricto sin fallback cross-outfit
             if (blackUniformPreviewImage != null)
             {
-                blackUniformPreviewImage.sprite = selectedCharacter.GetPreviewSprite(CharacterOutfit.ChefBlack);
+                blackUniformPreviewImage.sprite = blackAvailable
+                    ? selectedCharacter.GetPreviewSprite(CharacterOutfit.ChefBlack, allowCrossOutfitFallback: false)
+                    : null;
             }
 
-            // Mostrar el sprite de uniforme blanco (rbchef)
+            // Mostrar el sprite de uniforme blanco (rbchef) estricto sin fallback cross-outfit
             if (whiteUniformPreviewImage != null)
             {
-                whiteUniformPreviewImage.sprite = selectedCharacter.GetPreviewSprite(CharacterOutfit.ChefWhite);
+                whiteUniformPreviewImage.sprite = whiteAvailable
+                    ? selectedCharacter.GetPreviewSprite(CharacterOutfit.ChefWhite, allowCrossOutfitFallback: false)
+                    : null;
+            }
+
+            if (!blackAvailable && !whiteAvailable)
+            {
+                Debug.LogError($"[PrologueController] El personaje seleccionado '{selectedCharacter.characterID}' no posee ningún uniforme de chef completo.");
             }
         }
 
         private void OnOutfitChosen(CharacterOutfit outfit)
         {
+            if (selectedCharacter == null)
+            {
+                Debug.LogError("[PrologueController] No se ha seleccionado ningún personaje al elegir uniforme.");
+                return;
+            }
+
+            if (!selectedCharacter.HasCompleteOutfit(outfit))
+            {
+                Debug.LogError($"[PrologueController] El personaje '{selectedCharacter.characterID}' no tiene un uniforme completo para '{outfit}'. Selección rechazada.");
+                return;
+            }
+
             selectedOutfit = outfit;
 
             if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
@@ -315,6 +359,15 @@ namespace VillaDelChef.UI
             if (SaveManager.Instance != null && SaveManager.Instance.SaveData != null)
             {
                 var data = SaveManager.Instance.SaveData;
+
+                // REGLA CRÍTICA FASE 7.0.3 (Sección 11):
+                // Si el personaje está bloqueado pero selectedCharacter es null, no continuar para evitar sobreescritura accidental con "alex".
+                if (data.playerCharacterLocked && selectedCharacter == null)
+                {
+                    Debug.LogError("[PrologueController] Partida con personaje bloqueado pero selectedCharacter es null. Abortando ingreso al restaurante para proteger identidad.");
+                    return;
+                }
+
                 data.playerName = validatedPlayerName;
                 data.selectedPlayerCharacterID = selectedCharacter != null ? selectedCharacter.characterID : "alex";
                 data.selectedChefOutfit = selectedOutfit;
