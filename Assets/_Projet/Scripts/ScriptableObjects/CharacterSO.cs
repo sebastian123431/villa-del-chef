@@ -60,37 +60,45 @@ namespace VillaDelChef.ScriptableObjects
 
         /// <summary>
         /// Retorna el sprite de preview correspondiente al vestuario solicitado.
-        /// Realiza fallback seguro si alguna variante de chef no está disponible.
+        /// Si allowCrossOutfitFallback es false (obligatorio para Customers), nunca se mezclan prendas de chef con ropa normal.
         /// </summary>
-        public Sprite GetPreviewSprite(CharacterOutfit outfit)
+        public Sprite GetPreviewSprite(CharacterOutfit outfit, bool allowCrossOutfitFallback = true)
         {
             switch (outfit)
             {
                 case CharacterOutfit.ChefBlack:
-                    return blackChefPreview != null ? blackChefPreview : (whiteChefPreview != null ? whiteChefPreview : normalPreview);
+                    if (blackChefPreview != null) return blackChefPreview;
+                    return allowCrossOutfitFallback ? (whiteChefPreview != null ? whiteChefPreview : normalPreview) : null;
                 case CharacterOutfit.ChefWhite:
-                    return whiteChefPreview != null ? whiteChefPreview : (blackChefPreview != null ? blackChefPreview : normalPreview);
+                    if (whiteChefPreview != null) return whiteChefPreview;
+                    return allowCrossOutfitFallback ? (blackChefPreview != null ? blackChefPreview : normalPreview) : null;
                 case CharacterOutfit.Normal:
                 default:
-                    return normalPreview != null ? normalPreview : (blackChefPreview != null ? blackChefPreview : whiteChefPreview);
+                    if (normalPreview != null) return normalPreview;
+                    // REGLA CRÍTICA: Los clientes NUNCA usan ropa de chef. Si allowCrossOutfitFallback es false, retornar null.
+                    return allowCrossOutfitFallback ? (blackChefPreview != null ? blackChefPreview : whiteChefPreview) : null;
             }
         }
 
         /// <summary>
         /// Retorna el Animator Controller correspondiente al vestuario solicitado.
-        /// Realiza fallback seguro al uniforme disponible o a ropa normal.
+        /// Si allowCrossOutfitFallback es false (obligatorio para Customers), nunca se asigna un animador de chef a comensales.
         /// </summary>
-        public RuntimeAnimatorController GetAnimator(CharacterOutfit outfit)
+        public RuntimeAnimatorController GetAnimator(CharacterOutfit outfit, bool allowCrossOutfitFallback = true)
         {
             switch (outfit)
             {
                 case CharacterOutfit.ChefBlack:
-                    return blackChefAnimator != null ? blackChefAnimator : (whiteChefAnimator != null ? whiteChefAnimator : normalAnimator);
+                    if (blackChefAnimator != null) return blackChefAnimator;
+                    return allowCrossOutfitFallback ? (whiteChefAnimator != null ? whiteChefAnimator : normalAnimator) : null;
                 case CharacterOutfit.ChefWhite:
-                    return whiteChefAnimator != null ? whiteChefAnimator : (blackChefAnimator != null ? blackChefAnimator : normalAnimator);
+                    if (whiteChefAnimator != null) return whiteChefAnimator;
+                    return allowCrossOutfitFallback ? (blackChefAnimator != null ? blackChefAnimator : normalAnimator) : null;
                 case CharacterOutfit.Normal:
                 default:
-                    return normalAnimator != null ? normalAnimator : (blackChefAnimator != null ? blackChefAnimator : whiteChefAnimator);
+                    if (normalAnimator != null) return normalAnimator;
+                    // REGLA CRÍTICA: Los clientes NUNCA usan animaciones de chef. Si allowCrossOutfitFallback es false, retornar null.
+                    return allowCrossOutfitFallback ? (blackChefAnimator != null ? blackChefAnimator : whiteChefAnimator) : null;
             }
         }
     }

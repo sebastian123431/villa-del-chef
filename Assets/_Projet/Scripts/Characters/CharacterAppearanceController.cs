@@ -29,8 +29,9 @@ namespace VillaDelChef.Characters
 
         /// <summary>
         /// Aplica un personaje y vestuario específicos, actualizando preview estático y AnimatorController.
+        /// Si allowCrossOutfitFallback es false, rechaza terminantemente mezclar uniformes de chef en comensales.
         /// </summary>
-        public void ApplyCharacter(CharacterSO character, CharacterOutfit outfit)
+        public void ApplyCharacter(CharacterSO character, CharacterOutfit outfit, bool allowCrossOutfitFallback = true)
         {
             if (character == null)
             {
@@ -45,14 +46,18 @@ namespace VillaDelChef.Characters
             if (animator == null) animator = GetComponent<Animator>();
 
             // 1. Asignar Sprite de fallback / preview
-            Sprite previewSprite = character.GetPreviewSprite(outfit);
+            Sprite previewSprite = character.GetPreviewSprite(outfit, allowCrossOutfitFallback);
             if (previewSprite != null && spriteRenderer != null)
             {
                 spriteRenderer.sprite = previewSprite;
             }
+            else if (!allowCrossOutfitFallback && spriteRenderer != null)
+            {
+                Debug.LogError($"[CharacterAppearanceController] El personaje '{character.displayName}' no tiene vestuario Normal (rnormal) válido. Se rechaza fallback a chef.");
+            }
 
             // 2. Asignar Animator Controller emparejado exactamente
-            RuntimeAnimatorController runtimeController = character.GetAnimator(outfit);
+            RuntimeAnimatorController runtimeController = character.GetAnimator(outfit, allowCrossOutfitFallback);
             if (runtimeController != null)
             {
                 if (animator == null) animator = GetComponent<Animator>() ?? gameObject.AddComponent<Animator>();

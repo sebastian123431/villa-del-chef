@@ -124,7 +124,7 @@ namespace VillaDelChef.Customers
                     appearanceController = GetComponent<Characters.CharacterAppearanceController>() 
                         ?? gameObject.AddComponent<Characters.CharacterAppearanceController>();
                 }
-                appearanceController.ApplyCharacter(characterAppearance, ScriptableObjects.CharacterOutfit.Normal);
+                appearanceController.ApplyCharacter(characterAppearance, ScriptableObjects.CharacterOutfit.Normal, allowCrossOutfitFallback: false);
                 if (animator == null) animator = GetComponent<Animator>();
             }
             else
