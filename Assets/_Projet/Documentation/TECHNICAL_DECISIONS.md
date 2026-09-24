@@ -492,7 +492,23 @@ Registro permanente de decisiones arquitectónicas y técnicas tomadas en el pro
 - **Elegida**: 3 (Destrucción selectiva de sub-assets BlendTree garantizando preservación de GUID).
 - **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.2).
 
+---
 
-
-
-
+### DECISIÓN 032
+- **Título**: Validación Estricta de Outfits del Protagonista en Prólogo y Auto-Binding Canónico en Tarjetas de Personajes (`CharacterCardUI`).
+- **Problema**:
+  1. En `PrologueController.cs`, `UpdateOutfitDisplay()` mostraba los previews sin `allowCrossOutfitFallback: false` y no deshabilitaba los botones de trajes incompletos (e.g. `ChefWhite` en Andrés Arica, cuyo preview no existe).
+  2. `OnOutfitChosen()` no verificaba `selectedCharacter.HasCompleteOutfit(outfit)`, permitiendo guardar trajes con assets faltantes.
+  3. Si un prefab externo asignado a `characterCardPrefab` carecía de referencias asignadas en el Inspector, `Bind()` podía provocar excepciones de referencia nula o tarjetas mal vinculadas.
+  4. En `OnEnterRestaurant()`, si la partida tenía `playerCharacterLocked == true` pero por un fallo de carga `selectedCharacter == null`, el código realizaba un fallback silencioso a "alex", mutando la identidad del protagonista previamente confirmada.
+- **Decisión**:
+  1. En `PrologueController.UpdateOutfitDisplay()`, calcular disponibilidad con `HasCompleteOutfit(outfit)` para `ChefBlack` y `ChefWhite`, deshabilitar botones según corresponda y usar `allowCrossOutfitFallback: false` en los previews (nunca mostrar un uniforme opuesto como fallback en la pantalla de selección).
+  2. En `OnOutfitChosen()`, doble guarda que rechaza con `LogError` y aborta el guardado si el personaje o traje no es completo.
+  3. En `CharacterCardUI`, implementar `HasValidReferences`, `TryAutoBindReferences()` con convención canónica de nombres de hijos ("Icon", "Name", "Status", "Button"), `Bind()` defensivo con retorno booleano `IsConfigured`, y método estático `CreateProceduralCard()` como fallback garantizado si el prefab externo falla.
+  4. En `OnEnterRestaurant()`, si la partida tiene personaje bloqueado y `selectedCharacter == null`, abortar el ingreso al restaurante con error de datos, impidiendo mutar la identidad del protagonista a "alex".
+- **Alternativas consideradas**:
+  1. Asignar automáticamente un sprite temporal genérico a trajes incompletos (oculta deuda de arte y genera inconsistencias visuales).
+  2. Permitir cross-outfit fallback en el prólogo (confunde al jugador mostrando ropa de un color distinto al seleccionado).
+  3. Deshabilitar atuendos incompletos con validación estricta, auto-binding canónico defensivo y fallback procedural garantizado.
+- **Elegida**: 3 (Deshabilitar atuendos incompletos y auto-binding canónico defensivo).
+- **Estado**: IMPLEMENTADA Y ACTIVA (Fase 7.0.3).

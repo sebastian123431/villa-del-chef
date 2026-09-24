@@ -18,13 +18,16 @@
 
 ---
 
-## 1. Matriz de Alineación Integral (Fase 7.0.1)
+## 1. Matriz de Alineación Integral (Fase 7.0.3)
 
 | Subsistema / Requisito | Fuente de Verdad | Código / Asset Actual | Estado | Detalle Técnico / Comportamiento |
 | :--- | :--- | :--- | :--- | :--- |
 | **Elenco Social Dinámico (Friends)** | Regla Propietario / GDD / Doc Maestro | `Assets/_Projet/Art/Characters/Friends/` (19 Friends) | `[OK — STATIC]` | Los 19 Friends forman Player, Helper y Customers. Exclusión mutua dinámica verificada en `CustomerManager`. |
 | **Outfits por Rol (rnormal / rnchef / rbchef)** | Convención Oficial Propietario / CHARACTERS.md | `CharacterSO.cs`, `CharacterOutfit` | `[OK — STATIC]` | Player/Helper usan `rnchef` / `rbchef`. Customers usan estrictamente `rnormal`. |
 | **Fallback Estricto de Customer Normal** | Doc Maestro / Regla Propietario | `CharacterSO.cs`, `CharacterAppearanceController.cs` | `[OK — STATIC]` | `allowCrossOutfitFallback: false` garantizado en comensales. Si falta arte normal se marca error de datos; nunca se viste de chef. |
+| **Validación Estricta de Uniforme del Protagonista en Prólogo** | Regla Propietario / Auditoría Fase 7.0.3 | `PrologueController.cs` | `[OK — STATIC]` | `UpdateOutfitDisplay()` desactiva botones de trajes incompletos con `HasCompleteOutfit()`, usa previews con `allowCrossOutfitFallback: false`. `OnOutfitChosen()` implementa doble guarda que rechaza con `LogError` atuendos incompletos. Reanudar en paso 4/5 valida el traje guardado. |
+| **Protección de Identidad del Protagonista** | Regla Propietario / Auditoría Fase 7.0.3 | `PrologueController.OnEnterRestaurant()` | `[OK — STATIC]` | Si `playerCharacterLocked == true` y por anomalía de datos `selectedCharacter == null`, se aborta el ingreso al restaurante impidiendo mutar la identidad del protagonista a "alex". |
+| **Auto-Binding y Fallback Defensivo en Tarjetas** | Auditoría Fase 7.0.3 / UI | `CharacterCardUI.cs`, `HelperIntroDialogUI.cs`, `StaffMenuUI.cs` | `[OK — STATIC]` | `CharacterCardUI` soporta `TryAutoBindReferences()` por convención ("Icon", "Name", "Status", "Button"). `Bind()` retorna booleano defensivo. Si el prefab asignado está incompleto, se destruye y `CreateProceduralCard()` genera tarjeta de reemplazo operativa sin NRE. |
 | **Selector Real de Ayudante (Helper UI)** | Regla Propietario / Especificación 7.0.1 | `HelperIntroDialogUI.cs`, `StaffMenuUI.cs` | `[OK — STATIC]` | Se genera grid real de tarjetas seleccionables con preview y nombre. Excluye al protagonista y amigos comensales activos. Permite seleccionar traje (Negro/Blanco) y confirmar. Elimina auto-pick silencioso. |
 | **Menú de Personal / Relevo de Helper** | Regla Propietario / GDD Fase 7 | `StaffMenuUI.cs`, `HUDController.cs` | `[OK — STATIC]` | Botón "PERSONAL" en HUD. Permite alternar uniforme chef, relevar ayudante (el anterior reingresa al pool de clientes inmediatamente) o retirarlo. |
 | **Generación de 64 Frames (16 Filas)** | Especificación Oficial 7.0.1 | `CharacterPipelineEditor.cs` | `[OK — STATIC]` | Las 16 filas de las hojas 4x16 se exportan como clips dedicados (Idle, Walk, Cook en 4 direcciones, Think, Pickup, Carry_Serve, Celebrate). Pipeline 100% idempotente. |
@@ -54,9 +57,9 @@
 
 ---
 
-## 2. Resumen de Calidad de Fase 7.0.1
-- **Compilación C#**: 0 errores, 0 advertencias en `Assembly-CSharp` y `Assembly-CSharp-Editor`.
-- **Suite de Integración Automática (`SocialCastIntegrationTest.cs`)**: 100% PASS (9/9 sub-pruebas verificadas en Unity Batchmode).
+## 2. Resumen de Calidad de Fase 7.0.3
+- **Compilación C#**: 0 errores, 0 advertencias en `Assembly-CSharp` y `Assembly-CSharp-Editor` (`dotnet build`).
+- **Suite de Integración Automática (`SocialCastIntegrationTest.cs`)**: 100% PASS (20/20 suites verificadas en Unity Batchmode).
 - **Validador de Base de Datos (`GameDataValidatorEditor.cs`)**: 0 errores, 3 advertencias benignas documentadas.
-- **Validador de Personajes (`ValidateCharacterDatabaseOnly`)**: 0 errores, 1 advertencia benigna documentada.
-- **Nivel de Madurez Técnica Fase 7**: 95–98% (Completada a nivel de código, arquitectura, datos y tests; pendiente confirmación de PlayMode E2E en dispositivo/auditoría externa).
+- **Validador de Personajes (`ValidateCharacterDatabaseOnly`)**: 0 errores, 1 advertencia benigna documentada (Andrés Arica ChefWhite faltante).
+- **Nivel de Madurez Técnica Fase 7**: 98–99% real (100% código, arquitectura, datos y tests batchmode; PlayMode interactivo y Android físico clasificados honestamente como `[PARTIAL — PLAYMODE PENDING]` hasta sesión de prueba en dispositivo físico o auditoría externa).

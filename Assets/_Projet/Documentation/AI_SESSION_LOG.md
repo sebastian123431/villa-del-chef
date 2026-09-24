@@ -649,6 +649,66 @@ Estado de la sesión:
 FASE 7.0.2 CERRADA EXITOSAMENTE (98–99% técnico real).
 Detenido formalmente sin avanzar a Fase 7.1 ni fases posteriores.
 ============================================================
+FECHA:
+2026-09-24
+
+Objetivo solicitado:
+FASE 7.0.3 — CIERRE DEFINITIVO DE FASE 7.
+PLAYER OUTFIT SAFETY + CHARACTER CARD PREFAB + DOCUMENTACIÓN + PLAYMODE.
+Resolver los últimos puntos de auditoría externa para consolidar el cierre definitivo de Fase 7 al 98-99% técnico:
+1. Selector de uniforme del PROTAGONISTA (PrologueController.cs): Deshabilitar trajes incompletos con HasCompleteOutfit(), preview estricto con allowCrossOutfitFallback: false, doble guarda en OnOutfitChosen() con LogError, validación en reanudación y guarda de identidad en OnEnterRestaurant() contra fallback silencioso a Alex.
+2. Robustecer CharacterCardUI.cs: Propiedad HasValidReferences, IsConfigured, TryAutoBindReferences() por convención de nombres ("Icon", "Name", "Status", "Button"), Bind() defensivo con retorno booleano y factory estático CreateProceduralCard() como fallback garantizado ante prefabs rotos.
+3. Actualizar HelperIntroDialogUI.cs y StaffMenuUI.cs para beneficiarse de CreateProceduralCard() y fallback defensivo ante prefabs mal configurados.
+4. Expandir SocialCastIntegrationTest.cs de 16 a 20 suites completas cubriendo todas las regresiones y casos límite.
+5. Ejecutar validaciones en Unity Batchmode: SocialCastIntegrationTest (20/20 PASS), ValidateCharacterDatabaseOnly (0 errores, 1 advertencia benigna) y ValidateAllGameData (0 errores, 3 advertencias benignas).
+6. Verificar estado de PlayMode E2E y módulo de compilación Android.
+7. Sincronizar toda la documentación técnica (ROADMAP.md, KNOWN_ISSUES.md, PROJECT_ALIGNMENT.md, TECHNICAL_DECISIONS.md, AI_SESSION_LOG.md).
+
+Contexto leído:
+- ROADMAP.md, KNOWN_ISSUES.md, PROJECT_ALIGNMENT.md, TECHNICAL_DECISIONS.md, AI_SESSION_LOG.md.
+- PrologueController.cs, CharacterCardUI.cs, HelperIntroDialogUI.cs, StaffMenuUI.cs, CharacterSO.cs, SocialCastIntegrationTest.cs, 03_Prologue.unity.
+
+Trabajo realizado:
+1. Blindaje de Outfit del Protagonista en Prólogo (PrologueController.cs):
+   - UpdateOutfitDisplay(): Calcula blackAvailable y whiteAvailable con selectedCharacter.HasCompleteOutfit(). Deshabilita chooseBlackOutfitBtn / chooseWhiteOutfitBtn según disponibilidad real. Previews con allowCrossOutfitFallback: false. Emite LogError si ambos trajes están incompletos.
+   - OnOutfitChosen(): Guarda defensiva estricta que aborta con LogError si el personaje o traje no está completo.
+   - Start(): Reanudación en pasos 4 o 5 valida que el traje guardado sea completo para el personaje elegido, buscando la primera alternativa completa si no lo fuera.
+   - OnEnterRestaurant(): Si playerCharacterLocked == true y selectedCharacter es null, aborta el ingreso al restaurante impidiendo mutar silenciosamente el protagonista a "alex".
+2. Robustecimiento de Tarjetas de Personajes (CharacterCardUI.cs):
+   - HasValidReferences: Valida que previewImage, nameText, statusText y selectButton no sean nulos.
+   - TryAutoBindReferences(): Busca hijos por convención canónica ("Icon", "Name", "Status", "Button").
+   - Bind(): Ejecuta auto-bind si faltan referencias; retorna false de forma segura sin arrojar NullReferenceException.
+   - CreateProceduralCard(): Método estático que genera una tarjeta completa proceduralmente.
+3. Consumo Seguro en UIs:
+   - HelperIntroDialogUI.cs: Si characterCardPrefab != null pero su binding falla, la instancia rota se destruye de inmediato y se genera una tarjeta con CreateProceduralCard().
+   - StaffMenuUI.cs: Reutiliza CharacterCardUI.CreateProceduralCard() unificando layout y comportamiento.
+4. Expansión de Tests (SocialCastIntegrationTest.cs):
+   - Añadidas Suites 17, 18, 19 y 20:
+     * Test 17: Player Incomplete Outfit Rejected (Andrés Arica ChefBlack OK, ChefWhite INCOMPLETE rechazado sin cross-outfit fallback).
+     * Test 18: CharacterCard AutoBind Correct Prefab Structure (auto-bind por convención de nombres validado con éxito).
+     * Test 19: CharacterCard Broken Prefab Fails Safely & Procedural Fallback (Bind retorna false sin NRE y CreateProceduralCard genera tarjeta operativa).
+     * Test 20: Locked Player Never Replaced By Alex Fallback (personaje bloqueado jamás se sustituye por fallback a 'alex').
+   - Resultado: 20/20 suites pasadas exitosamente en Unity Batchmode (100% PASS).
+5. Sincronización Documental Completa:
+   - PROJECT_ALIGNMENT.md actualizado a Fase 7.0.3 con 20/20 tests y matriz reflejando [OK — STATIC] y [PARTIAL — PLAYMODE PENDING].
+   - ROADMAP.md actualizado a 20 suites.
+   - KNOWN_ISSUES.md: Añadidos Issues 046 y 047 cerrados.
+   - TECHNICAL_DECISIONS.md: Añadida DECISIÓN 032.
+
+Pruebas ejecutadas:
+- Compilación C# Assembly-CSharp: 0 errores, 0 advertencias (`dotnet build`).
+- Compilación C# Assembly-CSharp-Editor: 0 errores, 0 advertencias (`dotnet build`).
+- SocialCastIntegrationTest (Unity Batchmode): 20/20 PASS (100% éxito).
+- ValidateCharacterDatabaseOnly (Unity Batchmode): 0 errores, 1 advertencia benigna documentada (Andrés Arica ChefWhite).
+- ValidateAllGameData (Unity Batchmode): 0 errores, 3 advertencias benignas documentadas.
+- Android Build: NOT RUN — Android Build Support unavailable en esta máquina.
+- Device Test: NOT RUN — Dispositivo físico no conectado; checklist manual documentado.
+- PlayMode E2E: Clasificado honestamente como [PARTIAL — PLAYMODE PENDING] hasta validación interactiva en dispositivo.
+
+Estado de la sesión:
+FASE 7.0.3 CERRADA EXITOSAMENTE (98–99% técnico real).
+Detenido formalmente sin avanzar a Fase 7.1. Esperando auditoría externa.
+============================================================
 
 
 

@@ -525,6 +525,30 @@ Registro de bugs, fallos de arquitectura y deuda técnica detectados en el proye
 - **Solución Aplicada**: Modificado `CustomerManager.SelectEligibleFriendAppearance()` para retornar `null` de forma estricta ante saturación de comensales. Verificado en Test de Integración Suite 13 (0 duplicaciones).
 - **Fecha**: 2026-09-24 (Fase 7.0.2).
 
+---
+
+### ISSUE #046
+- **Título**: Selector de uniforme del protagonista en Prólogo permitía seleccionar atuendos incompletos sin validación estricta ni guardia en reanudación.
+- **Severidad**: ALTA.
+- **Sistema**: Prólogo / Identidad del Protagonista (`PrologueController.cs`).
+- **Descripción**: `UpdateOutfitDisplay()` mostraba los previews sin `allowCrossOutfitFallback: false` y no desactivaba los botones de trajes incompletos (como ChefWhite en Andrés Arica, que carece de `whiteChefPreview`). Además, `OnOutfitChosen()` no verificaba `HasCompleteOutfit()`, y al reanudar en pasos 4 o 5 no se validaba si el traje guardado seguía siendo completo para el personaje elegido. En `OnEnterRestaurant()`, si `playerCharacterLocked == true` pero por inconsistencia de datos `selectedCharacter == null`, mutaba la identidad a "alex".
+- **Solución Propuesta**: Condicionar la interactabilidad de los botones en `UpdateOutfitDisplay()` a `HasCompleteOutfit(outfit)`. Establecer previews con `allowCrossOutfitFallback: false`. Doble guarda en `OnOutfitChosen()` con `LogError` y aborto. Reanudar validando que el traje sea completo. Proteger `OnEnterRestaurant()` abortando el ingreso si el personaje está bloqueado y es nulo.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Implementadas guardias estrictas en `PrologueController.cs`. Verificado en Test de Integración Suite 17 (rechazo de ChefWhite en Andrés Arica sin cross-outfit fallback) y Suite 20 (guarda de protagonista contra fallback silencioso a Alex).
+- **Fecha**: 2026-09-24 (Fase 7.0.3).
+
+---
+
+### ISSUE #047
+- **Título**: Tarjetas de personajes (`CharacterCardUI`) sin auto-binding por convención ni fallback procedural ante prefabs rotos.
+- **Severidad**: MEDIA.
+- **Sistema**: UI de Personajes (`CharacterCardUI.cs`, `HelperIntroDialogUI.cs`, `StaffMenuUI.cs`).
+- **Descripción**: Si un prefab externo asignado a `characterCardPrefab` carecía de referencias serializadas en el Inspector, `Bind()` fallaba con `NullReferenceException` o dejaba datos desvinculados sin convención de nombres. Si el prefab estaba incompleto, dejaba una tarjeta rota visible en el grid.
+- **Solución Propuesta**: Implementar en `CharacterCardUI` las propiedades `HasValidReferences`, `IsConfigured`, y el método `TryAutoBindReferences()` por convención canónica de nombres de hijos ("Icon", "Name", "Status", "Button"). Retornar booleano defensivo en `Bind()`. Proveer el método factory estático `CreateProceduralCard()` como fallback garantizado.
+- **Estado**: RESUELTO.
+- **Solución Aplicada**: Creado auto-binding canónico y método `CharacterCardUI.CreateProceduralCard()`. En `HelperIntroDialogUI.PopulateGrid()`, si un prefab falla su binding, la instancia rota se destruye de inmediato y se genera una tarjeta procedural operativa. Verificado en Test de Integración Suites 18 y 19.
+- **Fecha**: 2026-09-24 (Fase 7.0.3).
+
 
 
 
